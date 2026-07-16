@@ -71,6 +71,12 @@ body::before{content:''; position:fixed; inset:0; background:radial-gradient(900
   <h1 style="font-family:'Nunito',sans-serif; font-size:48px; font-weight:900; letter-spacing:-.04em; line-height:.95; color:var(--text); text-align:center">Моя коллекция игр</h1>
 </div>
 
+<div style="max-width:1440px; margin:0 auto; padding:0 28px 14px; display:flex; justify-content:center; gap:10px;">
+  <button onclick="setTab('all')" id="tab-all" style="padding:8px 18px; border-radius:999px; border:1px solid var(--border); background:var(--text); color:var(--bg); font-weight:700; font-size:13px; cursor:pointer; transition:.2s">В процессе</button>
+  <button onclick="setTab('done')" id="tab-done" style="padding:8px 18px; border-radius:999px; border:1px solid var(--border); background:transparent; color:var(--text); font-weight:700; font-size:13px; cursor:pointer; transition:.2s">Пройдены</button>
+  <button onclick="setTab('gacha')" id="tab-gacha" style="padding:8px 18px; border-radius:999px; border:1px solid var(--border); background:transparent; color:var(--text); font-weight:700; font-size:13px; cursor:pointer; transition:.2s">Гача</button>
+</div>
+
 <div class="wrap">
   <aside class="sidebar">
     <div style="background:linear-gradient(135deg, rgba(107,231,255,.12), rgba(138,180,255,.10)); border:2px solid rgba(107,231,255,.26); border-radius:20px; padding:16px 12px 16px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px; overflow:hidden;">
@@ -126,8 +132,12 @@ function expandQuery(q){
 }
 let filtered=[...GAMES], active={search:"", sort:"title-asc"};
 function esc(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+let currentTab='all';
+function setTab(tab){ currentTab=tab; document.querySelectorAll('[id^="tab-"]').forEach(b=>{ b.style.background='transparent'; b.style.color='var(--text)'; }); const btn=document.getElementById('tab-'+tab); if(btn){ btn.style.background='var(--text)'; btn.style.color='var(--bg)'; } applyFilters(); }
 function applyFilters(){
   let out=[...GAMES];
+  if(currentTab==='done') out=out.filter(g=>g.platform==='Steam/Epic');
+  else if(currentTab==='gacha') out=out.filter(g=>g.platform!=='Steam/Epic');
   const q=active.search.toLowerCase().trim();
   if(q) {
     const terms = expandQuery(q);
