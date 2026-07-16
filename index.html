@@ -32,7 +32,7 @@ body::before{content:''; position:fixed; inset:0; background:radial-gradient(900
 .card:hover{transform:translateY(-6px); border-color:rgba(107,231,255,.35); box-shadow:0 24px 60px rgba(0,0,0,.45)}
 .card-cover{height:420px; position:relative; overflow:hidden; background:radial-gradient(600px 400px at 50% 0%, #1C2A44, #0F1628); isolation:isolate}
 .card-cover .cover-bg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:blur(30px) brightness(.6) saturate(1.3); transform:scale(1.3); opacity:.85; z-index:0}
-.card-cover .cover-main{position:absolute; inset:0; z-index:1; width:100%; height:100%; object-fit:cover; object-position:center; transition:.45s; filter:drop-shadow(0 12px 28px rgba(0,0,0,.55))}
+.card-cover .cover-main{position:absolute; inset:0; z-index:1; width:100%; height:100%; object-fit:contain; object-position:center; transition:.45s; filter:drop-shadow(0 12px 28px rgba(0,0,0,.55))}
 .card:hover .cover-main{transform:scale(1.05)}
 .card-cover::after{content:''; position:absolute; inset:0; z-index:2; background:linear-gradient(to top, var(--card) 6%, transparent 50%); pointer-events:none}
 .cover-fallback{position:relative; z-index:1; font-family:'Nunito'; font-size:58px; font-weight:900; color:var(--accent); opacity:.18; text-align:center; padding:24px}
