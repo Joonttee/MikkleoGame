@@ -1221,7 +1221,7 @@ let currentTab = 'all';
 let visibleCount = 72;
 let active = {{ search: "", platform: "all", genre: "all", sort: "title-asc" }};
 
-function esc(s){{ return String(s || '').replace(/[&<>"']/g,m=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}}[m]); }}
+function esc(s){{ return String(s || '').replace(/[&<>"']/g,m=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}}[m])); }}
 
 function setTab(tab){{
   currentTab = tab;
@@ -1515,4 +1515,4 @@ applyFilters();
 with open(INDEX_FILE, 'w', encoding='utf-8') as f:
     f.write(new_html)
 
-print("index.html regenerated.")
+print("index.html regenerated with correct escaping.")
