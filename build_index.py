@@ -1,5 +1,5 @@
 import json
-import re
+import re, os
 
 INDEX_FILE = 'index.html'
 
@@ -13,7 +13,7 @@ if not m:
 games_json = m.group(1)
 games_list = json.loads(games_json)
 
-# Ensure status fields
+# Ensure status and cover paths inside covers/
 for i, g in enumerate(games_list):
     if 'status' not in g:
         year = g.get('year', 2023)
@@ -25,6 +25,11 @@ for i, g in enumerate(games_list):
             g['status'] = 'planned'
         else:
             g['status'] = 'in_progress'
+
+    # Prepend covers/ to image path if needed
+    img = g.get('image', '')
+    if img and not img.startswith('covers/') and not img.startswith('http'):
+        g['image'] = f"covers/{img}"
 
 games_json_updated = json.dumps(games_list, ensure_ascii=False)
 games_count = len(games_list)
@@ -1682,4 +1687,4 @@ window.addEventListener('load', () => {{
 with open(INDEX_FILE, 'w', encoding='utf-8') as f:
     f.write(new_html)
 
-print("index.html regenerated with all 5 features!")
+print("index.html regenerated with covers/ folder support and all features.")

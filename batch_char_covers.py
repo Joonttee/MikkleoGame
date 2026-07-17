@@ -11,7 +11,8 @@ import re, json, os, sys
 
 INDEX_FILE = 'index.html'
 PROMPTS_DIR = 'prompts'
-REF_IMAGE = 'char-cover-ref.jpg'
+COVERS_DIR = 'covers'
+REF_IMAGE = os.path.join(COVERS_DIR, 'char-cover-ref.jpg')
 
 with open(INDEX_FILE) as f:
     content = f.read()
@@ -28,13 +29,14 @@ ref_char = (
 )
 
 os.makedirs(PROMPTS_DIR, exist_ok=True)
+os.makedirs(COVERS_DIR, exist_ok=True)
 generated = 0
 skipped = 0
 batch_lines = []
 
 for g in games:
-    cover_name = f"char-cover-{g['id']}.jpg"
-    cover_path = cover_name
+    cover_filename = f"char-cover-{g['id']}.jpg"
+    cover_path = os.path.join(COVERS_DIR, cover_filename)
     prompt_path = f"{PROMPTS_DIR}/{g['id']}.txt"
     prompt = (
         f"Character art in the exact visual style of \"{g['title']}\" game ({g['genre']}): "
@@ -51,7 +53,7 @@ for g in games:
         continue
 
     # Update array reference
-    g['image'] = cover_name
+    g['image'] = cover_path
     generated += 1
 
     # Add batch command line
