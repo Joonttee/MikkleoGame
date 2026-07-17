@@ -63,8 +63,12 @@ def main():
 
         updated_games.append(g)
 
-    # Re-run build_index.py or write directly
-    import build_index
+    # Rebuild index.html with updated image paths
+    if matched_count:
+        import build_index
+        build_index.rebuild_index(updated_games)
+    else:
+        print("No covers matched! Filenames must match game titles (or alt titles).")
     print(f"\nCompleted! Successfully matched {matched_count} cover images to games out of {len(image_files)} uploaded files.")
 
 if __name__ == '__main__':
