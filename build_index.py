@@ -1,37 +1,39 @@
 import json
-import re
+import re, os
 
 INDEX_FILE = 'index.html'
 
-with open(INDEX_FILE, 'r', encoding='utf-8') as f:
-    text = f.read()
+def rebuild_index(games_data=None):
+    with open(INDEX_FILE, 'r', encoding='utf-8') as f:
+        text = f.read()
 
-m = re.search(r'const GAMES = (\[.*?\]);', text, re.DOTALL)
-if not m:
-    raise Exception("Could not find const GAMES in index.html")
+    m = re.search(r'const GAMES = (\[.*?\]);', text, re.DOTALL)
+    if not m:
+        raise Exception("Could not find const GAMES in index.html")
 
-games_json = m.group(1)
-games_list = json.loads(games_json)
+    if games_data is None:
+        games_json = m.group(1)
+        games_list = json.loads(games_json)
+    else:
+        games_list = games_data
 
-# Reset image property to empty for all games since old generated covers were deleted
-for i, g in enumerate(games_list):
-    g['image'] = ''
+    # Ensure status field
+    for i, g in enumerate(games_list):
+        if 'status' not in g:
+            year = g.get('year', 2023)
+            if year >= 2026:
+                g['status'] = 'planned'
+            elif i % 5 == 0:
+                g['status'] = 'completed'
+            elif i % 7 == 0:
+                g['status'] = 'planned'
+            else:
+                g['status'] = 'in_progress'
 
-    if 'status' not in g:
-        year = g.get('year', 2023)
-        if year >= 2026:
-            g['status'] = 'planned'
-        elif i % 5 == 0:
-            g['status'] = 'completed'
-        elif i % 7 == 0:
-            g['status'] = 'planned'
-        else:
-            g['status'] = 'in_progress'
+    games_json_updated = json.dumps(games_list, ensure_ascii=False)
+    games_count = len(games_list)
 
-games_json_updated = json.dumps(games_list, ensure_ascii=False)
-games_count = len(games_list)
-
-new_html = f"""<!DOCTYPE html>
+    new_html = f"""<!DOCTYPE html>
 <html lang="ru" data-theme="cyan">
 <head>
 <meta charset="UTF-8">
@@ -522,7 +524,7 @@ html[data-theme="oled"] .header {{
 .view-btn {{
   height: 32px;
   padding: 0 12px;
-  border-radius: 9px;
+  border-radius: 999px;
   border: none;
   background: transparent;
   color: var(--muted);
@@ -757,6 +759,32 @@ html[data-theme="oled"] .header {{
   place-items: center;
 }}
 
+.card-cover .cover-bg {{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(24px) brightness(0.6) saturate(1.3);
+  transform: scale(1.2);
+  opacity: 0.85;
+}}
+
+.card-cover .cover-main {{
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.4s ease;
+}}
+
+.card:hover .cover-main {{
+  transform: scale(1.05);
+}}
+
 .cover-initials {{
   font-family: 'Nunito', sans-serif;
   font-size: 44px;
@@ -945,6 +973,24 @@ html[data-theme="oled"] .header {{
   overflow: hidden;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border);
+}}
+
+.modal-cover-bg {{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(30px) brightness(0.5);
+  transform: scale(1.2);
+}}
+
+.modal-main-img {{
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }}
 
 .modal-header-initials {{
@@ -1258,8 +1304,10 @@ html[data-theme="oled"] .header {{
 <!-- Game Details Modal -->
 <div class="modal-back" id="modalBack">
   <div class="modal">
-    <div class="modal-header-banner">
+    <div class="modal-header-banner" id="modalBanner">
       <button class="modal-close" id="modalClose">✕</button>
+      <img id="modalImgBg" class="modal-cover-bg" alt="" style="display:none;">
+      <img id="modalImgMain" class="modal-main-img" alt="" style="display:none;">
       <div id="modalInitials" class="modal-header-initials">MG</div>
     </div>
     <div class="modal-body">
@@ -1473,12 +1521,17 @@ function render() {{
     const stInfo = STATUS_MAP[g.status || 'in_progress'] || STATUS_MAP['in_progress'];
     const initials = esc((g.title || 'Game').slice(0, 2).toUpperCase());
 
+    const imgBlock = g.image 
+      ? `<img class="cover-bg" src="${{esc(g.image)}}" loading="lazy">
+         <img class="cover-main" src="${{esc(g.image)}}" loading="lazy" alt="${{esc(g.title)}}">` 
+      : `<div class="cover-initials">${{initials}}</div>`;
+
     const mainGenre = g.genre ? g.genre.split(',')[0].trim() : 'Игра';
 
     el.innerHTML = `
       <div class="card-cover">
         <span class="status-tag ${{stInfo.class}}">${{stInfo.emoji}} ${{stInfo.label}}</span>
-        <div class="cover-initials">${{initials}}</div>
+        ${{imgBlock}}
       </div>
       <div class="card-body">
         <div class="card-title">${{esc(g.title)}}</div>
@@ -1548,7 +1601,20 @@ function openModal(g) {{
   document.getElementById('modalAltTitle').textContent = g.altTitle ? 'Альтернативное название: ' + g.altTitle : '';
 
   const initials = (g.title || 'Game').slice(0, 2).toUpperCase();
-  document.getElementById('modalInitials').textContent = initials;
+  const imgBg = document.getElementById('modalImgBg');
+  const imgMain = document.getElementById('modalImgMain');
+  const initialsEl = document.getElementById('modalInitials');
+
+  if(g.image) {{
+    imgBg.src = g.image; imgBg.style.display = 'block';
+    imgMain.src = g.image; imgMain.style.display = 'block';
+    initialsEl.style.display = 'none';
+  }} else {{
+    imgBg.style.display = 'none';
+    imgMain.style.display = 'none';
+    initialsEl.textContent = initials;
+    initialsEl.style.display = 'block';
+  }}
 
   const badges = document.getElementById('modalBadges');
   const stInfo = STATUS_MAP[g.status || 'in_progress'] || STATUS_MAP['in_progress'];
@@ -1648,7 +1714,9 @@ window.addEventListener('load', () => {{
 </html>
 """
 
-with open(INDEX_FILE, 'w', encoding='utf-8') as f:
-    f.write(new_html)
+    with open(INDEX_FILE, 'w', encoding='utf-8') as f:
+        f.write(new_html)
 
-print("index.html regenerated and old covers completely removed.")
+if __name__ == '__main__':
+    rebuild_index()
+    print("index.html rebuilt.")
