@@ -25,7 +25,6 @@
   --accent2-glow: rgba(124, 255, 178, 0.25);
   --accent3: #FF60A8;
   --accent3-glow: rgba(255, 96, 168, 0.25);
-  --warning: #FF9500;
   --r2: 22px;
 }
 
@@ -101,7 +100,7 @@ body::before {
 
 .search-wrap {
   position: relative;
-  width: min(440px, 100%);
+  width: min(480px, 100%);
 }
 
 .search-wrap input {
@@ -170,36 +169,6 @@ body::before {
   padding: 2px 6px;
   border-radius: 6px;
   pointer-events: none;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.btn-roulette {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 42px;
-  padding: 0 18px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(255, 96, 168, 0.2), rgba(107, 231, 255, 0.2));
-  border: 1px solid rgba(255, 96, 168, 0.4);
-  color: #fff;
-  font-weight: 800;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(255, 96, 168, 0.15);
-}
-
-.btn-roulette:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, var(--accent3), var(--accent));
-  color: #04101A;
-  box-shadow: 0 6px 20px rgba(255, 96, 168, 0.35);
 }
 
 /* Hero Section */
@@ -345,14 +314,6 @@ body::before {
   font-weight: 900;
   border-color: rgba(255, 96, 168, 0.6);
   box-shadow: 0 4px 16px var(--accent3-glow);
-}
-
-.tab-btn.active-fav {
-  background: rgba(255, 149, 0, 0.2);
-  color: var(--warning);
-  font-weight: 900;
-  border-color: rgba(255, 149, 0, 0.6);
-  box-shadow: 0 4px 16px rgba(255, 149, 0, 0.25);
 }
 
 /* Filter & Sorting Controls */
@@ -612,71 +573,6 @@ body::before {
   pointer-events: none;
 }
 
-/* Card Badges */
-.card-platform-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 4;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 4px 9px;
-  border-radius: 999px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.platform-steamepic { background: rgba(27, 40, 56, 0.85); color: #66C0F4; border: 1px solid rgba(102, 192, 244, 0.4); }
-.platform-switch { background: rgba(230, 0, 18, 0.85); color: #FFF; border: 1px solid rgba(255, 255, 255, 0.3); }
-.platform-hoyoplay { background: rgba(155, 81, 224, 0.85); color: #FFF; border: 1px solid rgba(255, 255, 255, 0.3); }
-.platform-ubisoft { background: rgba(0, 112, 209, 0.85); color: #FFF; border: 1px solid rgba(255, 255, 255, 0.3); }
-
-.card-rating-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 4;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(7, 13, 26, 0.85);
-  color: #FFD700;
-  border: 1px solid rgba(255, 215, 0, 0.3);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.card-fav-btn {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  z-index: 5;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(7, 13, 26, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--muted);
-  display: grid;
-  place-items: center;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.card-fav-btn:hover, .card-fav-btn.active {
-  background: var(--warning);
-  color: #04101A;
-  border-color: var(--warning);
-  transform: scale(1.1);
-}
-
 .card-body {
   padding: 14px 16px;
   background: var(--card);
@@ -893,34 +789,6 @@ body::before {
   transform: translateY(-2px);
 }
 
-/* Roulette Modal */
-.roulette-box {
-  padding: 30px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-}
-
-.roulette-slot {
-  width: 100%;
-  max-width: 320px;
-  aspect-ratio: 3/4;
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  border: 3px solid var(--accent);
-  box-shadow: 0 0 30px var(--accent-glow);
-  background: #0A1020;
-}
-
-.roulette-slot img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* Floating Back-To-Top */
 .back-to-top {
   position: fixed;
@@ -969,13 +837,6 @@ body::before {
       <input id="searchInput" placeholder="Поиск по названию или жанру..." autocomplete="off">
       <button id="searchClear" class="search-clear">✕</button>
       <span class="search-shortcut">Ctrl+K</span>
-    </div>
-
-    <div class="header-actions">
-      <button class="btn-roulette" onclick="openRandomModal()">
-        <span>🎰</span>
-        <span>Рулетка игр</span>
-      </button>
     </div>
   </div>
 </header>
@@ -1043,10 +904,6 @@ body::before {
         <span>Найдено</span>
         <span class="stat-val" id="statFiltered">0</span>
       </div>
-      <div class="stat-row">
-        <span>В Избранном</span>
-        <span class="stat-val" id="statFavCount" style="color:var(--warning);">0</span>
-      </div>
     </div>
   </aside>
 
@@ -1056,20 +913,11 @@ body::before {
       <button onclick="setTab('all')" id="tab-all" class="tab-btn active-all">🎮 Все игры</button>
       <button onclick="setTab('done')" id="tab-done" class="tab-btn">✅ Пройдены</button>
       <button onclick="setTab('gacha')" id="tab-gacha" class="tab-btn">💫 Гача & F2P</button>
-      <button onclick="setTab('favorites')" id="tab-favorites" class="tab-btn">⭐ Избранное (<span id="tabFavBadge">0</span>)</button>
     </div>
 
     <!-- Filter Bar -->
     <div class="controls-bar">
       <div class="filter-group">
-        <select id="platformSelect" class="select-custom" onchange="applyFilters()">
-          <option value="all">Все платформы</option>
-          <option value="Steam/Epic">Steam / Epic</option>
-          <option value="Switch">Nintendo Switch</option>
-          <option value="HoYoPlay">HoYoPlay (Genshin/StarRail)</option>
-          <option value="Ubisoft">Ubisoft Connect</option>
-        </select>
-
         <select id="genreSelect" class="select-custom" onchange="applyFilters()">
           <option value="all">Все жанры</option>
           <option value="Action">Экшены / Action</option>
@@ -1120,28 +968,6 @@ body::before {
         <a id="modalSteamLink" href="#" target="_blank" class="btn-action">🛒 Найти в Steam</a>
         <a id="modalYtLink" href="#" target="_blank" class="btn-action">🎬 Геймплей на YouTube</a>
         <a id="modalTwitchLink" href="#" target="_blank" class="btn-action">🟣 Искать на Twitch</a>
-        <button id="modalFavBtn" class="btn-action" style="background:rgba(255,149,0,0.15); color:var(--warning); border-color:rgba(255,149,0,0.3)">⭐ В избранное</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Random Roulette Modal -->
-<div class="modal-back" id="rouletteBack">
-  <div class="modal" style="max-width:480px;">
-    <div class="modal-body roulette-box">
-      <h2 style="font-family:'Nunito'; font-size:24px; font-weight:900;">🎰 Рулетка случайной игры</h2>
-      <p style="font-size:13px; color:var(--muted)">Случайный выбор из текущего списка (<span id="rouletteTotalCount">827</span> доступно)</p>
-
-      <div class="roulette-slot" id="rouletteSlot">
-        <img id="rouletteImg" src="" alt="Game Slot">
-      </div>
-
-      <h3 id="rouletteTitle" style="font-family:'Nunito'; font-size:20px; font-weight:800; min-height:48px;">Крути рулетку!</h3>
-
-      <div style="display:flex; gap:10px; width:100%; justify-content:center;">
-        <button class="btn-roulette" style="height:44px;" onclick="spinRandomGame()">🎲 Скрутить еще раз</button>
-        <button class="btn-action" onclick="closeRandomModal()">Закрыть</button>
       </div>
     </div>
   </div>
@@ -1176,34 +1002,10 @@ function expandQuery(q){
   return Array.from(expanded);
 }
 
-// Favorites in LocalStorage
-let favorites = new Set(JSON.parse(localStorage.getItem('mikkleo_favorites') || '[]'));
-
-function saveFavorites() {
-  localStorage.setItem('mikkleo_favorites', JSON.stringify(Array.from(favorites)));
-  updateFavCounters();
-}
-
-function toggleFavorite(id, e) {
-  if(e) e.stopPropagation();
-  if(favorites.has(id)) favorites.delete(id);
-  else favorites.add(id);
-  saveFavorites();
-  applyFilters();
-}
-
-function updateFavCounters() {
-  const count = favorites.size;
-  const badge = document.getElementById('tabFavBadge');
-  const stat = document.getElementById('statFavCount');
-  if(badge) badge.textContent = count;
-  if(stat) stat.textContent = count;
-}
-
 let filtered = [...GAMES];
 let currentTab = 'all';
 let visibleCount = 72;
-let active = { search: "", platform: "all", genre: "all", sort: "title-asc" };
+let active = { search: "", genre: "all", sort: "title-asc" };
 
 function esc(s){ return String(s || '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
 
@@ -1215,7 +1017,7 @@ function setTab(tab){
 
   const btn = document.getElementById('tab-' + tab);
   if(btn) {
-    btn.className = 'tab-btn active-' + (tab === 'favorites' ? 'fav' : tab);
+    btn.className = 'tab-btn active-' + tab;
   }
   visibleCount = 72;
   applyFilters();
@@ -1223,9 +1025,8 @@ function setTab(tab){
 
 function resetAllFilters() {
   currentTab = 'all';
-  active = { search: "", platform: "all", genre: "all", sort: "title-asc" };
+  active = { search: "", genre: "all", sort: "title-asc" };
   document.getElementById('searchInput').value = '';
-  document.getElementById('platformSelect').value = 'all';
   document.getElementById('genreSelect').value = 'all';
   document.getElementById('sortSelect').value = 'title-asc';
   document.getElementById('searchClear').style.display = 'none';
@@ -1240,14 +1041,6 @@ function applyFilters() {
     out = out.filter(g => g.platform === 'Steam/Epic');
   } else if(currentTab === 'gacha') {
     out = out.filter(g => g.platform === 'HoYoPlay' || (g.genre && (g.genre.includes('Free To Play') || g.genre.includes('Бесплатные'))));
-  } else if(currentTab === 'favorites') {
-    out = out.filter(g => favorites.has(g.id));
-  }
-
-  // Platform Filter
-  const pFilter = document.getElementById('platformSelect').value;
-  if(pFilter && pFilter !== 'all') {
-    out = out.filter(g => g.platform === pFilter);
   }
 
   // Genre Filter
@@ -1270,7 +1063,7 @@ function applyFilters() {
   }
 
   // Toggle reset filter button visibility
-  const hasActiveFilters = q || pFilter !== 'all' || gFilter !== 'all' || currentTab !== 'all';
+  const hasActiveFilters = q || gFilter !== 'all' || currentTab !== 'all';
   document.getElementById('btnResetFilters').style.display = hasActiveFilters ? 'inline-flex' : 'none';
 
   // Sorting
@@ -1315,9 +1108,6 @@ function render() {
     el.className = 'card';
     el.onclick = () => openModal(g);
 
-    const isFav = favorites.has(g.id);
-    const platformClass = 'platform-' + (g.platform || 'steam').toLowerCase().replace('/', '');
-
     const imgBlock = g.image 
       ? `<img class="cover-bg" src="${esc(g.image)}" loading="lazy">
          <img class="cover-main" src="${esc(g.image)}" loading="lazy" alt="${esc(g.title)}">` 
@@ -1327,11 +1117,6 @@ function render() {
 
     el.innerHTML = `
       <div class="card-cover">
-        <span class="card-platform-badge ${platformClass}">${esc(g.platform)}</span>
-        <span class="card-rating-badge">★ ${g.rating || 80}</span>
-        <button class="card-fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${g.id}', event)" title="В избранное">
-          ${isFav ? '★' : '☆'}
-        </button>
         ${imgBlock}
       </div>
       <div class="card-body">
@@ -1351,7 +1136,7 @@ function render() {
     more.style.textAlign = 'center';
     more.style.padding = '24px 0';
     more.innerHTML = `
-      <button class="btn-roulette" style="height:46px; padding:0 32px; font-size:14px; background:linear-gradient(135deg, var(--accent), #8AB4FF); color:#04101A;" onclick="visibleCount+=72; render();">
+      <button class="tab-btn active-all" style="height:46px; padding:0 32px; font-size:14px;" onclick="visibleCount+=72; render();">
         Показать ещё 72 (Показано ${visibleCount} из ${filtered.length})
       </button>
     `;
@@ -1360,10 +1145,7 @@ function render() {
 }
 
 // Modal Logic
-let currentModalGame = null;
-
 function openModal(g) {
-  currentModalGame = g;
   document.getElementById('modalTitle').textContent = g.title;
   document.getElementById('modalAltTitle').textContent = g.altTitle ? 'Альтернативное название: ' + g.altTitle : '';
 
@@ -1373,13 +1155,10 @@ function openModal(g) {
   imgMain.src = g.image || '';
 
   const badges = document.getElementById('modalBadges');
-  const platformClass = 'platform-' + (g.platform || 'steam').toLowerCase().replace('/', '');
 
   badges.innerHTML = `
-    <span class="card-platform-badge ${platformClass}" style="position:static;">${esc(g.platform)}</span>
     <span class="meta-tag accent">${esc(g.genre)}</span>
     <span class="meta-tag">Год: ${g.year}</span>
-    <span class="meta-tag" style="color:#FFD700;">★ Оценка: ${g.rating || 80}/100</span>
   `;
 
   // Action links
@@ -1387,14 +1166,6 @@ function openModal(g) {
   document.getElementById('modalSteamLink').href = `https://store.steampowered.com/search/?term=${qTitle}`;
   document.getElementById('modalYtLink').href = `https://www.youtube.com/results?search_query=${qTitle}+gameplay`;
   document.getElementById('modalTwitchLink').href = `https://www.twitch.tv/search?term=${qTitle}`;
-
-  const favBtn = document.getElementById('modalFavBtn');
-  const isFav = favorites.has(g.id);
-  favBtn.innerHTML = isFav ? '★ В избранном' : '⭐ В избранное';
-  favBtn.onclick = () => {
-    toggleFavorite(g.id);
-    openModal(g);
-  };
 
   document.getElementById('modalBack').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1405,61 +1176,15 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-// Roulette Logic
-let rouletteInterval = null;
-
-function openRandomModal() {
-  if(!filtered.length) return;
-  const rouletteCount = document.getElementById('rouletteTotalCount');
-  if(rouletteCount) rouletteCount.textContent = filtered.length;
-  document.getElementById('rouletteBack').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  spinRandomGame();
-}
-
-function spinRandomGame() {
-  if(!filtered.length) return;
-  if(rouletteInterval) clearInterval(rouletteInterval);
-
-  let count = 0;
-  const img = document.getElementById('rouletteImg');
-  const title = document.getElementById('rouletteTitle');
-
-  rouletteInterval = setInterval(() => {
-    const rand = filtered[Math.floor(Math.random() * filtered.length)];
-    img.src = rand.image || '';
-    title.textContent = rand.title;
-    count++;
-
-    if(count > 18) {
-      clearInterval(rouletteInterval);
-      const finalGame = filtered[Math.floor(Math.random() * filtered.length)];
-      img.src = finalGame.image || '';
-      title.textContent = finalGame.title;
-    }
-  }, 80);
-}
-
-function closeRandomModal() {
-  if(rouletteInterval) clearInterval(rouletteInterval);
-  document.getElementById('rouletteBack').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
 // Event Listeners
 document.getElementById('modalBack').addEventListener('click', e => {
   if(e.target.id === 'modalBack') closeModal();
 });
 document.getElementById('modalClose').onclick = closeModal;
 
-document.getElementById('rouletteBack').addEventListener('click', e => {
-  if(e.target.id === 'rouletteBack') closeRandomModal();
-});
-
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape') {
     closeModal();
-    closeRandomModal();
   }
   if((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
@@ -1489,7 +1214,6 @@ backToTop.onclick = () => {
 };
 
 // Initialize
-updateFavCounters();
 applyFilters();
 </script>
 </body>
