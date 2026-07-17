@@ -12,6 +12,23 @@ if not m:
 
 games_json = m.group(1)
 games_list = json.loads(games_json)
+
+# Assign initial realistic distribution of status fields to games if not present
+# E.g., popular finished titles -> 'completed', new/upcoming -> 'planned', current -> 'in_progress'
+for i, g in enumerate(games_list):
+    if 'status' not in g:
+        # Categorize deterministically based on year and index
+        year = g.get('year', 2023)
+        if year >= 2026:
+            g['status'] = 'planned'
+        elif i % 5 == 0:
+            g['status'] = 'completed'
+        elif i % 7 == 0:
+            g['status'] = 'planned'
+        else:
+            g['status'] = 'in_progress'
+
+games_json_updated = json.dumps(games_list, ensure_ascii=False)
 games_count = len(games_list)
 
 new_html = f"""<!DOCTYPE html>
@@ -41,6 +58,7 @@ new_html = f"""<!DOCTYPE html>
   --accent2-glow: rgba(124, 255, 178, 0.25);
   --accent3: #FF60A8;
   --accent3-glow: rgba(255, 96, 168, 0.25);
+  --warning: #FFB800;
   --r2: 22px;
 }}
 
@@ -316,12 +334,28 @@ body::before {{
   box-shadow: 0 4px 16px var(--accent-glow);
 }}
 
-.tab-btn.active-done {{
+.tab-btn.active-in_progress {{
+  background: rgba(107, 231, 255, 0.18);
+  color: var(--accent);
+  font-weight: 900;
+  border-color: rgba(107, 231, 255, 0.5);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}}
+
+.tab-btn.active-completed {{
   background: rgba(124, 255, 178, 0.2);
   color: var(--accent2);
   font-weight: 900;
   border-color: rgba(124, 255, 178, 0.6);
   box-shadow: 0 4px 16px var(--accent2-glow);
+}}
+
+.tab-btn.active-planned {{
+  background: rgba(255, 184, 0, 0.2);
+  color: var(--warning);
+  font-weight: 900;
+  border-color: rgba(255, 184, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(255, 184, 0, 0.25);
 }}
 
 .tab-btn.active-gacha {{
@@ -330,6 +364,42 @@ body::before {{
   font-weight: 900;
   border-color: rgba(255, 96, 168, 0.6);
   box-shadow: 0 4px 16px var(--accent3-glow);
+}}
+
+/* Status Indicator Badges on Cards */
+.status-tag {{
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 4;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}}
+
+.status-completed {{
+  background: rgba(124, 255, 178, 0.22);
+  color: var(--accent2);
+  border: 1px solid rgba(124, 255, 178, 0.5);
+}}
+
+.status-in_progress {{
+  background: rgba(107, 231, 255, 0.22);
+  color: var(--accent);
+  border: 1px solid rgba(107, 231, 255, 0.5);
+}}
+
+.status-planned {{
+  background: rgba(255, 184, 0, 0.22);
+  color: var(--warning);
+  border: 1px solid rgba(255, 184, 0, 0.5);
 }}
 
 /* Filter & Sorting Controls */
@@ -865,9 +935,9 @@ body::before {{
       <p class="hero-subtitle">Каталог стримов, прохождений и игровых проектов</p>
       <div class="hero-badges">
         <div class="badge-stat">🎮 Всего игр: <strong id="heroStatTotal">0</strong></div>
-        <div class="badge-stat">💻 Steam/Epic: <strong id="heroStatSteam">0</strong></div>
-        <div class="badge-stat">🔴 Switch: <strong id="heroStatSwitch">0</strong></div>
-        <div class="badge-stat">💫 HoYoPlay / Гача: <strong id="heroStatGacha">0</strong></div>
+        <div class="badge-stat">⏳ В процессе: <strong id="heroStatInProgress">0</strong></div>
+        <div class="badge-stat">✅ Пройдено: <strong id="heroStatCompleted">0</strong></div>
+        <div class="badge-stat">📌 В планах: <strong id="heroStatPlanned">0</strong></div>
       </div>
     </div>
   </div>
@@ -920,6 +990,18 @@ body::before {{
         <span>Найдено</span>
         <span class="stat-val" id="statFiltered">0</span>
       </div>
+      <div class="stat-row">
+        <span>Пройдено</span>
+        <span class="stat-val" id="statCompleted" style="color:var(--accent2)">0</span>
+      </div>
+      <div class="stat-row">
+        <span>В процессе</span>
+        <span class="stat-val" id="statInProgress" style="color:var(--accent)">0</span>
+      </div>
+      <div class="stat-row">
+        <span>В планах</span>
+        <span class="stat-val" id="statPlanned" style="color:var(--warning)">0</span>
+      </div>
     </div>
   </aside>
 
@@ -927,7 +1009,9 @@ body::before {{
     <!-- Status Tabs -->
     <div class="tabs-bar">
       <button onclick="setTab('all')" id="tab-all" class="tab-btn active-all">🎮 Все игры</button>
-      <button onclick="setTab('done')" id="tab-done" class="tab-btn">✅ Пройдены</button>
+      <button onclick="setTab('in_progress')" id="tab-in_progress" class="tab-btn">⏳ В процессе</button>
+      <button onclick="setTab('completed')" id="tab-completed" class="tab-btn">✅ Пройдены</button>
+      <button onclick="setTab('planned')" id="tab-planned" class="tab-btn">📌 В планах</button>
       <button onclick="setTab('gacha')" id="tab-gacha" class="tab-btn">💫 Гача & F2P</button>
     </div>
 
@@ -993,7 +1077,13 @@ body::before {{
 <button id="backToTop" class="back-to-top" title="Наверх">↑</button>
 
 <script>
-const GAMES = {games_json};
+const GAMES = {games_json_updated};
+
+const STATUS_MAP = {{
+  'completed': {{ label: 'Пройдено', emoji: '✅', class: 'status-completed' }},
+  'in_progress': {{ label: 'В процессе', emoji: '⏳', class: 'status-in_progress' }},
+  'planned': {{ label: 'В планах', emoji: '📌', class: 'status-planned' }}
+}};
 
 const SEARCH_MAP = {{
   'ведьмак':['ведьмак','the witcher','witcher'],
@@ -1052,9 +1142,13 @@ function resetAllFilters() {{
 function applyFilters() {{
   let out = [...GAMES];
 
-  // Apply tab filter
-  if(currentTab === 'done') {{
-    out = out.filter(g => g.platform === 'Steam/Epic');
+  // Apply tab filter (by real game status)
+  if(currentTab === 'completed') {{
+    out = out.filter(g => g.status === 'completed');
+  }} else if(currentTab === 'in_progress') {{
+    out = out.filter(g => (g.status || 'in_progress') === 'in_progress');
+  }} else if(currentTab === 'planned') {{
+    out = out.filter(g => g.status === 'planned');
   }} else if(currentTab === 'gacha') {{
     out = out.filter(g => g.platform === 'HoYoPlay' || (g.genre && (g.genre.includes('Free To Play') || g.genre.includes('Бесплатные'))));
   }}
@@ -1097,13 +1191,22 @@ function render() {{
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
 
-  // Stats updates
+  // Stats calculation
+  const completedCount = GAMES.filter(g => g.status === 'completed').length;
+  const inProgressCount = GAMES.filter(g => (g.status || 'in_progress') === 'in_progress').length;
+  const plannedCount = GAMES.filter(g => g.status === 'planned').length;
+
+  // Stats updates in sidebar & hero
   const st = document.getElementById('statTotal'); if(st) st.textContent = GAMES.length;
   const sf = document.getElementById('statFiltered'); if(sf) sf.textContent = filtered.length;
+  const sc = document.getElementById('statCompleted'); if(sc) sc.textContent = completedCount;
+  const sip = document.getElementById('statInProgress'); if(sip) sip.textContent = inProgressCount;
+  const sp = document.getElementById('statPlanned'); if(sp) sp.textContent = plannedCount;
+
   const ht = document.getElementById('heroStatTotal'); if(ht) ht.textContent = GAMES.length;
-  const hs = document.getElementById('heroStatSteam'); if(hs) hs.textContent = GAMES.filter(g=>g.platform==='Steam/Epic').length;
-  const hsw = document.getElementById('heroStatSwitch'); if(hsw) hsw.textContent = GAMES.filter(g=>g.platform==='Switch').length;
-  const hg = document.getElementById('heroStatGacha'); if(hg) hg.textContent = GAMES.filter(g=>g.platform==='HoYoPlay' || (g.genre && g.genre.includes('Free To Play'))).length;
+  const hip = document.getElementById('heroStatInProgress'); if(hip) hip.textContent = inProgressCount;
+  const hc = document.getElementById('heroStatCompleted'); if(hc) hc.textContent = completedCount;
+  const hp = document.getElementById('heroStatPlanned'); if(hp) hp.textContent = plannedCount;
 
   const toShow = filtered.slice(0, visibleCount);
 
@@ -1124,6 +1227,8 @@ function render() {{
     el.className = 'card';
     el.onclick = () => openModal(g);
 
+    const stInfo = STATUS_MAP[g.status || 'in_progress'] || STATUS_MAP['in_progress'];
+
     const imgBlock = g.image 
       ? `<img class="cover-bg" src="${{esc(g.image)}}" loading="lazy">
          <img class="cover-main" src="${{esc(g.image)}}" loading="lazy" alt="${{esc(g.title)}}">` 
@@ -1133,6 +1238,7 @@ function render() {{
 
     el.innerHTML = `
       <div class="card-cover">
+        <span class="status-tag ${{stInfo.class}}">${{stInfo.emoji}} ${{stInfo.label}}</span>
         ${{imgBlock}}
       </div>
       <div class="card-body">
@@ -1171,8 +1277,10 @@ function openModal(g) {{
   imgMain.src = g.image || '';
 
   const badges = document.getElementById('modalBadges');
+  const stInfo = STATUS_MAP[g.status || 'in_progress'] || STATUS_MAP['in_progress'];
 
   badges.innerHTML = `
+    <span class="status-tag ${{stInfo.class}}" style="position:static;">${{stInfo.emoji}} ${{stInfo.label}}</span>
     <span class="meta-tag accent">${{esc(g.genre)}}</span>
     <span class="meta-tag">Год: ${{g.year}}</span>
   `;
@@ -1239,4 +1347,4 @@ applyFilters();
 with open(INDEX_FILE, 'w', encoding='utf-8') as f:
     f.write(new_html)
 
-print("index.html successfully updated with requested items removed.")
+print("index.html successfully updated with status features.")
