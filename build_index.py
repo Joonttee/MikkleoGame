@@ -13,11 +13,9 @@ if not m:
 games_json = m.group(1)
 games_list = json.loads(games_json)
 
-# Assign initial realistic distribution of status fields to games if not present
-# E.g., popular finished titles -> 'completed', new/upcoming -> 'planned', current -> 'in_progress'
+# Ensure status fields
 for i, g in enumerate(games_list):
     if 'status' not in g:
-        # Categorize deterministically based on year and index
         year = g.get('year', 2023)
         if year >= 2026:
             g['status'] = 'planned'
@@ -32,7 +30,7 @@ games_json_updated = json.dumps(games_list, ensure_ascii=False)
 games_count = len(games_list)
 
 new_html = f"""<!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="cyan">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,11 +41,11 @@ new_html = f"""<!DOCTYPE html>
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
-:root {{
+/* CSS Color Themes */
+html[data-theme="cyan"] {{
   --bg: #070D1A;
   --card: #111A2D;
   --card2: #16213A;
-  --card-hover: #1A2846;
   --border: #1E2F4A;
   --border2: #283E63;
   --text: #EEF6FF;
@@ -59,7 +57,40 @@ new_html = f"""<!DOCTYPE html>
   --accent3: #FF60A8;
   --accent3-glow: rgba(255, 96, 168, 0.25);
   --warning: #FFB800;
-  --r2: 22px;
+}}
+
+html[data-theme="pink"] {{
+  --bg: #120818;
+  --card: #1F112B;
+  --card2: #2B163B;
+  --border: #3D1E4E;
+  --border2: #522766;
+  --text: #FFF0FA;
+  --muted: #B38CBF;
+  --accent: #FF60C8;
+  --accent-glow: rgba(255, 96, 200, 0.35);
+  --accent2: #00E5FF;
+  --accent2-glow: rgba(0, 229, 255, 0.25);
+  --accent3: #FFB800;
+  --accent3-glow: rgba(255, 184, 0, 0.25);
+  --warning: #FF3D00;
+}}
+
+html[data-theme="oled"] {{
+  --bg: #000000;
+  --card: #0D0D0D;
+  --card2: #161616;
+  --border: #262626;
+  --border2: #383838;
+  --text: #F0F0F0;
+  --muted: #808080;
+  --accent: #00E676;
+  --accent-glow: rgba(0, 230, 118, 0.35);
+  --accent2: #00E5FF;
+  --accent2-glow: rgba(0, 229, 255, 0.25);
+  --accent3: #FF3D00;
+  --accent3-glow: rgba(255, 61, 0, 0.25);
+  --warning: #FFB800;
 }}
 
 * {{ margin:0; padding:0; box-sizing:border-box; }}
@@ -71,6 +102,7 @@ body {{
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.5;
+  transition: background 0.3s ease, color 0.3s ease;
 }}
 
 body::before {{
@@ -78,9 +110,9 @@ body::before {{
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(900px 600px at 18% -5%, rgba(107, 231, 255, 0.18), transparent 65%),
-    radial-gradient(700px 500px at 90% 5%, rgba(124, 255, 178, 0.12), transparent 60%),
-    radial-gradient(800px 600px at 50% 115%, rgba(138, 180, 255, 0.14), transparent 70%);
+    radial-gradient(900px 600px at 18% -5%, var(--accent-glow), transparent 65%),
+    radial-gradient(700px 500px at 90% 5%, var(--accent2-glow), transparent 60%),
+    radial-gradient(800px 600px at 50% 115%, var(--accent3-glow), transparent 70%);
   pointer-events: none;
   z-index: -1;
 }}
@@ -94,6 +126,10 @@ body::before {{
   -webkit-backdrop-filter: blur(22px);
   background: rgba(7, 13, 26, 0.85);
   border-bottom: 1px solid var(--border);
+}}
+
+html[data-theme="oled"] .header {{
+  background: rgba(0, 0, 0, 0.9);
 }}
 
 .header-inner {{
@@ -123,7 +159,7 @@ body::before {{
   width: 42px;
   height: 42px;
   border-radius: 13px;
-  background: linear-gradient(135deg, var(--accent), #8AB4FF);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
   display: grid;
   place-items: center;
   color: #04101A;
@@ -134,7 +170,7 @@ body::before {{
 
 .search-wrap {{
   position: relative;
-  width: min(480px, 100%);
+  width: min(440px, 100%);
 }}
 
 .search-wrap input {{
@@ -152,7 +188,7 @@ body::before {{
 
 .search-wrap input:focus {{
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(107, 231, 255, 0.15);
+  box-shadow: 0 0 0 4px var(--accent-glow);
 }}
 
 .search-wrap svg.search-icon {{
@@ -205,6 +241,36 @@ body::before {{
   pointer-events: none;
 }}
 
+/* Theme Selector Buttons */
+.theme-picker {{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 4px;
+  border-radius: 999px;
+}}
+
+.theme-btn {{
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  transition: 0.2s;
+}}
+
+.theme-btn:hover {{ transform: scale(1.15); }}
+.theme-btn.active {{ border-color: var(--text); box-shadow: 0 0 10px var(--accent-glow); }}
+
+.theme-cyan {{ background: linear-gradient(135deg, #070D1A, #6BE7FF); }}
+.theme-pink {{ background: linear-gradient(135deg, #120818, #FF60C8); }}
+.theme-oled {{ background: linear-gradient(135deg, #000000, #00E676); }}
+
 /* Hero Section */
 .hero-container {{
   max-width: 1440px;
@@ -231,7 +297,7 @@ body::before {{
 .hero-overlay {{
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(7, 13, 26, 0.2) 0%, rgba(7, 13, 26, 0.95) 90%);
+  background: linear-gradient(180deg, rgba(7, 13, 26, 0.1) 0%, var(--bg) 95%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -322,15 +388,15 @@ body::before {{
 }}
 
 .tab-btn:hover {{
-  border-color: rgba(107, 231, 255, 0.4);
+  border-color: var(--accent);
   color: var(--text);
 }}
 
 .tab-btn.active-all {{
-  background: linear-gradient(135deg, var(--accent), #8AB4FF);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
   color: #04101A;
   font-weight: 900;
-  border-color: rgba(107, 231, 255, 0.6);
+  border-color: var(--accent);
   box-shadow: 0 4px 16px var(--accent-glow);
 }}
 
@@ -338,7 +404,7 @@ body::before {{
   background: rgba(107, 231, 255, 0.18);
   color: var(--accent);
   font-weight: 900;
-  border-color: rgba(107, 231, 255, 0.5);
+  border-color: var(--accent);
   box-shadow: 0 4px 16px var(--accent-glow);
 }}
 
@@ -346,7 +412,7 @@ body::before {{
   background: rgba(124, 255, 178, 0.2);
   color: var(--accent2);
   font-weight: 900;
-  border-color: rgba(124, 255, 178, 0.6);
+  border-color: var(--accent2);
   box-shadow: 0 4px 16px var(--accent2-glow);
 }}
 
@@ -354,7 +420,7 @@ body::before {{
   background: rgba(255, 184, 0, 0.2);
   color: var(--warning);
   font-weight: 900;
-  border-color: rgba(255, 184, 0, 0.5);
+  border-color: var(--warning);
   box-shadow: 0 4px 16px rgba(255, 184, 0, 0.25);
 }}
 
@@ -362,7 +428,7 @@ body::before {{
   background: rgba(255, 96, 168, 0.2);
   color: var(--accent3);
   font-weight: 900;
-  border-color: rgba(255, 96, 168, 0.6);
+  border-color: var(--accent3);
   box-shadow: 0 4px 16px var(--accent3-glow);
 }}
 
@@ -441,6 +507,38 @@ body::before {{
   border-color: var(--accent);
 }}
 
+/* View Mode Switcher */
+.view-switch {{
+  display: flex;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 2px;
+  border-radius: 12px;
+}}
+
+.view-btn {{
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}}
+
+.view-btn.active {{
+  background: var(--card2);
+  color: var(--accent);
+  border: 1px solid var(--border2);
+}}
+
 .btn-reset-filters {{
   display: inline-flex;
   align-items: center;
@@ -494,8 +592,8 @@ body::before {{
   height: 110px;
   border-radius: 24px;
   object-fit: cover;
-  border: 3px solid rgba(107, 231, 255, 0.6);
-  box-shadow: 0 10px 28px rgba(107, 231, 255, 0.3);
+  border: 3px solid var(--accent);
+  box-shadow: 0 10px 28px var(--accent-glow);
 }}
 
 .status-indicator {{
@@ -579,7 +677,38 @@ body::before {{
   color: var(--accent);
 }}
 
-/* Card Grid */
+/* Progress Bar in Sidebar */
+.progress-bar-bg {{
+  height: 8px;
+  background: var(--card2);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-top: 4px;
+}}
+
+.progress-bar-fill {{
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}}
+
+.genre-mini-row {{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}}
+
+.genre-mini-bar {{
+  height: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.8;
+}}
+
+/* Card Grid Mode */
 .grid {{
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -613,8 +742,8 @@ body::before {{
 
 .card:hover {{
   transform: translateY(-6px);
-  border-color: rgba(107, 231, 255, 0.45);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(107, 231, 255, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), 0 0 20px var(--accent-glow);
 }}
 
 .card-cover {{
@@ -705,6 +834,62 @@ body::before {{
   border-color: rgba(107, 231, 255, 0.25);
 }}
 
+/* Compact List Mode */
+.grid.mode-list {{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}}
+
+.grid.mode-list .card {{
+  flex-direction: row;
+  align-items: center;
+  padding: 10px 16px;
+  gap: 16px;
+  border-radius: 14px;
+}}
+
+.grid.mode-list .card:hover {{
+  transform: translateX(4px);
+}}
+
+.grid.mode-list .card-cover {{
+  width: 50px;
+  height: 66px;
+  aspect-ratio: auto;
+  border-radius: 10px;
+  flex-shrink: 0;
+}}
+
+.grid.mode-list .status-tag {{
+  top: 3px;
+  left: 3px;
+  font-size: 8px;
+  padding: 2px 6px;
+}}
+
+.grid.mode-list .card-body {{
+  padding: 0;
+  background: transparent;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}}
+
+.grid.mode-list .card-title {{
+  min-height: auto;
+  font-size: 15px;
+  -webkit-line-clamp: 1;
+}}
+
+.grid.mode-list .card-meta {{
+  margin-top: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+}}
+
 /* Empty State */
 .empty {{
   grid-column: 1 / -1;
@@ -759,7 +944,7 @@ body::before {{
   background: linear-gradient(180deg, var(--card2), var(--card));
   border: 1px solid var(--border2);
   border-radius: 28px;
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7), 0 0 40px rgba(107, 231, 255, 0.1);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7), 0 0 40px var(--accent-glow);
   transform: scale(0.95);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }}
@@ -875,7 +1060,31 @@ body::before {{
   transform: translateY(-2px);
 }}
 
-/* Floating Back-To-Top */
+/* Toast notification */
+.toast {{
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--accent);
+  color: #04101A;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  box-shadow: 0 10px 30px var(--accent-glow);
+  z-index: 200;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}}
+
+.toast.show {{
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}}
+
+/* Floating Scroll to Top */
 .back-to-top {{
   position: fixed;
   bottom: 24px;
@@ -923,6 +1132,13 @@ body::before {{
       <input id="searchInput" placeholder="Поиск по названию или жанру..." autocomplete="off">
       <button id="searchClear" class="search-clear">✕</button>
       <span class="search-shortcut">Ctrl+K</span>
+    </div>
+
+    <!-- Theme switch -->
+    <div class="theme-picker">
+      <button class="theme-btn theme-cyan active" title="Cyan Cyber" onclick="setTheme('cyan')"></button>
+      <button class="theme-btn theme-pink" title="Neon Pink" onclick="setTheme('pink')"></button>
+      <button class="theme-btn theme-oled" title="OLED Black" onclick="setTheme('oled')"></button>
     </div>
   </div>
 </header>
@@ -980,28 +1196,28 @@ body::before {{
       </div>
     </div>
 
+    <!-- Collection Progress & Genre Stats Card -->
     <div class="stats-card">
-      <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);">Статистика</div>
-      <div class="stat-row">
-        <span>Всего в коллекции</span>
+      <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);">Прогресс коллекции</div>
+      <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+        <span>Пройдено</span>
+        <span id="statProgressPercent" style="color:var(--accent2); font-family:'JetBrains Mono';">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div id="statProgressBar" class="progress-bar-fill"></div>
+      </div>
+
+      <div class="stat-row" style="margin-top:4px;">
+        <span>Всего в каталоге</span>
         <span class="stat-val highlight" id="statTotal">0</span>
       </div>
       <div class="stat-row">
-        <span>Найдено</span>
+        <span>Найдено по фильтрам</span>
         <span class="stat-val" id="statFiltered">0</span>
       </div>
-      <div class="stat-row">
-        <span>Пройдено</span>
-        <span class="stat-val" id="statCompleted" style="color:var(--accent2)">0</span>
-      </div>
-      <div class="stat-row">
-        <span>В процессе</span>
-        <span class="stat-val" id="statInProgress" style="color:var(--accent)">0</span>
-      </div>
-      <div class="stat-row">
-        <span>В планах</span>
-        <span class="stat-val" id="statPlanned" style="color:var(--warning)">0</span>
-      </div>
+
+      <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing:0.04em; color: var(--muted); margin-top: 8px;">Топ жанров</div>
+      <div id="genreBreakdown" style="display:flex; flex-direction:column; gap:8px;"></div>
     </div>
   </aside>
 
@@ -1030,18 +1246,31 @@ body::before {{
           <option value="Free To Play">Бесплатные / F2P</option>
         </select>
 
+        <select id="eraSelect" class="select-custom" onchange="applyFilters()">
+          <option value="all">Все эпохи</option>
+          <option value="new">🔥 Новинки (2024–2026)</option>
+          <option value="modern">⚡ Современные (2018–2023)</option>
+          <option value="retro">📜 Ретро & Классика (до 2018)</option>
+        </select>
+
         <button id="btnResetFilters" class="btn-reset-filters" style="display:none;" onclick="resetAllFilters()">
           <span>✕</span> Сбросить фильтры
         </button>
       </div>
 
-      <div>
+      <div style="display:flex; align-items:center; gap:10px;">
         <select id="sortSelect" class="select-custom" onchange="applyFilters()">
           <option value="title-asc">Название (А → Я)</option>
           <option value="title-desc">Название (Я → А)</option>
           <option value="year-desc">Год выхода (Сначала новые)</option>
           <option value="year-asc">Год выхода (Сначала старые)</option>
         </select>
+
+        <!-- View Mode switch -->
+        <div class="view-switch">
+          <button id="viewBtnGrid" class="view-btn active" onclick="setViewMode('grid')">田 Сетка</button>
+          <button id="viewBtnList" class="view-btn" onclick="setViewMode('list')">☰ Список</button>
+        </div>
       </div>
     </div>
 
@@ -1068,10 +1297,13 @@ body::before {{
         <a id="modalSteamLink" href="#" target="_blank" class="btn-action">🛒 Найти в Steam</a>
         <a id="modalYtLink" href="#" target="_blank" class="btn-action">🎬 Геймплей на YouTube</a>
         <a id="modalTwitchLink" href="#" target="_blank" class="btn-action">🟣 Искать на Twitch</a>
+        <button id="modalShareBtn" class="btn-action" style="background:rgba(107,231,255,0.15); color:var(--accent);">🔗 Поделиться ссылкой</button>
       </div>
     </div>
   </div>
 </div>
+
+<div id="toast" class="toast">Ссылка скопирована в буфер обмена!</div>
 
 <!-- Floating Scroll to Top Button -->
 <button id="backToTop" class="back-to-top" title="Наверх">↑</button>
@@ -1111,9 +1343,31 @@ function expandQuery(q){{
 let filtered = [...GAMES];
 let currentTab = 'all';
 let visibleCount = 72;
-let active = {{ search: "", genre: "all", sort: "title-asc" }};
+let currentViewMode = localStorage.getItem('mikkleo_view_mode') || 'grid';
 
 function esc(s){{ return String(s || '').replace(/[&<>"']/g,m=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}}[m])); }}
+
+// Theme Management
+function setTheme(theme) {{
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('mikkleo_theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(b => {{
+    b.classList.toggle('active', b.classList.contains('theme-' + theme));
+  }});
+}}
+
+// View Mode Toggle
+function setViewMode(mode) {{
+  currentViewMode = mode;
+  localStorage.setItem('mikkleo_view_mode', mode);
+  document.getElementById('viewBtnGrid').classList.toggle('active', mode === 'grid');
+  document.getElementById('viewBtnList').classList.toggle('active', mode === 'list');
+  
+  const grid = document.getElementById('grid');
+  if(mode === 'list') grid.classList.add('mode-list');
+  else grid.classList.remove('mode-list');
+  render();
+}}
 
 function setTab(tab){{
   currentTab = tab;
@@ -1131,9 +1385,9 @@ function setTab(tab){{
 
 function resetAllFilters() {{
   currentTab = 'all';
-  active = {{ search: "", genre: "all", sort: "title-asc" }};
   document.getElementById('searchInput').value = '';
   document.getElementById('genreSelect').value = 'all';
+  document.getElementById('eraSelect').value = 'all';
   document.getElementById('sortSelect').value = 'title-asc';
   document.getElementById('searchClear').style.display = 'none';
   setTab('all');
@@ -1142,7 +1396,7 @@ function resetAllFilters() {{
 function applyFilters() {{
   let out = [...GAMES];
 
-  // Apply tab filter (by real game status)
+  // Apply tab filter
   if(currentTab === 'completed') {{
     out = out.filter(g => g.status === 'completed');
   }} else if(currentTab === 'in_progress') {{
@@ -1159,6 +1413,16 @@ function applyFilters() {{
     out = out.filter(g => g.genre && g.genre.toLowerCase().includes(gFilter.toLowerCase()));
   }}
 
+  // Era Filter
+  const era = document.getElementById('eraSelect').value;
+  if(era === 'new') {{
+    out = out.filter(g => (g.year || 0) >= 2024);
+  }} else if(era === 'modern') {{
+    out = out.filter(g => (g.year || 0) >= 2018 && (g.year || 0) <= 2023);
+  }} else if(era === 'retro') {{
+    out = out.filter(g => (g.year || 0) < 2018);
+  }}
+
   // Search Filter
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   if(q) {{
@@ -1173,7 +1437,7 @@ function applyFilters() {{
   }}
 
   // Toggle reset filter button visibility
-  const hasActiveFilters = q || gFilter !== 'all' || currentTab !== 'all';
+  const hasActiveFilters = q || gFilter !== 'all' || era !== 'all' || currentTab !== 'all';
   document.getElementById('btnResetFilters').style.display = hasActiveFilters ? 'inline-flex' : 'none';
 
   // Sorting
@@ -1191,22 +1455,26 @@ function render() {{
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
 
-  // Stats calculation
+  // Calculate Progress stats
   const completedCount = GAMES.filter(g => g.status === 'completed').length;
   const inProgressCount = GAMES.filter(g => (g.status || 'in_progress') === 'in_progress').length;
   const plannedCount = GAMES.filter(g => g.status === 'planned').length;
+  const progressPercent = ((completedCount / GAMES.length) * 100).toFixed(1);
 
   // Stats updates in sidebar & hero
   const st = document.getElementById('statTotal'); if(st) st.textContent = GAMES.length;
   const sf = document.getElementById('statFiltered'); if(sf) sf.textContent = filtered.length;
-  const sc = document.getElementById('statCompleted'); if(sc) sc.textContent = completedCount;
-  const sip = document.getElementById('statInProgress'); if(sip) sip.textContent = inProgressCount;
-  const sp = document.getElementById('statPlanned'); if(sp) sp.textContent = plannedCount;
+
+  const spBar = document.getElementById('statProgressBar'); if(spBar) spBar.style.width = progressPercent + '%';
+  const spPct = document.getElementById('statProgressPercent'); if(spPct) spPct.textContent = progressPercent + '%';
 
   const ht = document.getElementById('heroStatTotal'); if(ht) ht.textContent = GAMES.length;
   const hip = document.getElementById('heroStatInProgress'); if(hip) hip.textContent = inProgressCount;
   const hc = document.getElementById('heroStatCompleted'); if(hc) hc.textContent = completedCount;
   const hp = document.getElementById('heroStatPlanned'); if(hp) hp.textContent = plannedCount;
+
+  // Render Top Genres Mini Chart
+  renderGenreBreakdown();
 
   const toShow = filtered.slice(0, visibleCount);
 
@@ -1266,8 +1534,45 @@ function render() {{
   }}
 }}
 
+function renderGenreBreakdown() {{
+  const container = document.getElementById('genreBreakdown');
+  if(!container) return;
+
+  const counts = {{}};
+  GAMES.forEach(g => {{
+    if(g.genre) {{
+      const first = g.genre.split(',')[0].trim();
+      counts[first] = (counts[first] || 0) + 1;
+    }}
+  }});
+
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 3);
+  const max = sorted[0] ? sorted[0][1] : 1;
+
+  container.innerHTML = sorted.map(([gName, count]) => {{
+    const pct = Math.round((count / GAMES.length) * 100);
+    const barWidth = Math.round((count / max) * 100);
+    return `
+      <div>
+        <div class="genre-mini-row">
+          <span style="color:var(--text); font-weight:700;">${{esc(gName)}}</span>
+          <span style="color:var(--muted); font-family:'JetBrains Mono';">${{pct}}% (${{count}})</span>
+        </div>
+        <div style="background:var(--card2); height:4px; border-radius:999px; margin-top:2px; overflow:hidden;">
+          <div class="genre-mini-bar" style="width:${{barWidth}}%;"></div>
+        </div>
+      </div>
+    `;
+  }}).join('');
+}}
+
 // Modal Logic
+let activeModalGame = null;
+
 function openModal(g) {{
+  activeModalGame = g;
+  window.location.hash = 'game-' + g.id;
+
   document.getElementById('modalTitle').textContent = g.title;
   document.getElementById('modalAltTitle').textContent = g.altTitle ? 'Альтернативное название: ' + g.altTitle : '';
 
@@ -1291,6 +1596,15 @@ function openModal(g) {{
   document.getElementById('modalYtLink').href = `https://www.youtube.com/results?search_query=${{qTitle}}+gameplay`;
   document.getElementById('modalTwitchLink').href = `https://www.twitch.tv/search?term=${{qTitle}}`;
 
+  document.getElementById('modalShareBtn').onclick = () => {{
+    const shareUrl = window.location.origin + window.location.pathname + '#game-' + g.id;
+    navigator.clipboard.writeText(shareUrl).then(() => {{
+      showToast('Ссылка на игру скопирована!');
+    }}).catch(() => {{
+      showToast('URL скопирован');
+    }});
+  }};
+
   document.getElementById('modalBack').classList.add('open');
   document.body.style.overflow = 'hidden';
 }}
@@ -1298,6 +1612,16 @@ function openModal(g) {{
 function closeModal() {{
   document.getElementById('modalBack').classList.remove('open');
   document.body.style.overflow = '';
+  if(window.location.hash.startsWith('#game-')) {{
+    history.replaceState(null, null, ' ');
+  }}
+}}
+
+function showToast(msg) {{
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
 }}
 
 // Event Listeners
@@ -1338,7 +1662,18 @@ backToTop.onclick = () => {{
 }};
 
 // Initialize
-applyFilters();
+const savedTheme = localStorage.getItem('mikkleo_theme') || 'cyan';
+setTheme(savedTheme);
+setViewMode(currentViewMode);
+
+// Auto-open modal if URL hash has #game-id
+window.addEventListener('load', () => {{
+  const hashMatch = window.location.hash.match(/^#game-(.+)$/);
+  if(hashMatch) {{
+    const targetGame = GAMES.find(g => g.id === hashMatch[1]);
+    if(targetGame) openModal(targetGame);
+  }}
+}});
 </script>
 </body>
 </html>
@@ -1347,4 +1682,4 @@ applyFilters();
 with open(INDEX_FILE, 'w', encoding='utf-8') as f:
     f.write(new_html)
 
-print("index.html successfully updated with status features.")
+print("index.html regenerated with all 5 features!")
