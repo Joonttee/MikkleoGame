@@ -1,5 +1,5 @@
 import json
-import re, os
+import re
 
 INDEX_FILE = 'index.html'
 
@@ -13,8 +13,10 @@ if not m:
 games_json = m.group(1)
 games_list = json.loads(games_json)
 
-# Ensure status and cover paths inside covers/
+# Reset image property to empty for all games since old generated covers were deleted
 for i, g in enumerate(games_list):
+    g['image'] = ''
+
     if 'status' not in g:
         year = g.get('year', 2023)
         if year >= 2026:
@@ -25,11 +27,6 @@ for i, g in enumerate(games_list):
             g['status'] = 'planned'
         else:
             g['status'] = 'in_progress'
-
-    # Prepend covers/ to image path if needed
-    img = g.get('image', '')
-    if img and not img.startswith('covers/') and not img.startswith('http'):
-        g['image'] = f"covers/{img}"
 
 games_json_updated = json.dumps(games_list, ensure_ascii=False)
 games_count = len(games_list)
@@ -755,42 +752,19 @@ html[data-theme="oled"] .header {{
   aspect-ratio: 3 / 4;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(600px 400px at 50% 0%, #1C2A44, #0F1628);
+  background: radial-gradient(circle at 50% 30%, var(--card2), #070D1A);
+  display: grid;
+  place-items: center;
 }}
 
-.card-cover .cover-bg {{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(24px) brightness(0.6) saturate(1.3);
-  transform: scale(1.2);
+.cover-initials {{
+  font-family: 'Nunito', sans-serif;
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--accent);
   opacity: 0.85;
-}}
-
-.card-cover .cover-main {{
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 0.4s ease;
-}}
-
-.card:hover .cover-main {{
-  transform: scale(1.05);
-}}
-
-.card-cover::after {{
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: linear-gradient(to top, var(--card) 4%, transparent 40%);
-  pointer-events: none;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 20px var(--accent-glow);
 }}
 
 .card-body {{
@@ -864,6 +838,10 @@ html[data-theme="oled"] .header {{
   aspect-ratio: auto;
   border-radius: 10px;
   flex-shrink: 0;
+}}
+
+.grid.mode-list .cover-initials {{
+  font-size: 20px;
 }}
 
 .grid.mode-list .status-tag {{
@@ -958,30 +936,23 @@ html[data-theme="oled"] .header {{
   transform: scale(1);
 }}
 
-.modal-cover {{
-  height: 360px;
+.modal-header-banner {{
+  height: 220px;
   position: relative;
-  background: #0A1020;
+  background: radial-gradient(circle at 50% 40%, var(--card2), var(--bg));
+  display: grid;
+  place-items: center;
   overflow: hidden;
   flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
 }}
 
-.modal-cover-bg {{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(30px) brightness(0.5);
-  transform: scale(1.2);
-}}
-
-.modal-cover img.modal-main-img {{
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.modal-header-initials {{
+  font-family: 'Nunito', sans-serif;
+  font-size: 72px;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 0 30px var(--accent-glow);
 }}
 
 .modal-close {{
@@ -1152,8 +1123,8 @@ html[data-theme="oled"] .header {{
   <div class="hero-card">
     <img src="hero.jpg" alt="Mikkleo Games Header Banner" class="hero-img">
     <div class="hero-overlay">
-      <h1 class="hero-title">Коллекция игр MikkleoVT</h1>
-      <p class="hero-subtitle">Каталог стримов, прохождений и игровых проектов</p>
+      <h1 class="hero-title">Моя коллекция игр</h1>
+      <p class="hero-subtitle">Каталог стримов, прохождений и игровых проектов MikkleoVT</p>
       <div class="hero-badges">
         <div class="badge-stat">🎮 Всего игр: <strong id="heroStatTotal">0</strong></div>
         <div class="badge-stat">⏳ В процессе: <strong id="heroStatInProgress">0</strong></div>
@@ -1287,10 +1258,9 @@ html[data-theme="oled"] .header {{
 <!-- Game Details Modal -->
 <div class="modal-back" id="modalBack">
   <div class="modal">
-    <div class="modal-cover">
+    <div class="modal-header-banner">
       <button class="modal-close" id="modalClose">✕</button>
-      <img id="modalImgBg" class="modal-cover-bg" alt="">
-      <img id="modalImgMain" class="modal-main-img" alt="">
+      <div id="modalInitials" class="modal-header-initials">MG</div>
     </div>
     <div class="modal-body">
       <h2 class="modal-title" id="modalTitle"></h2>
@@ -1501,18 +1471,14 @@ function render() {{
     el.onclick = () => openModal(g);
 
     const stInfo = STATUS_MAP[g.status || 'in_progress'] || STATUS_MAP['in_progress'];
-
-    const imgBlock = g.image 
-      ? `<img class="cover-bg" src="${{esc(g.image)}}" loading="lazy">
-         <img class="cover-main" src="${{esc(g.image)}}" loading="lazy" alt="${{esc(g.title)}}">` 
-      : `<div style="display:grid; place-items:center; height:100%; font-family:'Nunito'; font-size:48px; color:var(--accent); font-weight:900;">${{esc(g.title.slice(0,2).toUpperCase())}}</div>`;
+    const initials = esc((g.title || 'Game').slice(0, 2).toUpperCase());
 
     const mainGenre = g.genre ? g.genre.split(',')[0].trim() : 'Игра';
 
     el.innerHTML = `
       <div class="card-cover">
         <span class="status-tag ${{stInfo.class}}">${{stInfo.emoji}} ${{stInfo.label}}</span>
-        ${{imgBlock}}
+        <div class="cover-initials">${{initials}}</div>
       </div>
       <div class="card-body">
         <div class="card-title">${{esc(g.title)}}</div>
@@ -1581,10 +1547,8 @@ function openModal(g) {{
   document.getElementById('modalTitle').textContent = g.title;
   document.getElementById('modalAltTitle').textContent = g.altTitle ? 'Альтернативное название: ' + g.altTitle : '';
 
-  const imgBg = document.getElementById('modalImgBg');
-  const imgMain = document.getElementById('modalImgMain');
-  imgBg.src = g.image || '';
-  imgMain.src = g.image || '';
+  const initials = (g.title || 'Game').slice(0, 2).toUpperCase();
+  document.getElementById('modalInitials').textContent = initials;
 
   const badges = document.getElementById('modalBadges');
   const stInfo = STATUS_MAP[g.status || 'in_progress'] || STATUS_MAP['in_progress'];
@@ -1687,4 +1651,4 @@ window.addEventListener('load', () => {{
 with open(INDEX_FILE, 'w', encoding='utf-8') as f:
     f.write(new_html)
 
-print("index.html regenerated with covers/ folder support and all features.")
+print("index.html regenerated and old covers completely removed.")
