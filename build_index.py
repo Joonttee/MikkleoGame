@@ -38,6 +38,8 @@ def rebuild_index(games_data=None):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mikkleo Games — Коллекция игр MikkleoVT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
@@ -173,7 +175,16 @@ html[data-theme="arctic"] .hero-overlay {{
 }}
 html[data-theme="arctic"] .hero-title {{ color: var(--text); text-shadow: 0 1px 0 rgba(255,255,255,0.6); }}
 
-* {{ margin:0; padding:0; box-sizing:border-box; }}
+* {{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}}
+
+button, a, .card, .tab-btn, .theme-btn, .select-custom, .view-btn {{
+  touch-action: manipulation;
+}}
 
 body {{
   background: var(--bg);
@@ -181,8 +192,13 @@ body {{
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  width: 100%;
   line-height: 1.5;
   transition: background 0.3s ease, color 0.3s ease;
+}}
+
+html {{
+  overflow-x: hidden;
 }}
 
 body::before {{
@@ -464,6 +480,136 @@ html[data-theme="oled"] .header {{
   .wrap {{ grid-template-columns: 1fr; }}
   .hero-img {{ max-height: 320px; }}
   .hero-title {{ font-size: 30px; }}
+
+  /* Ensure no horizontal overflow on tablets/phones */
+  .wrap, main, .header-inner, .hero-container {{
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }}
+
+  /* Sidebar always above main content cleanly on mobile */
+  .wrap {{
+    display: flex !important;
+    flex-direction: column;
+  }}
+  .sidebar {{
+    position: static !important;
+    top: auto !important;
+    margin-bottom: 16px;
+    width: 100%;
+  }}
+  main {{
+    width: 100%;
+    min-width: 0;
+  }}
+}}
+
+/* Stronger mobile padding + prevent clipping/overflow on phones */
+@media (max-width: 768px) {{
+  .wrap {{
+    padding: 0 16px 32px;
+    gap: 20px;
+  }}
+  .hero-container {{
+    padding: 16px 16px 0;
+  }}
+  .header-inner {{
+    padding: 10px 16px;
+    gap: 12px;
+  }}
+  .hero-title {{ font-size: 26px; }}
+
+  .card {{
+    border-radius: 16px;
+  }}
+
+  .tabs-bar {{
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }}
+  .tabs-bar::-webkit-scrollbar {{ display: none; }}
+  .tab-btn {{
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 8px 16px;
+    font-size: 12px;
+  }}
+}}
+
+@media (max-width: 600px) {{
+  .header-inner {{
+    padding: 8px 12px;
+    gap: 8px;
+  }}
+  .logo {{
+    font-size: 18px;
+  }}
+  .logo-mark {{
+    width: 36px;
+    height: 36px;
+    font-size: 17px;
+  }}
+  .search-wrap input {{
+    height: 40px;
+    padding: 0 32px 0 38px;
+    font-size: 13px;
+  }}
+  .search-shortcut {{
+    display: none;
+  }}
+  .theme-picker {{
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    padding: 4px 6px;
+  }}
+  .theme-picker::-webkit-scrollbar {{
+    display: none;
+  }}
+  .theme-btn {{
+    width: 30px;
+    height: 30px;
+  }}
+  .controls-bar {{
+    padding: 10px 12px;
+    gap: 8px;
+  }}
+  .filter-group {{
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }}
+  .select-custom {{
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    padding: 0 8px;
+  }}
+  .btn-reset-filters {{
+    width: 100%;
+    justify-content: center;
+  }}
+}}
+
+@media (max-width: 480px) {{
+  .wrap {{
+    padding: 0 12px 24px;
+    gap: 16px;
+  }}
+  .hero-container {{
+    padding: 12px 12px 0;
+  }}
+  .hero-title {{ font-size: 22px; }}
+  .hero-badges {{ gap: 6px; }}
+  .badge-stat {{ font-size: 11px; padding: 4px 10px; }}
 }}
 
 /* Navigation Tabs */
@@ -694,6 +840,60 @@ html[data-theme="arctic"] .tab-btn.active-mp {{
 }}
 
 /* Sidebar */
+/* Mobile fixes: prevent sidebar from sticking and overlapping games on phones */
+@media (max-width: 1024px) {{
+  .sidebar {{
+    position: static;
+    top: auto;
+    align-self: stretch;
+  }}
+}}
+
+/* Compact sidebar cards on phones */
+@media (max-width: 768px) {{
+  .profile-card {{
+    padding: 14px 12px;
+    gap: 10px;
+  }}
+  .profile-avatar {{
+    width: 78px;
+    height: 78px;
+    border-radius: 18px;
+  }}
+  .profile-name {{
+    font-size: 15px;
+  }}
+  .social-grid {{
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }}
+  .social-link {{
+    font-size: 10px;
+    padding: 5px 8px;
+  }}
+  .social-tw {{
+    grid-column: auto;
+  }}
+  .stats-card {{
+    padding: 12px;
+  }}
+}}
+
+@media (max-width: 480px) {{
+  .social-grid {{
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }}
+  .social-link {{
+    font-size: 9px;
+    padding: 4px 6px;
+  }}
+  .profile-avatar {{
+    width: 64px;
+    height: 64px;
+  }}
+}}
+
 .sidebar {{
   position: sticky;
   top: 84px;
@@ -778,9 +978,18 @@ html[data-theme="arctic"] .tab-btn.active-mp {{
 }}
 
 .profile-stream-status.live {{
-  background: rgba(0, 230, 118, 0.16);
-  border-color: rgba(0, 230, 118, 0.4);
-  color: #00E676;
+  background: rgba(0, 230, 118, 0.22);
+  border-color: #00FF87;
+  color: #00FF87;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(0, 255, 135, 0.4);
+}}
+
+html[data-theme="arctic"] .profile-stream-status.live {{
+  background: rgba(5, 150, 105, 0.15);
+  border-color: #059669;
+  color: #047857;
+  text-shadow: none;
 }}
 
 .profile-stream-status.unknown {{
@@ -836,7 +1045,23 @@ html[data-theme="arctic"] .tab-btn.active-mp {{
 .social-steam {{ background: rgba(27, 40, 56, 0.85); border: 1px solid rgba(102, 192, 244, 0.3); color: #88C0D0; }}
 .social-da {{ background: linear-gradient(135deg, rgba(255, 107, 0, 0.16), rgba(255, 193, 7, 0.14)); border: 1px solid rgba(255, 107, 0, 0.32); color: #FF8C00; font-weight: 800; }}
 .social-tw {{ grid-column: 1 / -1; background: linear-gradient(135deg, rgba(145, 70, 255, 0.18), rgba(169, 112, 255, 0.12)); border: 1px solid rgba(145, 70, 255, 0.4); color: #C9A6FF; font-weight: 800; }}
-.social-tw.live {{ background: linear-gradient(135deg, rgba(0, 230, 118, 0.22), rgba(124, 255, 178, 0.16)); border-color: rgba(0, 230, 118, 0.5); color: #00E676; }}
+.social-tw.live {{
+  background: linear-gradient(135deg, #772CE8 0%, #9146FF 50%, #00C853 100%);
+  border: 1px solid #00FF87;
+  color: #FFFFFF !important;
+  font-weight: 800;
+  box-shadow: 0 4px 18px rgba(0, 230, 118, 0.4);
+  animation: twPulse 2s ease-in-out infinite;
+}}
+
+@keyframes twPulse {{
+  0%, 100% {{
+    box-shadow: 0 4px 18px rgba(0, 230, 118, 0.4);
+  }}
+  50% {{
+    box-shadow: 0 4px 24px rgba(0, 255, 135, 0.75);
+  }}
+}}
 
 .stats-card {{
   background: var(--card);
@@ -913,8 +1138,27 @@ html[data-theme="arctic"] .tab-btn.active-mp {{
   .grid {{ grid-template-columns: repeat(2, 1fr); gap: 14px; }}
 }}
 
-@media (max-width: 480px) {{
-  .grid {{ grid-template-columns: repeat(1, 1fr); gap: 16px; }}
+@media (max-width: 600px) {{
+  .grid {{ grid-template-columns: repeat(2, 1fr); gap: 10px; }}
+  .card-body {{
+    padding: 10px 12px;
+  }}
+  .card-title {{
+    font-size: 13px;
+    min-height: 32px;
+  }}
+  .meta-tag {{
+    font-size: 10px;
+    padding: 3px 8px;
+  }}
+  .status-tag {{
+    font-size: 9px;
+    padding: 4px 8px;
+  }}
+}}
+
+@media (max-width: 340px) {{
+  .grid {{ grid-template-columns: repeat(1, 1fr); gap: 12px; }}
 }}
 
 .card {{
@@ -1166,8 +1410,9 @@ html[data-theme="arctic"] .tab-btn.active-mp {{
 }}
 
 .modal {{
-  width: min(720px, 100%);
-  max-height: 90vh;
+  width: min(720px, calc(100vw - 20px));
+  max-height: 88dvh;
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1184,16 +1429,18 @@ html[data-theme="arctic"] .tab-btn.active-mp {{
 }}
 
 .modal-header-banner {{
-  min-height: 220px;
+  max-height: 280px;
+  min-height: 180px;
   height: auto;
   position: relative;
   background: radial-gradient(circle at 50% 40%, var(--card2), var(--bg));
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border);
-  padding: 18px;
+  padding: 16px;
   box-sizing: border-box;
 }}
 
@@ -1212,13 +1459,13 @@ html[data-theme="arctic"] .tab-btn.active-mp {{
   z-index: 1;
   display: block;
   max-width: 100%;
-  max-height: 360px;
+  max-height: 240px;
   width: auto;
   height: auto;
   object-fit: contain;
   object-position: center;
-  border-radius: 14px;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.55);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.55);
 }}
 
 .modal-header-initials {{
@@ -1253,17 +1500,57 @@ html[data-theme="arctic"] .tab-btn.active-mp {{
 }}
 
 .modal-body {{
-  padding: 24px 28px;
+  padding: 20px 24px;
   overflow-y: auto;
   flex: 1;
 }}
 
 .modal-title {{
   font-family: 'Nunito', sans-serif;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 900;
-  line-height: 1.15;
+  line-height: 1.2;
+  margin-top: 0;
   margin-bottom: 6px;
+}}
+
+@media (max-width: 600px) {{
+  .modal {{
+    border-radius: 20px;
+    max-height: 92dvh;
+    max-height: 92vh;
+  }}
+  .modal-close {{
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }}
+  .modal-header-banner {{
+    max-height: 220px;
+    min-height: 140px;
+    padding: 12px;
+  }}
+  .modal-main-img {{
+    max-height: 180px;
+  }}
+  .modal-body {{
+    padding: 16px 18px;
+  }}
+  .modal-title {{
+    font-size: 22px;
+  }}
+  .modal-links {{
+    flex-direction: column;
+    gap: 8px;
+  }}
+  .btn-action {{
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+    font-size: 13px;
+  }}
 }}
 
 .modal-alt-title {{
@@ -1509,7 +1796,7 @@ html[data-theme="arctic"] .admin-fab {{ background: rgba(255,255,255,0.95); }}
 
 <div class="hero-container">
   <div class="hero-card">
-    <img src="hero.jpg" alt="Mikkleo Games Header Banner" class="hero-img">
+    <img src="hero.jpg" alt="Mikkleo Games Header Banner" class="hero-img" decoding="async" fetchpriority="high">
     <div class="hero-overlay">
       <h1 class="hero-title">Моя коллекция игр</h1>
       <p class="hero-subtitle">Каталог стримов, прохождений и игровых проектов MikkleoVT</p>
@@ -1527,7 +1814,7 @@ html[data-theme="arctic"] .admin-fab {{ background: rgba(255,255,255,0.95); }}
   <aside class="sidebar">
     <div class="profile-card">
       <div class="profile-avatar-wrap">
-        <img src="mikkleo-avatar.jpg" class="profile-avatar" alt="MikkleoVT" onerror="this.src='https://static-cdn.jtvnw.net/jtv_user_pictures/b8489b38-68e8-4220-b257-b451f26cf0c9-profile_image-300x300.png'">
+        <img src="mikkleo-avatar.jpg" class="profile-avatar" alt="MikkleoVT" decoding="async" onerror="this.src='https://static-cdn.jtvnw.net/jtv_user_pictures/b8489b38-68e8-4220-b257-b451f26cf0c9-profile_image-300x300.png'">
         <div id="streamIndicator" class="status-indicator" title="Статус стрима"></div>
       </div>
       <div>
@@ -1662,7 +1949,7 @@ html[data-theme="arctic"] .admin-fab {{ background: rgba(255,255,255,0.95); }}
       <div class="modal-badges" id="modalBadges"></div>
 
       <div class="modal-links">
-        <a id="modalSteamLink" href="#" target="_blank" class="btn-action">🛒 Найти в Steam</a>
+        <a id="modalSteamLink" href="#" target="_blank" class="btn-action">🛒 Открыть в Steam</a>
         <a id="modalYtLink" href="#" target="_blank" class="btn-action">🎬 Прохождение на YouTube</a>
         <button id="modalShareBtn" class="btn-action" style="background:rgba(107,231,255,0.15); color:var(--accent);">🔗 Поделиться ссылкой</button>
       </div>
@@ -1943,8 +2230,8 @@ function render() {{
     const initials = esc((g.title || 'Game').slice(0, 2).toUpperCase());
 
     const imgBlock = g.image 
-      ? `<img class="cover-bg" src="${{esc(g.image)}}" loading="lazy">
-         <img class="cover-main" src="${{esc(g.image)}}" loading="lazy" alt="${{esc(g.title)}}">` 
+      ? `<img class="cover-bg" src="${{esc(g.image)}}" loading="lazy" decoding="async" alt="">
+         <img class="cover-main" src="${{esc(g.image)}}" loading="lazy" decoding="async" alt="${{esc(g.title)}}">` 
       : `<div class="cover-initials">${{initials}}</div>`;
 
     const mainGenre = g.genre ? g.genre.split(',')[0].trim() : 'Игра';
@@ -2039,6 +2326,9 @@ function openModal(g) {{
   activeModalGame = g;
   window.location.hash = 'game-' + g.id;
 
+  const modalBody = document.querySelector('.modal-body');
+  if (modalBody) modalBody.scrollTop = 0;
+
   document.getElementById('modalTitle').textContent = g.title;
   document.getElementById('modalAltTitle').textContent = g.altTitle ? 'Альтернативное название: ' + g.altTitle : '';
 
@@ -2069,9 +2359,29 @@ function openModal(g) {{
   `;
 
   // Action links
-  // Steam: search with "Games" category filter (category1=998) for a more accurate game-only result
-  const qTitle = encodeURIComponent(g.title);
-  document.getElementById('modalSteamLink').href = `https://store.steampowered.com/search/?term=${{qTitle}}&category1=998`;
+  const steamBtn = document.getElementById('modalSteamLink');
+  const steamQuery = g.altTitle || g.title;
+  const qTitle = encodeURIComponent(steamQuery);
+
+  if (g.steamUrl) {{
+    steamBtn.href = g.steamUrl;
+    steamBtn.textContent = '🛒 Открыть в Steam';
+  }} else if (g.steamAppId) {{
+    steamBtn.href = `https://store.steampowered.com/app/${{g.steamAppId}}`;
+    steamBtn.textContent = '🛒 Открыть в Steam';
+  }} else if (g.platform === 'Switch') {{
+    steamBtn.href = `https://duckduckgo.com/?q=!ducky+site%3Anintendo.com+${{qTitle}}`;
+    steamBtn.textContent = '🎮 Nintendo eShop';
+  }} else if (g.platform === 'HoYoPlay') {{
+    steamBtn.href = `https://duckduckgo.com/?q=!ducky+site%3Ahoyoverse.com+${{qTitle}}`;
+    steamBtn.textContent = '💫 Официальный сайт';
+  }} else if (g.platform === 'Ubisoft') {{
+    steamBtn.href = `https://duckduckgo.com/?q=!ducky+site%3Astore.ubisoft.com+${{qTitle}}`;
+    steamBtn.textContent = '🌐 Ubisoft Store';
+  }} else {{
+    steamBtn.href = `https://duckduckgo.com/?q=!ducky+site%3Astore.steampowered.com%2Fapp%2F+${{qTitle}}`;
+    steamBtn.textContent = '🛒 Открыть в Steam';
+  }}
 
   // YouTube: search within @mikkleostream channel's playlists (прохождения) by appending the game title
   document.getElementById('modalYtLink').href = `https://www.youtube.com/@mikkleostream/playlists?query=${{qTitle}}`;
@@ -2120,9 +2430,13 @@ document.addEventListener('keydown', e => {{
   }}
 }});
 
+let searchDebounceTimer = null;
 document.getElementById('searchInput').addEventListener('input', e => {{
-  visibleCount = 72;
-  applyFilters();
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {{
+    visibleCount = 72;
+    applyFilters();
+  }}, 100);
 }});
 
 document.getElementById('searchClear').onclick = () => {{
@@ -2389,18 +2703,21 @@ setTheme(savedTheme);
 setViewMode(currentViewMode);
 applyAdminVisibility();
 
-// Twitch Stream Status Indicator
+// Twitch Stream Status Indicator — multiple reliable no-auth fallbacks (2026)
 const TWITCH_CHANNEL = 'mikkleovt';
-const TWITCH_UPTIME_URL = `https://decapi.me/twitch/uptime/${{TWITCH_CHANNEL}}`;
-const TWITCH_CHECK_INTERVAL = 60 * 1000; // 1 minute
-const STREAM_CACHE_TTL = 5 * 60 * 1000;  // remember result for 5 min between reloads
+const TWITCH_ENDPOINTS = [
+  `https://api.ivr.fi/v2/twitch/user?login=${{TWITCH_CHANNEL}}`,
+  `https://decapi.me/twitch/uptime/${{TWITCH_CHANNEL}}`,
+  `https://decapi.me/twitch/is_live/${{TWITCH_CHANNEL}}`
+];
+const TWITCH_CHECK_INTERVAL = 35 * 1000;
+const STREAM_CACHE_TTL = 3 * 60 * 1000;
 
 const streamIndicator = document.getElementById('streamIndicator');
 const streamStatusText = document.getElementById('streamStatusText');
 const socialTwitchLink = document.getElementById('socialTwitchLink');
 
 function applyStreamState(state) {{
-  // state: 'live' | 'offline' | 'unknown'
   if (!streamIndicator || !streamStatusText) return;
 
   streamIndicator.classList.remove('live', 'unknown');
@@ -2410,10 +2727,11 @@ function applyStreamState(state) {{
     streamIndicator.classList.add('live');
     streamStatusText.classList.add('live');
     streamIndicator.title = 'Стрим сейчас в эфире на Twitch';
-    streamStatusText.textContent = '🔴 В эфире';
+    streamStatusText.textContent = 'В эфире';
     if (socialTwitchLink) {{
       socialTwitchLink.classList.add('live');
       socialTwitchLink.title = 'MikkleoVT сейчас стримит — нажмите, чтобы смотреть';
+      socialTwitchLink.innerHTML = '<img src="https://cdn.simpleicons.org/twitch/FFFFFF" width="12" height="12" alt="">Twitch (В эфире)';
     }}
   }} else if (state === 'offline') {{
     streamIndicator.title = 'Стрим оффлайн';
@@ -2421,6 +2739,7 @@ function applyStreamState(state) {{
     if (socialTwitchLink) {{
       socialTwitchLink.classList.remove('live');
       socialTwitchLink.title = 'Открыть канал MikkleoVT на Twitch';
+      socialTwitchLink.innerHTML = '<img src="https://cdn.simpleicons.org/twitch/C9A6FF" width="12" height="12" alt="">Twitch';
     }}
   }} else {{
     streamIndicator.classList.add('unknown');
@@ -2429,12 +2748,46 @@ function applyStreamState(state) {{
     streamStatusText.textContent = 'Статус неизвестен';
     if (socialTwitchLink) {{
       socialTwitchLink.classList.remove('live');
+      socialTwitchLink.innerHTML = '<img src="https://cdn.simpleicons.org/twitch/C9A6FF" width="12" height="12" alt="">Twitch';
     }}
   }}
 }}
 
+async function fetchJsonOrText(url, opts) {{
+  const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timeoutId = controller ? setTimeout(() => controller.abort(), 6500) : null;
+  try {{
+    const res = await fetch(url, {{ ...opts, signal: controller?.signal, cache: 'no-store' }});
+    if (timeoutId) clearTimeout(timeoutId);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('json')) return await res.json();
+    return await res.text();
+  }} catch (e) {{
+    if (timeoutId) clearTimeout(timeoutId);
+    throw e;
+  }}
+}}
+
+function parseIvr(data) {{
+  const user = Array.isArray(data) ? data[0] : data;
+  if (!user) return 'unknown';
+  if (user.stream) return 'live';           // has active stream object
+  if (user.isLive === true || user.live === true) return 'live';
+  if (user.id) return 'offline';            // user exists
+  return 'unknown';
+}}
+
+function parseDecapi(text) {{
+  if (!text) return 'unknown';
+  const t = String(text).trim().toLowerCase();
+  if (t.includes('offline') || t.includes('not live') || t.length < 3) return 'offline';
+  if (t.includes('live') || t.includes('эфире') || t.includes('uptime') || /\d/.test(t)) return 'live';
+  return 'unknown';
+}}
+
 async function checkTwitchStatus() {{
-  // Try to use cached state from previous recent visit
+  // Serve from cache immediately for fast initial paint
   try {{
     const cached = JSON.parse(localStorage.getItem('mikkleo_stream_cache') || 'null');
     if (cached && (Date.now() - cached.ts) < STREAM_CACHE_TTL) {{
@@ -2442,43 +2795,46 @@ async function checkTwitchStatus() {{
     }}
   }} catch (_) {{}}
 
-  try {{
-    const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
+  let state = 'unknown';
 
-    const fetchOpts = controller ? {{ signal: controller.signal, cache: 'no-store' }} : {{ cache: 'no-store' }};
-    const resp = await fetch(TWITCH_UPTIME_URL, fetchOpts);
-    if (timeoutId) clearTimeout(timeoutId);
-
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const text = (await resp.text()).trim().toLowerCase();
-
-    let state;
-    if (text.includes('offline') || text.includes('not live') || text.includes('канал не найден') || text.includes('channel not found')) {{
-      state = 'offline';
-    }} else if (text.includes('live') || text.includes('эфире') || text.includes('live for') || text.includes('uptime')) {{
-      state = 'live';
-    }} else if (text.length === 0) {{
-      state = 'unknown';
-    }} else {{
-      // Unknown payload — be safe and treat as unknown rather than wrong state
-      state = 'unknown';
+  // Try all endpoints in order
+  for (const url of TWITCH_ENDPOINTS) {{
+    try {{
+      const data = await fetchJsonOrText(url);
+      if (typeof data === 'string') {{
+        const t = data.trim().toLowerCase();
+        if (t === 'true' || t === '1') {{ state = 'live'; break; }}
+        if (t === 'false' || t === '0') {{ state = 'offline'; break; }}
+        state = parseDecapi(data);
+      }} else {{
+        state = parseIvr(data);
+      }}
+      if (state !== 'unknown') break;
+    }} catch (_) {{
+      // try next endpoint
     }}
+  }}
 
-    applyStreamState(state);
+  // Final fallback: scrape Twitch page (very last resort)
+  if (state === 'unknown') {{
+    try {{
+      const html = await fetchJsonOrText(`https://www.twitch.tv/${{TWITCH_CHANNEL}}`);
+      const h = String(html).toLowerCase();
+      if (h.includes('"islive":true') || h.includes('islivebroadcast') || h.includes('data-a-target="live"') || h.includes('live-indicator')) {{
+        state = 'live';
+      }} else if (h.includes('offline') || h.includes('channel is offline')) {{
+        state = 'offline';
+      }}
+    }} catch (_) {{}}
+  }}
+
+  applyStreamState(state);
+
+  // Cache only decisive results
+  if (state !== 'unknown') {{
     try {{
       localStorage.setItem('mikkleo_stream_cache', JSON.stringify({{ state, ts: Date.now() }}));
     }} catch (_) {{}}
-  }} catch (err) {{
-    // Network error / timeout / CORS — keep current visual state, but if no cache was applied, mark as unknown
-    if (streamIndicator && !streamIndicator.classList.contains('live')) {{
-      try {{
-        const cached = JSON.parse(localStorage.getItem('mikkleo_stream_cache') || 'null');
-        if (!cached) applyStreamState('unknown');
-      }} catch (_) {{
-        applyStreamState('unknown');
-      }}
-    }}
   }}
 }}
 
