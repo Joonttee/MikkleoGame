@@ -147,8 +147,13 @@ body {
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  width: 100%;
   line-height: 1.5;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 body::before {
@@ -354,6 +359,7 @@ html[data-theme="oled"] .header {
 .hero-img {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
   max-height: 460px;
   object-fit: contain;
@@ -430,6 +436,73 @@ html[data-theme="oled"] .header {
   .wrap { grid-template-columns: 1fr; }
   .hero-img { max-height: 320px; }
   .hero-title { font-size: 30px; }
+
+  /* Ensure no horizontal overflow on tablets/phones */
+  .wrap, main, .header-inner, .hero-container {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Sidebar always above main content cleanly on mobile */
+  .wrap {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .sidebar {
+    position: static !important;
+    top: auto !important;
+    margin-bottom: 16px;
+    width: 100%;
+  }
+  main {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Stronger mobile padding + prevent clipping/overflow on phones */
+@media (max-width: 768px) {
+  .wrap {
+    padding: 0 16px 32px;
+    gap: 20px;
+  }
+  .hero-container {
+    padding: 16px 16px 0;
+  }
+  .header-inner {
+    padding: 10px 16px;
+    gap: 12px;
+  }
+  .hero-title { font-size: 26px; }
+
+  /* Prevent cards from causing horizontal scroll */
+  .grid {
+    gap: 12px;
+  }
+  .card {
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrap {
+    padding: 0 12px 24px;
+    gap: 16px;
+  }
+  .hero-container {
+    padding: 12px 12px 0;
+  }
+  .header-inner {
+    padding: 8px 12px;
+  }
+  .hero-title { font-size: 22px; }
+  .hero-badges { gap: 6px; }
+  .badge-stat { font-size: 11px; padding: 4px 10px; }
+
+  .grid {
+    gap: 14px;
+  }
 }
 
 /* Navigation Tabs */
@@ -667,6 +740,60 @@ html[data-theme="arctic"] .tab-btn.active-mp {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* Mobile fixes: prevent sidebar from sticking and overlapping games on phones */
+@media (max-width: 1024px) {
+  .sidebar {
+    position: static;
+    top: auto;
+    align-self: stretch;
+  }
+}
+
+/* Compact sidebar cards on phones */
+@media (max-width: 768px) {
+  .profile-card {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+  .profile-avatar {
+    width: 78px;
+    height: 78px;
+    border-radius: 18px;
+  }
+  .profile-name {
+    font-size: 15px;
+  }
+  .social-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+  .social-link {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+  .social-tw {
+    grid-column: auto;
+  }
+  .stats-card {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+  .social-link {
+    font-size: 9px;
+    padding: 4px 6px;
+  }
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+  }
 }
 
 .profile-card {
@@ -2355,18 +2482,21 @@ setTheme(savedTheme);
 setViewMode(currentViewMode);
 applyAdminVisibility();
 
-// Twitch Stream Status Indicator
+// Twitch Stream Status Indicator — multiple reliable no-auth fallbacks (2026)
 const TWITCH_CHANNEL = 'mikkleovt';
-const TWITCH_UPTIME_URL = `https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}`;
-const TWITCH_CHECK_INTERVAL = 60 * 1000; // 1 minute
-const STREAM_CACHE_TTL = 5 * 60 * 1000;  // remember result for 5 min between reloads
+const TWITCH_ENDPOINTS = [
+  `https://api.ivr.fi/v2/twitch/user?login=${TWITCH_CHANNEL}`,
+  `https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}`,
+  `https://decapi.me/twitch/is_live/${TWITCH_CHANNEL}`
+];
+const TWITCH_CHECK_INTERVAL = 35 * 1000;
+const STREAM_CACHE_TTL = 3 * 60 * 1000;
 
 const streamIndicator = document.getElementById('streamIndicator');
 const streamStatusText = document.getElementById('streamStatusText');
 const socialTwitchLink = document.getElementById('socialTwitchLink');
 
 function applyStreamState(state) {
-  // state: 'live' | 'offline' | 'unknown'
   if (!streamIndicator || !streamStatusText) return;
 
   streamIndicator.classList.remove('live', 'unknown');
@@ -2399,8 +2529,41 @@ function applyStreamState(state) {
   }
 }
 
+async function fetchJsonOrText(url, opts) {
+  const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timeoutId = controller ? setTimeout(() => controller.abort(), 6500) : null;
+  try {
+    const res = await fetch(url, { ...opts, signal: controller?.signal, cache: 'no-store' });
+    if (timeoutId) clearTimeout(timeoutId);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('json')) return await res.json();
+    return await res.text();
+  } catch (e) {
+    if (timeoutId) clearTimeout(timeoutId);
+    throw e;
+  }
+}
+
+function parseIvr(data) {
+  const user = Array.isArray(data) ? data[0] : data;
+  if (!user) return 'unknown';
+  if (user.stream) return 'live';           // has active stream object
+  if (user.isLive === true || user.live === true) return 'live';
+  if (user.id) return 'offline';            // user exists
+  return 'unknown';
+}
+
+function parseDecapi(text) {
+  if (!text) return 'unknown';
+  const t = String(text).trim().toLowerCase();
+  if (t.includes('offline') || t.includes('not live') || t.length < 3) return 'offline';
+  if (t.includes('live') || t.includes('эфире') || t.includes('uptime') || /\d/.test(t)) return 'live';
+  return 'unknown';
+}
+
 async function checkTwitchStatus() {
-  // Try to use cached state from previous recent visit
+  // Serve from cache immediately for fast initial paint
   try {
     const cached = JSON.parse(localStorage.getItem('mikkleo_stream_cache') || 'null');
     if (cached && (Date.now() - cached.ts) < STREAM_CACHE_TTL) {
@@ -2408,43 +2571,46 @@ async function checkTwitchStatus() {
     }
   } catch (_) {}
 
-  try {
-    const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
+  let state = 'unknown';
 
-    const fetchOpts = controller ? { signal: controller.signal, cache: 'no-store' } : { cache: 'no-store' };
-    const resp = await fetch(TWITCH_UPTIME_URL, fetchOpts);
-    if (timeoutId) clearTimeout(timeoutId);
-
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const text = (await resp.text()).trim().toLowerCase();
-
-    let state;
-    if (text.includes('offline') || text.includes('not live') || text.includes('канал не найден') || text.includes('channel not found')) {
-      state = 'offline';
-    } else if (text.includes('live') || text.includes('эфире') || text.includes('live for') || text.includes('uptime')) {
-      state = 'live';
-    } else if (text.length === 0) {
-      state = 'unknown';
-    } else {
-      // Unknown payload — be safe and treat as unknown rather than wrong state
-      state = 'unknown';
+  // Try all endpoints in order
+  for (const url of TWITCH_ENDPOINTS) {
+    try {
+      const data = await fetchJsonOrText(url);
+      if (typeof data === 'string') {
+        const t = data.trim().toLowerCase();
+        if (t === 'true' || t === '1') { state = 'live'; break; }
+        if (t === 'false' || t === '0') { state = 'offline'; break; }
+        state = parseDecapi(data);
+      } else {
+        state = parseIvr(data);
+      }
+      if (state !== 'unknown') break;
+    } catch (_) {
+      // try next endpoint
     }
+  }
 
-    applyStreamState(state);
+  // Final fallback: scrape Twitch page (very last resort)
+  if (state === 'unknown') {
+    try {
+      const html = await fetchJsonOrText(`https://www.twitch.tv/${TWITCH_CHANNEL}`);
+      const h = String(html).toLowerCase();
+      if (h.includes('"islive":true') || h.includes('islivebroadcast') || h.includes('data-a-target="live"') || h.includes('live-indicator')) {
+        state = 'live';
+      } else if (h.includes('offline') || h.includes('channel is offline')) {
+        state = 'offline';
+      }
+    } catch (_) {}
+  }
+
+  applyStreamState(state);
+
+  // Cache only decisive results
+  if (state !== 'unknown') {
     try {
       localStorage.setItem('mikkleo_stream_cache', JSON.stringify({ state, ts: Date.now() }));
     } catch (_) {}
-  } catch (err) {
-    // Network error / timeout / CORS — keep current visual state, but if no cache was applied, mark as unknown
-    if (streamIndicator && !streamIndicator.classList.contains('live')) {
-      try {
-        const cached = JSON.parse(localStorage.getItem('mikkleo_stream_cache') || 'null');
-        if (!cached) applyStreamState('unknown');
-      } catch (_) {
-        applyStreamState('unknown');
-      }
-    }
   }
 }
 
