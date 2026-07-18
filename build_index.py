@@ -17,18 +17,17 @@ def rebuild_index(games_data=None):
     else:
         games_list = games_data
 
-    # Ensure status field
-    for i, g in enumerate(games_list):
-        if 'status' not in g:
-            year = g.get('year', 2023)
-            if year >= 2026:
-                g['status'] = 'planned'
-            elif i % 5 == 0:
-                g['status'] = 'completed'
-            elif i % 7 == 0:
-                g['status'] = 'planned'
-            else:
-                g['status'] = 'in_progress'
+    # Ensure status & category fields
+    for g in games_list:
+        # Reset status so the streamer can mark games themselves via the admin panel.
+        # Existing local admin overrides still apply at runtime via getEffectiveStatus().
+        g['status'] = None
+        if 'isGacha' not in g:
+            g['isGacha'] = False
+        if 'isMultiplayer' not in g:
+            g['isMultiplayer'] = False
+        if 'isCoop' not in g:
+            g['isCoop'] = False
 
     games_json_updated = json.dumps(games_list, ensure_ascii=False)
     games_count = len(games_list)
@@ -536,6 +535,28 @@ html[data-theme="oled"] .header {{
   box-shadow: 0 4px 16px var(--accent3-glow);
 }}
 
+.tab-btn.active-mp {{
+  background: rgba(167, 139, 250, 0.2);
+  color: #A78BFA;
+  font-weight: 900;
+  border-color: #A78BFA;
+  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.25);
+}}
+
+.tab-btn.active-coop {{
+  background: rgba(124, 255, 178, 0.2);
+  color: var(--accent2);
+  font-weight: 900;
+  border-color: var(--accent2);
+  box-shadow: 0 4px 16px var(--accent2-glow);
+}}
+
+html[data-theme="arctic"] .tab-btn.active-mp {{
+  color: #7C3AED;
+  border-color: #7C3AED;
+  background: rgba(124, 58, 237, 0.12);
+}}
+
 /* Status Indicator Badges on Cards */
 .status-tag {{
   position: absolute;
@@ -572,6 +593,12 @@ html[data-theme="oled"] .header {{
   background: rgba(28, 18, 4, 0.78);
   color: #FFC94A;
   border: 1px solid rgba(255, 184, 0, 0.85);
+}}
+
+.status-none {{
+  background: rgba(20, 25, 35, 0.78);
+  color: #B8C5D6;
+  border: 1px solid rgba(184, 197, 214, 0.5);
 }}
 
 /* Filter & Sorting Controls */
@@ -1340,6 +1367,116 @@ html[data-theme="oled"] .header {{
   color: #04101A;
   transform: translateY(-4px);
 }}
+
+/* ===== Admin panel (hidden for guests) ===== */
+.admin-fab {{
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(17, 26, 45, 0.92);
+  border: 1px solid var(--accent3);
+  color: var(--accent3);
+  display: none;
+  place-items: center;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 41;
+  transition: transform 0.2s ease, background 0.2s ease;
+}}
+.admin-fab:hover {{ transform: scale(1.1) rotate(20deg); background: var(--accent3); color: #fff; }}
+body.is-admin .admin-fab {{ display: grid; }}
+html[data-theme="arctic"] .admin-fab {{ background: rgba(255,255,255,0.95); }}
+
+.admin-modal {{
+  width: min(820px, 100%);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--card2), var(--card));
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+}}
+.admin-modal-body {{ padding: 20px 24px; overflow-y: auto; flex: 1; }}
+.admin-modal-header {{
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 18px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}}
+.admin-modal-title {{ font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 20px; }}
+.admin-modal-actions {{ display: flex; gap: 8px; flex-wrap: wrap; }}
+
+.admin-toolbar {{
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px;
+  padding: 12px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px;
+}}
+.admin-toolbar input {{
+  flex: 1; min-width: 200px; height: 38px; padding: 0 14px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 13px; outline: none;
+}}
+.admin-toolbar input:focus {{ border-color: var(--accent); }}
+
+.admin-list {{ display: flex; flex-direction: column; gap: 6px; }}
+.admin-row {{
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.15s ease;
+}}
+.admin-row:hover {{ border-color: var(--accent); }}
+.admin-row.has-override {{ border-color: var(--accent3); }}
+.admin-row .admin-cover {{
+  width: 44px; height: 58px; border-radius: 8px; object-fit: cover; background: var(--card2);
+}}
+.admin-row .admin-title {{
+  font-weight: 700; font-size: 13px; line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}}
+.admin-row .admin-controls {{ display: flex; gap: 5px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }}
+.admin-row .admin-controls .admin-flag {{
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px;
+  background: var(--card2); border: 1px solid var(--border); color: var(--muted);
+  font-size: 11px; font-weight: 700; cursor: pointer; user-select: none; transition: all 0.15s ease;
+}}
+.admin-row .admin-controls .admin-flag.on {{
+  background: rgba(107, 231, 255, 0.18); color: var(--accent); border-color: var(--accent);
+}}
+.admin-row .admin-controls .admin-flag.mp.on {{ background: rgba(167,139,250,0.2); color: #A78BFA; border-color: #A78BFA; }}
+.admin-row .admin-controls .admin-flag.coop.on {{ background: rgba(124,255,178,0.2); color: var(--accent2); border-color: var(--accent2); }}
+.admin-row .admin-controls .admin-status {{
+  height: 32px; padding: 0 10px; border-radius: 10px;
+  background: var(--card2); border: 1px solid var(--border); color: var(--text);
+  font-size: 12px; font-weight: 700; cursor: pointer; outline: none;
+}}
+
+.admin-prompt {{
+  text-align: center; padding: 28px 20px;
+  display: flex; flex-direction: column; gap: 14px; align-items: center;
+}}
+.admin-prompt p {{ color: var(--muted); font-size: 14px; }}
+.admin-prompt input {{
+  width: min(280px, 100%); height: 48px; padding: 0 16px; border-radius: 12px;
+  background: var(--card); border: 1px solid var(--border); color: var(--text);
+  font-size: 18px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.4em;
+  text-align: center; outline: none;
+}}
+.admin-prompt input:focus {{ border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }}
+.admin-prompt .err {{ color: var(--accent3); font-size: 13px; font-weight: 700; min-height: 18px; }}
+
+.admin-meta-info {{
+  font-size: 11px; color: var(--muted); padding: 8px 12px; background: var(--card2);
+  border: 1px solid var(--border); border-radius: 10px; margin-top: 12px;
+}}
+.admin-meta-info b {{ color: var(--accent); font-family: 'JetBrains Mono', monospace; }}
 </style>
 </head>
 
@@ -1460,7 +1597,9 @@ html[data-theme="oled"] .header {{
       <button onclick="setTab('in_progress')" id="tab-in_progress" class="tab-btn">⏳ В процессе</button>
       <button onclick="setTab('completed')" id="tab-completed" class="tab-btn">✅ Пройдены</button>
       <button onclick="setTab('planned')" id="tab-planned" class="tab-btn">📌 В планах</button>
-      <button onclick="setTab('gacha')" id="tab-gacha" class="tab-btn">💫 Гача & F2P</button>
+      <button onclick="setTab('gacha')" id="tab-gacha" class="tab-btn">💫 Гача</button>
+      <button onclick="setTab('mp')" id="tab-mp" class="tab-btn">🕹️ MP</button>
+      <button onclick="setTab('coop')" id="tab-coop" class="tab-btn">🤝 Coop</button>
     </div>
 
     <!-- Filter Bar -->
@@ -1540,13 +1679,34 @@ html[data-theme="oled"] .header {{
 <!-- Floating Scroll to Top Button -->
 <button id="backToTop" class="back-to-top" title="Наверх">↑</button>
 
+<!-- Hidden admin floating button (visible only when admin is signed in) -->
+<button id="adminFab" class="admin-fab" title="Админ-панель" onclick="openAdminPanel()">⚙</button>
+
+<!-- Admin Modal -->
+<div class="modal-back" id="adminBack">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title">⚙️ Админ-панель стримера</div>
+      <div class="admin-modal-actions">
+        <button class="btn-action" style="height:36px; padding:0 14px; font-size:12px;" onclick="exportOverrides()">💾 Скачать JSON</button>
+        <button class="btn-action" style="height:36px; padding:0 14px; font-size:12px; background:rgba(255,96,168,0.15); color:var(--accent3); border-color:rgba(255,96,168,0.3);" onclick="confirmReset()">🗑 Сброс</button>
+        <button class="btn-action" style="height:36px; padding:0 14px; font-size:12px;" onclick="closeAdminPanel()">✕ Закрыть</button>
+      </div>
+    </div>
+    <div class="admin-modal-body">
+      <div id="adminContent"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const GAMES = {games_json_updated};
 
 const STATUS_MAP = {{
   'completed': {{ label: 'Пройдено', emoji: '✅', class: 'status-completed' }},
   'in_progress': {{ label: 'В процессе', emoji: '⏳', class: 'status-in_progress' }},
-  'planned': {{ label: 'В планах', emoji: '📌', class: 'status-planned' }}
+  'planned': {{ label: 'В планах', emoji: '📌', class: 'status-planned' }},
+  'none': {{ label: 'Не начато', emoji: '🆕', class: 'status-none' }}
 }};
 
 const SEARCH_MAP = {{
@@ -1570,6 +1730,57 @@ function expandQuery(q){{
     if(SEARCH_MAP[w]) SEARCH_MAP[w].forEach(t=>expanded.add(t.toLowerCase()));
   }}
   return Array.from(expanded);
+}}
+
+// ===== Local streamer edits (PIN-protected admin) =====
+const STORAGE_KEY = 'mikkleo_streamer_overrides_v1';
+const SESSION_KEY = 'mikkleo_admin_session';
+
+function loadOverrides() {{
+  try {{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{{}}');
+  }} catch (_) {{
+    return {{}};
+  }}
+}}
+
+function saveOverrides(map) {{
+  try {{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+  }} catch (_) {{}}
+}}
+
+function isAdmin() {{
+  try {{
+    return sessionStorage.getItem(SESSION_KEY) === '1';
+  }} catch (_) {{
+    return false;
+  }}
+}}
+
+function setAdmin(on) {{
+  try {{
+    if (on) sessionStorage.setItem(SESSION_KEY, '1');
+    else sessionStorage.removeItem(SESSION_KEY);
+  }} catch (_) {{}}
+}}
+
+function getEffectiveStatus(g) {{
+  const overrides = loadOverrides();
+  const o = overrides[g.id];
+  if (o && Object.prototype.hasOwnProperty.call(o, 'status')) {{
+    return o.status; // may be null
+  }}
+  return g.status || 'none';
+}}
+
+function getEffectiveFlag(g, flag) {{
+  const overrides = loadOverrides();
+  const o = overrides[g.id];
+  if (o && Object.prototype.hasOwnProperty.call(o, flag)) {{
+    return !!o[flag];
+  }}
+  return !!g[flag];
 }}
 
 let filtered = [...GAMES];
@@ -1630,13 +1841,17 @@ function applyFilters() {{
 
   // Apply tab filter
   if(currentTab === 'completed') {{
-    out = out.filter(g => g.status === 'completed');
+    out = out.filter(g => getEffectiveStatus(g) === 'completed');
   }} else if(currentTab === 'in_progress') {{
-    out = out.filter(g => (g.status || 'in_progress') === 'in_progress');
+    out = out.filter(g => getEffectiveStatus(g) === 'in_progress');
   }} else if(currentTab === 'planned') {{
-    out = out.filter(g => g.status === 'planned');
+    out = out.filter(g => getEffectiveStatus(g) === 'planned');
   }} else if(currentTab === 'gacha') {{
-    out = out.filter(g => g.platform === 'HoYoPlay' || (g.genre && (g.genre.includes('Free To Play') || g.genre.includes('Бесплатные'))));
+    out = out.filter(g => getEffectiveFlag(g, 'isGacha'));
+  }} else if(currentTab === 'mp') {{
+    out = out.filter(g => getEffectiveFlag(g, 'isMultiplayer'));
+  }} else if(currentTab === 'coop') {{
+    out = out.filter(g => getEffectiveFlag(g, 'isCoop'));
   }}
 
   // Genre Filter
@@ -1687,10 +1902,10 @@ function render() {{
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
 
-  // Calculate Progress stats
-  const completedCount = GAMES.filter(g => g.status === 'completed').length;
-  const inProgressCount = GAMES.filter(g => (g.status || 'in_progress') === 'in_progress').length;
-  const plannedCount = GAMES.filter(g => g.status === 'planned').length;
+  // Calculate Progress stats (use effective status so admin overrides are reflected)
+  const completedCount = GAMES.filter(g => getEffectiveStatus(g) === 'completed').length;
+  const inProgressCount = GAMES.filter(g => getEffectiveStatus(g) === 'in_progress').length;
+  const plannedCount = GAMES.filter(g => getEffectiveStatus(g) === 'planned').length;
   const progressPercent = ((completedCount / GAMES.length) * 100).toFixed(1);
 
   // Stats updates in sidebar & hero
@@ -1727,7 +1942,8 @@ function render() {{
     el.className = 'card';
     el.onclick = () => openModal(g);
 
-    const stInfo = STATUS_MAP[g.status || 'in_progress'] || STATUS_MAP['in_progress'];
+    const effStatus = getEffectiveStatus(g);
+    const stInfo = STATUS_MAP[effStatus] || STATUS_MAP['none'];
     const initials = esc((g.title || 'Game').slice(0, 2).toUpperCase());
 
     const imgBlock = g.image 
@@ -1738,6 +1954,8 @@ function render() {{
     const mainGenre = g.genre ? g.genre.split(',')[0].trim() : 'Игра';
 
     const statusPill = `<span class="status-tag ${{stInfo.class}}">${{stInfo.emoji}} ${{stInfo.label}}</span>`;
+
+    // (admin button next to title in list mode is rendered in the else branch)
 
     if(currentViewMode === 'list') {{
       // Compact list: cover is a small thumbnail, status pill is shown in the body so it isn't clipped by the cover's overflow
@@ -1845,7 +2063,8 @@ function openModal(g) {{
   }}
 
   const badges = document.getElementById('modalBadges');
-  const stInfo = STATUS_MAP[g.status || 'in_progress'] || STATUS_MAP['in_progress'];
+  const effStatus = getEffectiveStatus(g);
+  const stInfo = STATUS_MAP[effStatus] || STATUS_MAP['none'];
 
   badges.innerHTML = `
     <span class="status-tag ${{stInfo.class}}" style="position:static;">${{stInfo.emoji}} ${{stInfo.label}}</span>
@@ -1926,10 +2145,253 @@ backToTop.onclick = () => {{
   window.scrollTo({{ top: 0, behavior: 'smooth' }});
 }};
 
+// ===== Admin Panel Logic =====
+const ADMIN_PIN_KEY = 'mikkleo_admin_pin_hash_v1';
+
+// Simple non-cryptographic hash for PIN (NOT for production security — this is a
+// deterrent only since the data lives in the browser anyway).
+function hashPin(pin) {{
+  let h = 5381;
+  for (let i = 0; i < pin.length; i++) {{
+    h = ((h << 5) + h) + pin.charCodeAt(i);
+    h = h & 0xFFFFFFFF;
+  }}
+  return 'h_' + (h >>> 0).toString(16);
+}}
+
+function getStoredPinHash() {{
+  try {{ return localStorage.getItem(ADMIN_PIN_KEY); }} catch (_) {{ return null; }}
+}}
+
+function setStoredPinHash(h) {{
+  try {{ localStorage.setItem(ADMIN_PIN_KEY, h); }} catch (_) {{}}
+}}
+
+function applyAdminVisibility() {{
+  if (isAdmin()) document.body.classList.add('is-admin');
+  else document.body.classList.remove('is-admin');
+}}
+
+function openAdminPanel() {{
+  document.getElementById('adminBack').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderAdminContent();
+}}
+
+function closeAdminPanel() {{
+  document.getElementById('adminBack').classList.remove('open');
+  document.body.style.overflow = '';
+}}
+
+function renderAdminContent() {{
+  const root = document.getElementById('adminContent');
+  if (!isAdmin()) {{
+    root.innerHTML = renderAdminPrompt();
+    const input = document.getElementById('adminPinInput');
+    if (input) {{
+      input.focus();
+      input.addEventListener('keydown', (e) => {{ if (e.key === 'Enter') tryAdminLogin(); }});
+    }}
+    return;
+  }}
+  root.innerHTML = renderAdminList();
+  const search = document.getElementById('adminSearch');
+  if (search) {{
+    search.addEventListener('input', () => {{
+      const q = search.value.toLowerCase().trim();
+      document.querySelectorAll('.admin-row').forEach(r => {{
+        r.style.display = (!q || r.dataset.title.includes(q)) ? '' : 'none';
+      }});
+    }});
+  }}
+  // Attach change handlers to selects/checkboxes
+  document.querySelectorAll('.admin-row').forEach(row => {{
+    const id = row.dataset.id;
+    const statusSel = row.querySelector('.admin-status');
+    if (statusSel) {{
+      statusSel.addEventListener('change', () => {{
+        const v = statusSel.value;
+        const overrides = loadOverrides();
+        if (!overrides[id]) overrides[id] = {{}};
+        if (v === '__default__') {{
+          delete overrides[id].status;
+        }} else {{
+          overrides[id].status = v;
+        }}
+        saveOverrides(overrides);
+        applyAdminVisibility();
+        render();
+        renderAdminContent();
+      }});
+    }}
+    row.querySelectorAll('.admin-flag').forEach(btn => {{
+      btn.addEventListener('click', () => {{
+        const flag = btn.dataset.flag;
+        const overrides = loadOverrides();
+        if (!overrides[id]) overrides[id] = {{}};
+        const current = getEffectiveFlag(GAMES.find(g => g.id === id), flag);
+        if (overrides[id][flag] === undefined) {{
+          // currently using default; toggling means setting the opposite
+          overrides[id][flag] = !current;
+          if (overrides[id][flag] === !!GAMES.find(g => g.id === id)[flag]) {{
+            // back to default value — drop override
+            delete overrides[id][flag];
+          }}
+        }} else {{
+          overrides[id][flag] = !overrides[id][flag];
+          if (overrides[id][flag] === !!GAMES.find(g => g.id === id)[flag]) delete overrides[id][flag];
+        }}
+        saveOverrides(overrides);
+        render();
+        renderAdminContent();
+      }});
+    }});
+  }});
+}}
+
+function renderAdminPrompt() {{
+  const hasPin = !!getStoredPinHash();
+  return `
+    <div class="admin-prompt">
+      <div style="font-size: 36px;">🔐</div>
+      <div style="font-weight:800; font-size:18px;">${{hasPin ? 'Введите PIN-код' : 'Задайте новый PIN-код'}}</div>
+      <p>${{hasPin ? 'PIN хранится локально в этом браузере. 4–6 цифр.' : 'Придумайте 4–6 цифр. Этот PIN будет запрашиваться при открытии админки.'}}</p>
+      <input id="adminPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••" autocomplete="off">
+      <div class="err" id="adminPinErr"></div>
+      <button class="btn-action" style="height:42px; padding:0 22px; font-size:13px; background:var(--accent); color:#04101A; border-color:var(--accent);" onclick="tryAdminLogin()">
+        ${{hasPin ? 'Войти' : 'Задать PIN и войти'}}
+      </button>
+      ${{hasPin ? '<button class="btn-action" style="height:36px; padding:0 14px; font-size:12px; background:transparent; color:var(--muted); border-color:transparent;" onclick="forgetPin()">Забыли PIN? Сбросить</button>' : ''}}
+    </div>
+  `;
+}}
+
+function tryAdminLogin() {{
+  const input = document.getElementById('adminPinInput');
+  const err = document.getElementById('adminPinErr');
+  const pin = (input?.value || '').trim();
+  if (!/^\\d{{4,6}}$/.test(pin)) {{
+    err.textContent = 'PIN должен быть 4–6 цифр';
+    return;
+  }}
+  const stored = getStoredPinHash();
+  const h = hashPin(pin);
+  if (stored) {{
+    if (stored === h) {{
+      setAdmin(true);
+      applyAdminVisibility();
+      renderAdminContent();
+    }} else {{
+      err.textContent = 'Неверный PIN';
+      input.value = '';
+      input.focus();
+    }}
+  }} else {{
+    setStoredPinHash(h);
+    setAdmin(true);
+    applyAdminVisibility();
+    renderAdminContent();
+  }}
+}}
+
+function forgetPin() {{
+  if (!confirm('Сбросить PIN? Локальные правки статусов останутся.')) return;
+  try {{ localStorage.removeItem(ADMIN_PIN_KEY); }} catch (_) {{}}
+  setAdmin(false);
+  applyAdminVisibility();
+  renderAdminContent();
+}}
+
+function adminLogout() {{
+  setAdmin(false);
+  applyAdminVisibility();
+  closeAdminPanel();
+}}
+
+function renderAdminList() {{
+  const overrides = loadOverrides();
+  const totalOverrides = Object.keys(overrides).length;
+  const html = GAMES.map(g => {{
+    const eff = getEffectiveStatus(g);
+    const gachaOn = getEffectiveFlag(g, 'isGacha');
+    const mpOn = getEffectiveFlag(g, 'isMultiplayer');
+    const coopOn = getEffectiveFlag(g, 'isCoop');
+    const isOverridden = !!overrides[g.id];
+    return `
+      <div class="admin-row ${{isOverridden ? 'has-override' : ''}}" data-id="${{esc(g.id)}}" data-title="${{esc((g.title||'').toLowerCase())}}">
+        <img class="admin-cover" src="${{esc(g.image||'')}}" alt="" onerror="this.style.visibility='hidden'">
+        <div>
+          <div class="admin-title">${{esc(g.title||'Без названия')}}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">${{esc(g.genre||'')}} · ${{g.year||''}}</div>
+        </div>
+        <div class="admin-controls">
+          <button class="admin-flag ${{gachaOn ? 'on' : ''}}" data-flag="isGacha" title="Гача">💫</button>
+          <button class="admin-flag mp ${{mpOn ? 'on' : ''}}" data-flag="isMultiplayer" title="Мультиплеер">🕹️</button>
+          <button class="admin-flag coop ${{coopOn ? 'on' : ''}}" data-flag="isCoop" title="Кооп">🤝</button>
+          <select class="admin-status" title="Статус">
+            <option value="__default__" ${{!isOverridden || overrides[g.id].status === undefined ? 'selected' : ''}}>— дефолт —</option>
+            <option value="in_progress" ${{eff === 'in_progress' && (isOverridden && overrides[g.id].status !== undefined) ? 'selected' : ''}}>⏳ В процессе</option>
+            <option value="completed" ${{eff === 'completed' && (isOverridden && overrides[g.id].status !== undefined) ? 'selected' : ''}}>✅ Пройдено</option>
+            <option value="planned" ${{eff === 'planned' && (isOverridden && overrides[g.id].status !== undefined) ? 'selected' : ''}}>📌 В планах</option>
+            <option value="none" ${{eff === 'none' && (isOverridden && overrides[g.id].status !== undefined) ? 'selected' : ''}}>🆕 Не начато</option>
+          </select>
+        </div>
+      </div>
+    `;
+  }}).join('');
+  return `
+    <div class="admin-toolbar">
+      <input id="adminSearch" type="text" placeholder="🔍 Поиск по названию..." autocomplete="off">
+      <button class="btn-action" style="height:36px; padding:0 14px; font-size:12px; background:transparent; color:var(--muted);" onclick="adminLogout()">🚪 Выйти</button>
+    </div>
+    <div class="admin-list">${{html}}</div>
+    <div class="admin-meta-info">
+      Локальных правок: <b>${{totalOverrides}}</b>. Правки хранятся только в этом браузере.
+      Скачайте JSON, чтобы перенести на другое устройство.
+    </div>
+  `;
+}}
+
+function exportOverrides() {{
+  const data = loadOverrides();
+  const blob = new Blob([JSON.stringify(data, null, 2)], {{ type: 'application/json' }});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mikkleo-overrides.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('Файл сохранён в загрузках');
+}}
+
+function confirmReset() {{
+  if (!confirm('Удалить ВСЕ локальные правки? Это необратимо.')) return;
+  try {{ localStorage.removeItem(STORAGE_KEY); }} catch (_) {{}}
+  render();
+  renderAdminContent();
+  showToast('Локальные правки сброшены');
+}}
+
+// Hidden trigger: Ctrl+Shift+A opens admin panel
+document.addEventListener('keydown', (e) => {{
+  if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'Ф' || e.key === 'ф')) {{
+    e.preventDefault();
+    openAdminPanel();
+  }}
+  if (e.key === 'Escape' && document.getElementById('adminBack').classList.contains('open')) {{
+    closeAdminPanel();
+  }}
+}});
+
+document.getElementById('adminBack').addEventListener('click', (e) => {{
+  if (e.target.id === 'adminBack') closeAdminPanel();
+}});
+
 // Initialize
 const savedTheme = localStorage.getItem('mikkleo_theme') || 'cyan';
 setTheme(savedTheme);
 setViewMode(currentViewMode);
+applyAdminVisibility();
 
 // Twitch Stream Status Indicator
 const TWITCH_CHANNEL = 'mikkleovt';
