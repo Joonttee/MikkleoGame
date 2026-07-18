@@ -97,6 +97,83 @@ html[data-theme="oled"] {{
   --warning: #FFB800;
 }}
 
+html[data-theme="amber"] {{
+  --bg: #150B04;
+  --card: #2A1A0E;
+  --card2: #3A2615;
+  --border: #5A3A20;
+  --border2: #7A4F2C;
+  --text: #FFF4E0;
+  --muted: #D6B48A;
+  --accent: #FFB74D;
+  --accent-glow: rgba(255, 183, 77, 0.4);
+  --accent2: #FFD580;
+  --accent2-glow: rgba(255, 213, 128, 0.28);
+  --accent3: #FF6B6B;
+  --accent3-glow: rgba(255, 107, 107, 0.28);
+  --warning: #FFE066;
+}}
+
+html[data-theme="emerald"] {{
+  --bg: #03110A;
+  --card: #0A2018;
+  --card2: #112E22;
+  --border: #1E4530;
+  --border2: #2D5C44;
+  --text: #E8FFEC;
+  --muted: #95C5A8;
+  --accent: #4DE69C;
+  --accent-glow: rgba(77, 230, 156, 0.4);
+  --accent2: #7CFFB2;
+  --accent2-glow: rgba(124, 255, 178, 0.28);
+  --accent3: #FFB74D;
+  --accent3-glow: rgba(255, 183, 77, 0.28);
+  --warning: #FFD54A;
+}}
+
+html[data-theme="lavender"] {{
+  --bg: #0A0820;
+  --card: #16133A;
+  --card2: #221C55;
+  --border: #2F2870;
+  --border2: #463C95;
+  --text: #F0EBFF;
+  --muted: #B0A6D9;
+  --accent: #A78BFA;
+  --accent-glow: rgba(167, 139, 250, 0.4);
+  --accent2: #C4B5FD;
+  --accent2-glow: rgba(196, 181, 253, 0.3);
+  --accent3: #FF8FB3;
+  --accent3-glow: rgba(255, 143, 179, 0.3);
+  --warning: #FFD166;
+}}
+
+html[data-theme="arctic"] {{
+  --bg: #F2F6FC;
+  --card: #FFFFFF;
+  --card2: #EBF0F7;
+  --border: #D6DEE8;
+  --border2: #B8C5D6;
+  --text: #0F1A2A;
+  --muted: #5A6B82;
+  --accent: #2563EB;
+  --accent-glow: rgba(37, 99, 235, 0.25);
+  --accent2: #16A34A;
+  --accent2-glow: rgba(22, 163, 74, 0.25);
+  --accent3: #DB2777;
+  --accent3-glow: rgba(219, 39, 119, 0.25);
+  --warning: #D97706;
+}}
+
+/* Light-theme adjustments: use a tinted card-color glass header and lighter overlays */
+html[data-theme="arctic"] .header {{ background: rgba(255, 255, 255, 0.78); border-bottom-color: var(--border); }}
+html[data-theme="arctic"] .modal-back {{ background: rgba(15, 26, 42, 0.55); }}
+html[data-theme="arctic"] .back-to-top {{ background: rgba(255, 255, 255, 0.95); color: var(--accent); }}
+html[data-theme="arctic"] .hero-overlay {{
+  background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, transparent 35%, transparent 55%, rgba(255,255,255,0.92) 100%);
+}}
+html[data-theme="arctic"] .hero-title {{ color: var(--text); text-shadow: 0 1px 0 rgba(255,255,255,0.6); }}
+
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 
 body {{
@@ -249,31 +326,48 @@ html[data-theme="oled"] .header {{
 .theme-picker {{
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: var(--card);
   border: 1px solid var(--border);
-  padding: 4px;
+  padding: 5px;
   border-radius: 999px;
+  flex-wrap: wrap;
 }}
 
 .theme-btn {{
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: 2px solid var(--border2);
   cursor: pointer;
   display: grid;
   place-items: center;
-  font-size: 12px;
-  transition: 0.2s;
+  font-size: 14px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
 }}
 
-.theme-btn:hover {{ transform: scale(1.15); }}
-.theme-btn.active {{ border-color: var(--text); box-shadow: 0 0 10px var(--accent-glow); }}
+.theme-btn:hover {{
+  transform: scale(1.18);
+  border-color: var(--text);
+  box-shadow: 0 0 14px var(--accent-glow), inset 0 0 0 1px rgba(255,255,255,0.08);
+}}
 
-.theme-cyan {{ background: linear-gradient(135deg, #070D1A, #6BE7FF); }}
-.theme-pink {{ background: linear-gradient(135deg, #120818, #FF60C8); }}
-.theme-oled {{ background: linear-gradient(135deg, #000000, #00E676); }}
+.theme-btn.active {{
+  border-color: var(--text);
+  box-shadow: 0 0 16px var(--accent-glow), inset 0 0 0 1px rgba(255,255,255,0.12);
+  transform: scale(1.05);
+}}
+
+.theme-cyan    {{ background: linear-gradient(135deg, #070D1A 0%, #16213A 50%, #6BE7FF 100%); }}
+.theme-pink    {{ background: linear-gradient(135deg, #120818 0%, #2B163B 50%, #FF60C8 100%); }}
+.theme-oled    {{ background: linear-gradient(135deg, #000000 0%, #0D0D0D 50%, #00E676 100%); }}
+.theme-amber   {{ background: linear-gradient(135deg, #150B04 0%, #3A2615 50%, #FFB74D 100%); }}
+.theme-emerald {{ background: linear-gradient(135deg, #03110A 0%, #112E22 50%, #4DE69C 100%); }}
+.theme-lavender{{ background: linear-gradient(135deg, #0A0820 0%, #221C55 50%, #A78BFA 100%); }}
+.theme-arctic  {{ background: linear-gradient(135deg, #FFFFFF 0%, #D6DEE8 50%, #2563EB 100%); }}
 
 /* Hero Section */
 .hero-container {{
@@ -289,24 +383,30 @@ html[data-theme="oled"] .header {{
   margin-bottom: 20px;
   border: 1px solid var(--border);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at 50% 40%, var(--card2), var(--bg));
 }}
 
 .hero-img {{
-  width: 100%;
-  height: 280px;
-  object-fit: cover;
   display: block;
+  width: 100%;
+  height: auto;
+  max-height: 460px;
+  object-fit: contain;
+  object-position: center;
 }}
 
 .hero-overlay {{
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(7, 13, 26, 0.1) 0%, var(--bg) 95%);
+  background: linear-gradient(180deg, rgba(7, 13, 26, 0.55) 0%, transparent 35%, transparent 55%, rgba(7, 13, 26, 0.92) 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 28px 36px;
+  pointer-events: none;
 }}
+
+.hero-overlay > * {{ pointer-events: auto; }}
 
 .hero-title {{
   font-family: 'Nunito', sans-serif;
@@ -363,7 +463,7 @@ html[data-theme="oled"] .header {{
 
 @media (max-width: 1024px) {{
   .wrap {{ grid-template-columns: 1fr; }}
-  .hero-img {{ height: 200px; }}
+  .hero-img {{ max-height: 320px; }}
   .hero-title {{ font-size: 30px; }}
 }}
 
@@ -441,35 +541,37 @@ html[data-theme="oled"] .header {{
   position: absolute;
   top: 10px;
   left: 10px;
-  z-index: 4;
+  z-index: 5;
   font-size: 10px;
   font-weight: 800;
-  padding: 4px 10px;
+  padding: 5px 11px;
   border-radius: 999px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.25);
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }}
 
 .status-completed {{
-  background: rgba(124, 255, 178, 0.22);
-  color: var(--accent2);
-  border: 1px solid rgba(124, 255, 178, 0.5);
+  background: rgba(8, 22, 16, 0.78);
+  color: #7CFFB2;
+  border: 1px solid rgba(124, 255, 178, 0.85);
 }}
 
 .status-in_progress {{
-  background: rgba(107, 231, 255, 0.22);
-  color: var(--accent);
-  border: 1px solid rgba(107, 231, 255, 0.5);
+  background: rgba(7, 18, 30, 0.78);
+  color: #6BE7FF;
+  border: 1px solid rgba(107, 231, 255, 0.85);
 }}
 
 .status-planned {{
-  background: rgba(255, 184, 0, 0.22);
-  color: var(--warning);
-  border: 1px solid rgba(255, 184, 0, 0.5);
+  background: rgba(28, 18, 4, 0.78);
+  color: #FFC94A;
+  border: 1px solid rgba(255, 184, 0, 0.85);
 }}
 
 /* Filter & Sorting Controls */
@@ -607,9 +709,65 @@ html[data-theme="oled"] .header {{
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #00E676;
   border: 3px solid var(--bg);
+  background: #FF3D3D;
+  box-shadow: 0 0 10px #FF3D3D;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}}
+
+.status-indicator.live {{
+  background: #00E676;
   box-shadow: 0 0 10px #00E676;
+  animation: statusPulse 1.6s ease-in-out infinite;
+}}
+
+.status-indicator.unknown {{
+  background: #8AA0BF;
+  box-shadow: 0 0 8px rgba(138, 160, 191, 0.5);
+}}
+
+@keyframes statusPulse {{
+  0%, 100% {{
+    box-shadow: 0 0 10px #00E676, 0 0 0 0 rgba(0, 230, 118, 0.5);
+  }}
+  50% {{
+    box-shadow: 0 0 14px #00E676, 0 0 0 8px rgba(0, 230, 118, 0);
+  }}
+}}
+
+.profile-stream-status {{
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 61, 61, 0.14);
+  border: 1px solid rgba(255, 61, 61, 0.32);
+  color: #FF6363;
+  transition: all 0.3s ease;
+}}
+
+.profile-stream-status.live {{
+  background: rgba(0, 230, 118, 0.16);
+  border-color: rgba(0, 230, 118, 0.4);
+  color: #00E676;
+}}
+
+.profile-stream-status.unknown {{
+  background: rgba(138, 160, 191, 0.14);
+  border-color: rgba(138, 160, 191, 0.32);
+  color: var(--muted);
+}}
+
+.profile-stream-status::before {{
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }}
 
 .profile-name {{
@@ -651,6 +809,8 @@ html[data-theme="oled"] .header {{
 .social-steam {{ background: rgba(27, 40, 56, 0.85); border: 1px solid rgba(102, 192, 244, 0.3); color: #88C0D0; }}
 .social-epic {{ background: rgba(56, 56, 56, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); color: #F5F5F5; }}
 .social-da {{ grid-column: 1 / -1; background: linear-gradient(135deg, rgba(255, 107, 0, 0.16), rgba(255, 193, 7, 0.14)); border: 1px solid rgba(255, 107, 0, 0.32); color: #FF8C00; font-weight: 800; }}
+.social-tw {{ grid-column: 1 / -1; background: linear-gradient(135deg, rgba(145, 70, 255, 0.18), rgba(169, 112, 255, 0.12)); border: 1px solid rgba(145, 70, 255, 0.4); color: #C9A6FF; font-weight: 800; }}
+.social-tw.live {{ background: linear-gradient(135deg, rgba(0, 230, 118, 0.22), rgba(124, 255, 178, 0.16)); border-color: rgba(0, 230, 118, 0.5); color: #00E676; }}
 
 .stats-card {{
   background: var(--card);
@@ -765,9 +925,9 @@ html[data-theme="oled"] .header {{
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: blur(24px) brightness(0.6) saturate(1.3);
-  transform: scale(1.2);
-  opacity: 0.85;
+  filter: blur(28px) brightness(0.55) saturate(1.4);
+  transform: scale(1.25);
+  opacity: 0.9;
 }}
 
 .card-cover .cover-main {{
@@ -776,9 +936,20 @@ html[data-theme="oled"] .header {{
   z-index: 1;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   transition: transform 0.4s ease;
+  padding: 8px;
+  box-sizing: border-box;
+}}
+
+.card-cover::after {{
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 22%, transparent 75%, rgba(0,0,0,0.35) 100%);
 }}
 
 .card:hover .cover-main {{
@@ -852,8 +1023,9 @@ html[data-theme="oled"] .header {{
   flex-direction: row;
   align-items: center;
   padding: 10px 16px;
-  gap: 16px;
+  gap: 14px;
   border-radius: 14px;
+  position: relative;
 }}
 
 .grid.mode-list .card:hover {{
@@ -861,22 +1033,39 @@ html[data-theme="oled"] .header {{
 }}
 
 .grid.mode-list .card-cover {{
-  width: 50px;
-  height: 66px;
+  width: 56px;
+  height: 76px;
   aspect-ratio: auto;
   border-radius: 10px;
   flex-shrink: 0;
+  overflow: hidden;
+}}
+
+/* In list mode, use cover for the small thumbnail (crop is fine here) */
+.grid.mode-list .cover-main {{
+  padding: 0;
+  object-fit: cover;
+}}
+
+.grid.mode-list .cover-bg {{
+  display: none;
 }}
 
 .grid.mode-list .cover-initials {{
   font-size: 20px;
 }}
 
+/* Status tag in list mode: small inline pill, no absolute positioning */
 .grid.mode-list .status-tag {{
-  top: 3px;
-  left: 3px;
-  font-size: 8px;
-  padding: 2px 6px;
+  position: static;
+  top: auto;
+  left: auto;
+  z-index: auto;
+  font-size: 10px;
+  padding: 3px 8px;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  white-space: nowrap;
 }}
 
 .grid.mode-list .card-body {{
@@ -887,12 +1076,16 @@ html[data-theme="oled"] .header {{
   justify-content: space-between;
   width: 100%;
   gap: 12px;
+  flex: 1;
+  min-width: 0;
 }}
 
 .grid.mode-list .card-title {{
   min-height: auto;
   font-size: 15px;
   -webkit-line-clamp: 1;
+  flex: 1;
+  min-width: 0;
 }}
 
 .grid.mode-list .card-meta {{
@@ -965,7 +1158,8 @@ html[data-theme="oled"] .header {{
 }}
 
 .modal-header-banner {{
-  height: 220px;
+  min-height: 220px;
+  height: auto;
   position: relative;
   background: radial-gradient(circle at 50% 40%, var(--card2), var(--bg));
   display: grid;
@@ -973,6 +1167,8 @@ html[data-theme="oled"] .header {{
   overflow: hidden;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border);
+  padding: 18px;
+  box-sizing: border-box;
 }}
 
 .modal-cover-bg {{
@@ -988,9 +1184,15 @@ html[data-theme="oled"] .header {{
 .modal-main-img {{
   position: relative;
   z-index: 1;
-  width: 100%;
-  height: 100%;
+  display: block;
+  max-width: 100%;
+  max-height: 360px;
+  width: auto;
+  height: auto;
   object-fit: contain;
+  object-position: center;
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.55);
 }}
 
 .modal-header-initials {{
@@ -1161,6 +1363,10 @@ html[data-theme="oled"] .header {{
       <button class="theme-btn theme-cyan active" title="Cyan Cyber" onclick="setTheme('cyan')"></button>
       <button class="theme-btn theme-pink" title="Neon Pink" onclick="setTheme('pink')"></button>
       <button class="theme-btn theme-oled" title="OLED Black" onclick="setTheme('oled')"></button>
+      <button class="theme-btn theme-amber" title="Amber Fire" onclick="setTheme('amber')"></button>
+      <button class="theme-btn theme-emerald" title="Emerald Forest" onclick="setTheme('emerald')"></button>
+      <button class="theme-btn theme-lavender" title="Lavender Dream" onclick="setTheme('lavender')"></button>
+      <button class="theme-btn theme-arctic" title="Arctic Light" onclick="setTheme('arctic')"></button>
     </div>
   </div>
 </header>
@@ -1186,14 +1392,18 @@ html[data-theme="oled"] .header {{
     <div class="profile-card">
       <div class="profile-avatar-wrap">
         <img src="mikkleo-avatar.jpg" class="profile-avatar" alt="MikkleoVT" onerror="this.src='https://static-cdn.jtvnw.net/jtv_user_pictures/b8489b38-68e8-4220-b257-b451f26cf0c9-profile_image-300x300.png'">
-        <div class="status-indicator" title="MikkleoVT Streamer Profile"></div>
+        <div id="streamIndicator" class="status-indicator" title="Статус стрима"></div>
       </div>
       <div>
         <div class="profile-name">MikkleoVT</div>
         <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">Стример & Контент-мейкер</div>
+        <div id="streamStatusText" class="profile-stream-status">Оффлайн</div>
       </div>
 
       <div class="social-grid">
+        <a id="socialTwitchLink" href="https://www.twitch.tv/mikkleovt" target="_blank" class="social-link social-tw">
+          <img src="https://cdn.simpleicons.org/twitch/C9A6FF" width="12" height="12" alt="">Twitch
+        </a>
         <a href="https://telegram.me/mikkleo" target="_blank" class="social-link social-tg">
           <img src="https://cdn.simpleicons.org/telegram/2AABEE" width="12" height="12" alt="">TG
         </a>
@@ -1318,8 +1528,7 @@ html[data-theme="oled"] .header {{
 
       <div class="modal-links">
         <a id="modalSteamLink" href="#" target="_blank" class="btn-action">🛒 Найти в Steam</a>
-        <a id="modalYtLink" href="#" target="_blank" class="btn-action">🎬 Геймплей на YouTube</a>
-        <a id="modalTwitchLink" href="#" target="_blank" class="btn-action">🟣 Искать на Twitch</a>
+        <a id="modalYtLink" href="#" target="_blank" class="btn-action">🎬 Прохождение на YouTube</a>
         <button id="modalShareBtn" class="btn-action" style="background:rgba(107,231,255,0.15); color:var(--accent);">🔗 Поделиться ссылкой</button>
       </div>
     </div>
@@ -1528,19 +1737,38 @@ function render() {{
 
     const mainGenre = g.genre ? g.genre.split(',')[0].trim() : 'Игра';
 
-    el.innerHTML = `
-      <div class="card-cover">
-        <span class="status-tag ${{stInfo.class}}">${{stInfo.emoji}} ${{stInfo.label}}</span>
-        ${{imgBlock}}
-      </div>
-      <div class="card-body">
-        <div class="card-title">${{esc(g.title)}}</div>
-        <div class="card-meta">
-          <span class="meta-tag accent">${{esc(mainGenre)}}</span>
-          <span class="meta-tag">${{g.year}}</span>
+    const statusPill = `<span class="status-tag ${{stInfo.class}}">${{stInfo.emoji}} ${{stInfo.label}}</span>`;
+
+    if(currentViewMode === 'list') {{
+      // Compact list: cover is a small thumbnail, status pill is shown in the body so it isn't clipped by the cover's overflow
+      el.innerHTML = `
+        <div class="card-cover">
+          ${{imgBlock}}
         </div>
-      </div>
-    `;
+        <div class="card-body">
+          ${{statusPill}}
+          <div class="card-title">${{esc(g.title)}}</div>
+          <div class="card-meta">
+            <span class="meta-tag accent">${{esc(mainGenre)}}</span>
+            <span class="meta-tag">${{g.year}}</span>
+          </div>
+        </div>
+      `;
+    }} else {{
+      el.innerHTML = `
+        <div class="card-cover">
+          ${{statusPill}}
+          ${{imgBlock}}
+        </div>
+        <div class="card-body">
+          <div class="card-title">${{esc(g.title)}}</div>
+          <div class="card-meta">
+            <span class="meta-tag accent">${{esc(mainGenre)}}</span>
+            <span class="meta-tag">${{g.year}}</span>
+          </div>
+        </div>
+      `;
+    }}
     grid.appendChild(el);
   }});
 
@@ -1626,10 +1854,12 @@ function openModal(g) {{
   `;
 
   // Action links
+  // Steam: search with "Games" category filter (category1=998) for a more accurate game-only result
   const qTitle = encodeURIComponent(g.title);
-  document.getElementById('modalSteamLink').href = `https://store.steampowered.com/search/?term=${{qTitle}}`;
-  document.getElementById('modalYtLink').href = `https://www.youtube.com/results?search_query=${{qTitle}}+gameplay`;
-  document.getElementById('modalTwitchLink').href = `https://www.twitch.tv/search?term=${{qTitle}}`;
+  document.getElementById('modalSteamLink').href = `https://store.steampowered.com/search/?term=${{qTitle}}&category1=998`;
+
+  // YouTube: search within @mikkleostream channel's playlists (прохождения) by appending the game title
+  document.getElementById('modalYtLink').href = `https://www.youtube.com/@mikkleostream/playlists?query=${{qTitle}}`;
 
   document.getElementById('modalShareBtn').onclick = () => {{
     const shareUrl = window.location.origin + window.location.pathname + '#game-' + g.id;
@@ -1700,6 +1930,106 @@ backToTop.onclick = () => {{
 const savedTheme = localStorage.getItem('mikkleo_theme') || 'cyan';
 setTheme(savedTheme);
 setViewMode(currentViewMode);
+
+// Twitch Stream Status Indicator
+const TWITCH_CHANNEL = 'mikkleovt';
+const TWITCH_UPTIME_URL = `https://decapi.me/twitch/uptime/${{TWITCH_CHANNEL}}`;
+const TWITCH_CHECK_INTERVAL = 60 * 1000; // 1 minute
+const STREAM_CACHE_TTL = 5 * 60 * 1000;  // remember result for 5 min between reloads
+
+const streamIndicator = document.getElementById('streamIndicator');
+const streamStatusText = document.getElementById('streamStatusText');
+const socialTwitchLink = document.getElementById('socialTwitchLink');
+
+function applyStreamState(state) {{
+  // state: 'live' | 'offline' | 'unknown'
+  if (!streamIndicator || !streamStatusText) return;
+
+  streamIndicator.classList.remove('live', 'unknown');
+  streamStatusText.classList.remove('live', 'unknown');
+
+  if (state === 'live') {{
+    streamIndicator.classList.add('live');
+    streamStatusText.classList.add('live');
+    streamIndicator.title = 'Стрим сейчас в эфире на Twitch';
+    streamStatusText.textContent = '🔴 В эфире';
+    if (socialTwitchLink) {{
+      socialTwitchLink.classList.add('live');
+      socialTwitchLink.title = 'MikkleoVT сейчас стримит — нажмите, чтобы смотреть';
+    }}
+  }} else if (state === 'offline') {{
+    streamIndicator.title = 'Стрим оффлайн';
+    streamStatusText.textContent = 'Оффлайн';
+    if (socialTwitchLink) {{
+      socialTwitchLink.classList.remove('live');
+      socialTwitchLink.title = 'Открыть канал MikkleoVT на Twitch';
+    }}
+  }} else {{
+    streamIndicator.classList.add('unknown');
+    streamStatusText.classList.add('unknown');
+    streamIndicator.title = 'Не удалось проверить статус стрима';
+    streamStatusText.textContent = 'Статус неизвестен';
+    if (socialTwitchLink) {{
+      socialTwitchLink.classList.remove('live');
+    }}
+  }}
+}}
+
+async function checkTwitchStatus() {{
+  // Try to use cached state from previous recent visit
+  try {{
+    const cached = JSON.parse(localStorage.getItem('mikkleo_stream_cache') || 'null');
+    if (cached && (Date.now() - cached.ts) < STREAM_CACHE_TTL) {{
+      applyStreamState(cached.state);
+    }}
+  }} catch (_) {{}}
+
+  try {{
+    const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
+
+    const fetchOpts = controller ? {{ signal: controller.signal, cache: 'no-store' }} : {{ cache: 'no-store' }};
+    const resp = await fetch(TWITCH_UPTIME_URL, fetchOpts);
+    if (timeoutId) clearTimeout(timeoutId);
+
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = (await resp.text()).trim().toLowerCase();
+
+    let state;
+    if (text.includes('offline') || text.includes('not live') || text.includes('канал не найден') || text.includes('channel not found')) {{
+      state = 'offline';
+    }} else if (text.includes('live') || text.includes('эфире') || text.includes('live for') || text.includes('uptime')) {{
+      state = 'live';
+    }} else if (text.length === 0) {{
+      state = 'unknown';
+    }} else {{
+      // Unknown payload — be safe and treat as unknown rather than wrong state
+      state = 'unknown';
+    }}
+
+    applyStreamState(state);
+    try {{
+      localStorage.setItem('mikkleo_stream_cache', JSON.stringify({{ state, ts: Date.now() }}));
+    }} catch (_) {{}}
+  }} catch (err) {{
+    // Network error / timeout / CORS — keep current visual state, but if no cache was applied, mark as unknown
+    if (streamIndicator && !streamIndicator.classList.contains('live')) {{
+      try {{
+        const cached = JSON.parse(localStorage.getItem('mikkleo_stream_cache') || 'null');
+        if (!cached) applyStreamState('unknown');
+      }} catch (_) {{
+        applyStreamState('unknown');
+      }}
+    }}
+  }}
+}}
+
+applyStreamState('unknown'); // start as offline-red until confirmed
+checkTwitchStatus();
+setInterval(checkTwitchStatus, TWITCH_CHECK_INTERVAL);
+document.addEventListener('visibilitychange', () => {{
+  if (!document.hidden) checkTwitchStatus();
+}});
 
 // Auto-open modal if URL hash has #game-id
 window.addEventListener('load', () => {{
