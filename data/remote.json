@@ -1,11 +1,11 @@
 {
-  "overridesUrl": "https://getpantry.cloud/apiv1/pantry/YOUR_PANTRY_ID/basket/mikkleo-statuses",
-  "gamesUrl": "https://getpantry.cloud/apiv1/pantry/YOUR_PANTRY_ID/basket/mikkleo-games",
+  "overridesUrl": "https://getpantry.cloud/apiv1/pantry/0e84db54-2769-4947-8655-7c645184842d/basket/mikkleo-statuses",
+  "gamesUrl": "https://getpantry.cloud/apiv1/pantry/0e84db54-2769-4947-8655-7c645184842d/basket/mikkleo-games",
   "_comment_setup": [
-    "1. Зайди на https://getpantry.cloud, укажи email — получишь PANTRY_ID (бесплатно).",
-    "2. Замени YOUR_PANTRY_ID в обоих URL выше на свой ID и запушь этот файл.",
-    "3. Корзины создадутся автоматически при первой заливке (кнопка '⬆️ Статусы' в админке / uploader.html / scripts/upload_playnite_remote.py).",
-    "4. Корзина живёт, пока к ней обращаются (загрузка сайта продлевает срок). Если сайтом не пользоваться несколько суток — просто залей заново."
+    "Pantry уже создана (ID прописан выше). Корзины mikkleo-statuses и mikkleo-games создадутся автоматически при первой заливке:",
+    "статусы — кнопка '⬆️ Статусы' в админке (Ctrl+Shift+A на сайте);",
+    "игры — uploader.html или scripts/upload_playnite_remote.py --remote-url <gamesUrl>.",
+    "Корзина живёт, пока к ней обращаются (загрузка сайта продлевает срок). Если сайтом не пользоваться несколько суток — просто залей заново."
   ],
   "_comment_why_pantry": "npoint.io закрыл запись через API для бинов, привязанных к аккаунту (POST отвечает 401, нужен платный токен). Поэтому хранилище для записи переехало на Pantry. Старые npoint-бины: статусы https://api.npoint.io/a35e4a4e22cb780f27c2, игры https://api.npoint.io/ca3fe761abeb97393c9b — оставлены для истории, можно удалить.",
   "_comment_games_format": "Игры заливаются как объект { \"games\": [...] } — сайт сам разворачивает при чтении.",
