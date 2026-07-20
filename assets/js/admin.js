@@ -8,8 +8,10 @@ import {
   loadOverrides, saveOverrides, isAdmin, setAdmin,
   getEffectiveStatus, getEffectiveFlag,
   getStoredPinHash, setStoredPinHash, removeStoredPin,
-  validateAndHashPin, clearOverridesCache
+  validateAndHashPin, clearOverridesCache,
+  getRemoteOverridesUrl, getRemoteGamesUrl
 } from './storage.js';
+import { uploadJsonToRemote, explainUploadFailure } from './remote.js';
 
 function renderPrompt() {
   const hasPin = !!getStoredPinHash();
@@ -31,12 +33,15 @@ function renderPrompt() {
 function renderList(games) {
   const overrides = loadOverrides();
   const totalOverrides = Object.keys(overrides).length;
+  // Показываем эффективные URL: ручные (localStorage) > из data/remote.json
   let remoteUrl = '';
   let remoteGamesUrl = '';
   try {
     remoteUrl = localStorage.getItem('mikkleo_remote_overrides_url') || '';
     remoteGamesUrl = localStorage.getItem('mikkleo_remote_games_url') || '';
   } catch {}
+  if (!remoteUrl) remoteUrl = getRemoteOverridesUrl() || '';
+  if (!remoteGamesUrl) remoteGamesUrl = getRemoteGamesUrl() || '';
   const html = games.map(g => {
     const eff = getEffectiveStatus(g);
     const gachaOn = getEffectiveFlag(g, 'isGacha');
@@ -74,21 +79,21 @@ function renderList(games) {
     </div>
 
     <div class="admin-meta-info" style="margin-bottom:12px; display:flex; flex-direction:column; gap:10px;">
-      <div><b>Для стримера без доступа к репе:</b> укажи URL удалённых JSON (gist, npoint.io). Тогда все зрители увидят статусы и новые игры без пуша в GitHub.</div>
+      <div><b>Для стримера без доступа к репе:</b> статусы и новые игры хранятся в удалённом JSON. Рекомендуемое хранилище — <b>Pantry</b> (getpantry.cloud, бесплатная запись из браузера). npoint больше не принимает запись для бинов с аккаунтом (ошибка 401).</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
         <span style="font-size:11px; min-width:70px;">Статусы:</span>
-        <input id="remoteUrlInput" type="text" value="${esc(remoteUrl)}" placeholder="https://api.npoint.io/.../overrides" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
+        <input id="remoteUrlInput" type="text" value="${esc(remoteUrl)}" placeholder="https://getpantry.cloud/apiv1/pantry/ID/basket/mikkleo-statuses" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
         <button class="btn-action" id="saveRemoteUrlBtn" style="height:36px;">💾 URL</button>
         <button class="btn-action" id="exportToRemoteBtn" style="height:36px; background:rgba(124,255,178,.15); color:var(--accent2); border-color:rgba(124,255,178,.3);">⬆️ Статусы</button>
       </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
         <span style="font-size:11px; min-width:70px;">Игры Playnite:</span>
-        <input id="remoteGamesUrlInput" type="text" value="${esc(remoteGamesUrl)}" placeholder="https://api.npoint.io/.../games или gist raw library.json" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
+        <input id="remoteGamesUrlInput" type="text" value="${esc(remoteGamesUrl)}" placeholder="https://getpantry.cloud/apiv1/pantry/ID/basket/mikkleo-games" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
         <button class="btn-action" id="saveRemoteGamesUrlBtn" style="height:36px;">💾 URL</button>
       </div>
       <div style="font-size:11px; color:var(--muted); line-height:1.4;">
         Статусы: <b>${esc(remoteUrl || './data/overrides.json')}</b> | Игры: <b>${esc(remoteGamesUrl || '(не задано)')}</b><br>
-        Скрипт для заливки игр без репы: <code>python scripts/upload_playnite_remote.py --input library.json --remote-url https://api.npoint.io/ID_GAMES</code><br>
+        Скрипт для заливки игр без репы: <code>python scripts/upload_playnite_remote.py --input library.json --remote-url https://getpantry.cloud/apiv1/pantry/ID/basket/mikkleo-games</code><br>
         Инструкция: <code>PLAYNITE.md</code> и <code>STREAMER_NO_REPO.md</code>
       </div>
     </div>
@@ -248,63 +253,28 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
 
     if (exportRemoteBtn) {
       exportRemoteBtn.addEventListener('click', async () => {
-        let url = '';
-        try {
-          url = localStorage.getItem('mikkleo_remote_overrides_url') || '';
-        } catch {}
+        // URL для заливки: то, что сейчас в поле > localStorage > data/remote.json
+        let url = (remoteInput && remoteInput.value.trim()) || '';
         if (!url) {
-          showToast('Сначала сохрани URL удалённого хранилища');
+          try { url = localStorage.getItem('mikkleo_remote_overrides_url') || ''; } catch {}
+        }
+        if (!url) url = getRemoteOverridesUrl() || '';
+        if (!url) {
+          showToast('Сначала сохрани URL удалённого хранилища (или пропиши его в data/remote.json)');
           return;
         }
-        url = url.trim();
-        // Auto-fix common mistake: docs URL instead of API URL for npoint.io
-        const docsMatch = url.match(/https?:\/\/www\.npoint\.io\/docs\/([a-f0-9]+)/);
-        if (docsMatch) {
-          url = 'https://api.npoint.io/' + docsMatch[1];
-          showToast('URL исправлен: ' + url);
-        }
         const data = loadOverrides();
-        try {
-          showToast('Заливаю...');
-          // Try POST, PUT, PATCH (like Python script upload_playnite_remote.py)
-          const methods = ['POST', 'PUT', 'PATCH'];
-          let success = false;
-          let lastErr = '';
-          for (const method of methods) {
-            try {
-              const res = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data, null, 2)
-              });
-              if (res.ok) {
-                showToast('✓ Удалённо сохранено! (' + method + ') Зрители увидят после перезагрузки');
-                success = true;
-                break;
-              } else {
-                const bodyText = await res.text().catch(() => '');
-                lastErr = method + ' ' + res.status + ': ' + bodyText.slice(0, 200);
-              }
-            } catch (e) {
-              lastErr = method + ' error: ' + (e.message || e);
-            }
+        showToast('Заливаю на ' + url + ' ...');
+        const result = await uploadJsonToRemote(url, data);
+        if (result.ok) {
+          // Если URL был исправлен автоматически (docs→api) — сохраним рабочий вариант
+          if (result.fixedUrl !== url) {
+            try { localStorage.setItem('mikkleo_remote_overrides_url', result.fixedUrl); } catch {}
+            if (remoteInput) remoteInput.value = result.fixedUrl;
           }
-          if (!success) {
-            throw new Error(lastErr || 'All methods failed');
-          }
-        } catch (e) {
-          const msg = (e && e.message) ? String(e.message) : String(e);
-          let hint = 'Не удалось залить напрямую.';
-          if (msg.includes('404') || msg.includes('Not Found')) {
-            hint += ' Возможно, это docs-ссылка npoint.io (нужен api.npoint.io/...). Проверь URL.';
-          } else if (msg.includes('403') || msg.includes('Forbidden')) {
-            hint += ' Доступ запрещён — проверь права или токен.';
-          } else if (msg.includes('CORS') || msg.includes('NetworkError')) {
-            hint += ' CORS/сетевой блок — попробуй через gist или jsonbin, или используй Python-скрипт.';
-          } else {
-            hint += ' Нужен npoint/jsonbin. Проверь что URL правильный (api.npoint.io/ID) и попробуй ещё раз.';
-          }
-          showToast(hint + ' (' + msg.slice(0, 120) + ')');
+          showToast('✓ Удалённо сохранено! (' + result.method + ' → ' + result.provider + ') Зрители увидят после перезагрузки');
+        } else {
+          showToast(explainUploadFailure(result));
         }
       });
     }

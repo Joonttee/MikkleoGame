@@ -183,13 +183,16 @@ async function init() {
       if (playniteArray && playniteArray.length) {
         const existingIds = new Set(GAMES.map(g => g.id));
         const existingNorms = new Set(GAMES.map(g => (g.title || '').replace(/[^0-9a-zA-Zа-яА-ЯёЁ]/g, '').toLowerCase()));
-        // Если remoteRaw уже в формате Mikkleo (есть title+id), просто мерджим, иначе конвертим из Playnite
-        const isMikkleoFormat = remoteRaw.length && remoteRaw[0].title && remoteRaw[0].id && remoteRaw[0].genre !== undefined;
+        // Если массив уже в формате Mikkleo (есть title+id), просто мерджим, иначе конвертим из Playnite.
+        // Формат определяем по РАСПАРСЕННОМУ массиву (parsePlayniteJson уже развернул
+        // обёртки вида { games: [...] }, в т.ч. от Pantry), а не по сырому remoteRaw.
+        const first = playniteArray[0];
+        const isMikkleoFormat = first && first.title !== undefined && first.id !== undefined;
         let converted = [];
         if (isMikkleoFormat) {
-          converted = remoteRaw.filter(r => {
+          converted = playniteArray.filter(r => {
             const norm = (r.title || '').replace(/[^0-9a-zA-Zа-яА-ЯёЁ]/g, '').toLowerCase();
-            return !existingNorms.has(norm);
+            return norm && !existingNorms.has(norm);
           });
         } else {
           converted = convertPlayniteToMikkleo(playniteArray, existingIds, existingNorms);

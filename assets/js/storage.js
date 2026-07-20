@@ -12,6 +12,7 @@ let _remoteOverrides = null;
 let _remoteGames = null;
 let _remoteLoaded = false;
 let _remoteGamesUrl = null;
+let _remoteOverridesUrl = null;
 
 export function loadOverrides() {
   try {
@@ -91,6 +92,9 @@ export async function loadRemoteOverrides() {
   }
 
   _remoteGamesUrl = gamesUrl;
+  // Публичный URL статусов (localStorage или data/remote.json), БЕЗ локального
+  // дефолта './data/overrides.json' — он нужен админке как фолбэк для заливки.
+  _remoteOverridesUrl = overridesUrl === './data/overrides.json' ? null : overridesUrl;
 
   if (overridesUrl) {
     try {
@@ -140,6 +144,11 @@ export function getRemoteGamesRaw() {
 
 export function getRemoteGamesUrl() {
   return _remoteGamesUrl;
+}
+
+/** Публичный overridesUrl (localStorage > data/remote.json); локальный дефолт-файл не возвращается */
+export function getRemoteOverridesUrl() {
+  return _remoteOverridesUrl;
 }
 
 export function getEffectiveStatus(game) {
