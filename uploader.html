@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mikkleo — Загрузчик Playnite (без доступа к репе)</title>
+<style>
+  body{font-family:Manrope,system-ui,sans-serif;background:#070D1A;color:#EEF6FF;max-width:900px;margin:0 auto;padding:24px;line-height:1.5}
+  h1{font-family:Nunito,sans-serif;font-weight:900}
+  .card{background:#111A2D;border:1px solid #1E2F4A;border-radius:16px;padding:18px;margin:16px 0}
+  input{width:100%;height:42px;padding:0 12px;border-radius:10px;background:#16213A;border:1px solid #1E2F4A;color:#EEF6FF;box-sizing:border-box}
+  button{height:40px;padding:0 16px;border-radius:12px;background:linear-gradient(135deg,#6BE7FF,#7CFFB2);border:1px solid #6BE7FF;color:#04101A;font-weight:800;cursor:pointer}
+  button.secondary{background:transparent;color:#8AA0BF;border-color:#283E63}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .drop{border:2px dashed #283E63;border-radius:16px;padding:30px;text-align:center;transition:.2s}
+  .drop.dragover{border-color:#6BE7FF;background:rgba(107,231,255,.08)}
+  pre{background:#16213A;border:1px solid #1E2F4A;border-radius:12px;padding:12px;overflow:auto;max-height:260px;font-size:12px}
+  .muted{color:#8AA0BF;font-size:13px}
+  a{color:#6BE7FF}
+</style>
+</head>
+<body>
+<h1>🎮 Mikkleo — Загрузчик без доступа к репе</h1>
+<p class="muted">Перетащи <code>library.json</code> из Playnite и залей на сайт за 1 клик. Обложки остаются отдельно в <code>covers/</code> как и раньше.</p>
+
+<div class="card">
+  <h3>1. Ссылки на удалённые хранилища (выдаёт владелец один раз)</h3>
+  <p class="muted">Берутся из <code>data/remote.json</code>, но можешь поменять тут — сохранится в браузере.</p>
+  <label>Статусы (overridesUrl)</label>
+  <input id="overridesUrl" placeholder="https://api.npoint.io/...">
+  <br><br>
+  <label>Игры (gamesUrl)</label>
+  <input id="gamesUrl" placeholder="https://api.npoint.io/...">
+  <br><br>
+  <button id="saveUrls">💾 Сохранить URL в браузере</button>
+  <button class="secondary" id="loadFromRemoteJson">↻ Загрузить из data/remote.json</button>
+  <div id="urlStatus" class="muted" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <h3>2. Новые игры из Playnite</h3>
+  <div id="dropZone" class="drop">
+    <div style="font-size:36px">📦</div>
+    <div><b>Перетащи сюда library.json</b><br>или нажми чтобы выбрать файл</div>
+    <input id="fileInput" type="file" accept=".json" style="display:none">
+  </div>
+  <div id="gamesInfo" style="margin-top:12px"></div>
+  <pre id="gamesPreview" style="display:none"></pre>
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="uploadGamesBtn" disabled>⬆️ Залить игры на сайт (gamesUrl)</button>
+    <button class="secondary" id="downloadConvertedBtn" disabled>💾 Скачать конвертированный JSON</button>
+  </div>
+  <div id="gamesUploadStatus" class="muted" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <h3>3. Статусы (Пройдено / В процессе)</h3>
+  <p class="muted">Меняешь на основном сайте <code>Ctrl+Shift+A</code>, а тут заливаешь одним кликом.</p>
+  <div id="overridesInfo" class="muted">Загрузка...</div>
+  <pre id="overridesPreview" style="display:none"></pre>
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="loadOverridesBtn">🔄 Показать мои локальные статусы</button>
+    <button id="uploadOverridesBtn" disabled>⬆️ Залить статусы на сайт (overridesUrl)</button>
+  </div>
+  <div id="overridesUploadStatus" class="muted" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <h3>ℹ️ Что происходит</h3>
+  <ul class="muted">
+    <li>Обложки генерятся отдельно в <code>covers/</code> как и раньше — этот загрузчик их не трогает, только JSON.</li>
+    <li>Для remote-режима обложки будут как буквы-инициалы, пока владелец не скопирует файлы из <code>library/files/</code> в <code>covers/</code> и не запустит <code>sync_covers.py</code>.</li>
+    <li>Сайт сам делает <code>fetch(gamesUrl)</code> + <code>fetch(overridesUrl)</code> и мерджит с основным каталогом.</li>
+    <li>Если используешь npoint.io — POST разрешён прямо из браузера. Если gist — нужно править руками (кнопка покажет инструкцию).</li>
+  </ul>
+</div>
+
+<script>
+function slugify(s){return s.toLowerCase().replace(/[^0-9a-zA-Zа-яА-ЯёЁ]+/g,'-').replace(/-{2,}/g,'-').replace(/^-|-$/g,'').slice(0,64)||'game'}
+function parsePlayniteJson(data){
+  if(Array.isArray(data)) return data;
+  if(data && typeof data==='object'){
+    if(Array.isArray(data.Games)) return data.Games;
+    if(Array.isArray(data.games)) return data.games;
+    const vals=Object.values(data);
+    if(vals.length && vals.every(v=>typeof v==='object' && (v.Name||v.name))) return vals;
+  }
+  return [];
+}
+function extractYear(g){
+  const cand=[g.ReleaseDate,g.releaseDate,g.ReleaseYear,g.Year,g.year];
+  for(const c of cand){
+    if(!c) continue;
+    const str=typeof c==='object'?JSON.stringify(c):String(c);
+    const m=str.match(/(19|20)\d{2}/);
+    if(m){const y=parseInt(m[0],10); if(y>=1970&&y<=2030) return y}
+    if(typeof c==='number'&&c>=1970&&c<=2030) return c;
+  }
+  return 0;
+}
+function extractGenres(g){
+  const raw=g.Genres||g.genres||g.Categories||g.Tags||[];
+  const out=[];
+  for(const gg of (Array.isArray(raw)?raw:[raw])){
+    if(!gg) continue;
+    if(typeof gg==='object'){const n=gg.Name||gg.name; if(n) out.push(n)}
+    else if(typeof gg==='string') out.push(gg);
+  }
+  return out.length?out.slice(0,4).join(', '):'Игра';
+}
+function extractPlatform(g){
+  const src=g.Source;
+  if(src&&typeof src==='object'){const n=src.Name||src.name; if(n) return n}
+  const plats=g.Platforms||g.platforms||[];
+  if(plats.length){
+    const f=plats[0];
+    if(typeof f==='object'){const n=f.Name||f.name; if(n) return n}
+    else if(typeof f==='string') return f;
+  }
+  return 'Steam/Epic';
+}
+function convertPlaynite(arr){
+  const out=[]; const used=new Set();
+  for(const pg of arr){
+    if(!pg||typeof pg!=='object') continue;
+    const name=pg.Name||pg.name||pg.Title||'';
+    if(!name||name.trim().length<2) continue;
+    let gid=slugify(name); let base=gid; let c=1;
+    while(used.has(gid)){c++; gid=`${base}-${c}`;}
+    used.add(gid);
+    out.push({id:gid,title:name.trim(),genre:extractGenres(pg),platform:extractPlatform(pg),year:extractYear(pg),rating:0,image:'',desc:'',createdAt:new Date().toISOString(),altTitle:'',status:null,isGacha:false,isMultiplayer:false,isCoop:false,_playniteId:pg.Id||pg.id||''});
+  }
+  return out;
+}
+
+const $=id=>document.getElementById(id);
+let convertedGames=[];
+
+async function loadRemoteConfig(){
+  try{
+    const r=await fetch('./data/remote.json',{cache:'no-store'});
+    if(r.ok){
+      const j=await r.json();
+      if(j.overridesUrl && !$('overridesUrl').value) $('overridesUrl').value=j.overridesUrl;
+      if(j.gamesUrl && !$('gamesUrl').value) $('gamesUrl').value=j.gamesUrl;
+      $('urlStatus').textContent='Загружено из data/remote.json';
+    }
+  }catch{}
+  try{
+    const lsO=localStorage.getItem('mikkleo_remote_overrides_url');
+    const lsG=localStorage.getItem('mikkleo_remote_games_url');
+    if(lsO) $('overridesUrl').value=lsO;
+    if(lsG) $('gamesUrl').value=lsG;
+  }catch{}
+}
+loadRemoteConfig();
+
+$('saveUrls').onclick=()=>{
+  try{
+    localStorage.setItem('mikkleo_remote_overrides_url',$('overridesUrl').value.trim());
+    localStorage.setItem('mikkleo_remote_games_url',$('gamesUrl').value.trim());
+    $('urlStatus').textContent='Сохранено в браузере ✓';
+  }catch{ $('urlStatus').textContent='Ошибка сохранения'; }
+};
+$('loadFromRemoteJson').onclick=async()=>{
+  $('urlStatus').textContent='Загружаю...';
+  try{
+    const r=await fetch('./data/remote.json',{cache:'no-store'});
+    const j=await r.json();
+    $('overridesUrl').value=j.overridesUrl||'';
+    $('gamesUrl').value=j.gamesUrl||'';
+    $('urlStatus').textContent='Загружено из data/remote.json ✓';
+  }catch(e){ $('urlStatus').textContent='Не удалось загрузить'; }
+};
+
+// Drop zone
+const dz=$('dropZone');
+dz.addEventListener('click',()=>$('fileInput').click());
+dz.addEventListener('dragover',e=>{e.preventDefault(); dz.classList.add('dragover')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault(); dz.classList.remove('dragover');
+  const f=e.dataTransfer.files[0];
+  if(f) handleFile(f);
+});
+$('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0];
+  if(f) handleFile(f);
+});
+
+function handleFile(file){
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      const arr=parsePlayniteJson(data);
+      $('gamesInfo').textContent=`Найдено ${arr.length} игр в Playnite файле`;
+      convertedGames=convertPlaynite(arr);
+      $('gamesPreview').style.display='block';
+      $('gamesPreview').textContent=JSON.stringify(convertedGames.slice(0,3),null,2)+`\n... и ещё ${convertedGames.length-3}`;
+      $('uploadGamesBtn').disabled=false;
+      $('downloadConvertedBtn').disabled=false;
+      $('gamesUploadStatus').textContent=`Готово к заливке: ${convertedGames.length} новых игр (дедуп будет на сайте)`;
+    }catch(err){
+      $('gamesInfo').textContent='Ошибка парсинга JSON: '+err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+$('downloadConvertedBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(convertedGames,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='mikkleo-converted-games.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+
+$('uploadGamesBtn').onclick=async()=>{
+  const url=$('gamesUrl').value.trim();
+  if(!url){ $('gamesUploadStatus').textContent='Укажи gamesUrl выше'; return; }
+  if(!convertedGames.length){ $('gamesUploadStatus').textContent='Сначала перетащи library.json'; return; }
+  $('gamesUploadStatus').textContent='Заливаю...';
+  try{
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(convertedGames,null,2)});
+    if(!res.ok){
+      const res2=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(convertedGames,null,2)});
+      if(!res2.ok) throw new Error('HTTP '+res2.status);
+    }
+    $('gamesUploadStatus').textContent='✓ Залито! Открой основной сайт — новые игры появятся после Ctrl+F5';
+  }catch(e){
+    $('gamesUploadStatus').textContent='Не удалось залить напрямую: '+e.message+'. Для gist — вставь вручную на сайте npoint/gist. Для npoint — проверь что ID правильный и попробуй ещё раз.';
+  }
+};
+
+// Overrides
+function loadLocalOverrides(){
+  try{
+    const raw=localStorage.getItem('mikkleo_streamer_overrides_v1')||'{}';
+    const obj=JSON.parse(raw);
+    const count=Object.keys(obj).length;
+    $('overridesInfo').textContent=`Локально ${count} правок статусов`;
+    $('overridesPreview').style.display=count?'block':'none';
+    $('overridesPreview').textContent=JSON.stringify(obj,null,2).slice(0,2000);
+    $('uploadOverridesBtn').disabled=count===0;
+    return obj;
+  }catch{
+    $('overridesInfo').textContent='Нет локальных правок. Сначала поменяй статусы на основном сайте Ctrl+Shift+A';
+    $('uploadOverridesBtn').disabled=true;
+    return {};
+  }
+}
+$('loadOverridesBtn').onclick=()=>loadLocalOverrides();
+loadLocalOverrides();
+
+$('uploadOverridesBtn').onclick=async()=>{
+  const url=$('overridesUrl').value.trim();
+  if(!url){ $('overridesUploadStatus').textContent='Укажи overridesUrl'; return; }
+  const data=loadLocalOverrides();
+  if(!Object.keys(data).length){ $('overridesUploadStatus').textContent='Нечего заливать'; return; }
+  $('overridesUploadStatus').textContent='Заливаю...';
+  try{
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data,null,2)});
+    if(!res.ok){
+      const res2=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data,null,2)});
+      if(!res2.ok) throw new Error('HTTP '+res2.status);
+    }
+    $('overridesUploadStatus').textContent='✓ Залито! Статусы видны всем после перезагрузки';
+  }catch(e){
+    $('overridesUploadStatus').textContent='Ошибка: '+e.message+'. Скачай JSON на основном сайте и вставь руками в npoint/gist';
+  }
+};
+</script>
+</body>
+</html>
