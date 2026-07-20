@@ -15,6 +15,57 @@ export function detectProvider(url) {
 }
 
 /**
+ * GET-хелпер: прочитать текущий список игр из удалённой корзины.
+ * Разворачивает обёртки pantry ({ games: [...] }), jsonbin ({ record: ... }),
+ * playnite-стиля ({ Games: [...] }) и сырой массив. При любой ошибке — [].
+ */
+export async function fetchRemoteGamesList(url) {
+  try {
+    const res = await fetch((url || '').trim(), { cache: 'no-store' });
+    if (!res.ok) return [];
+    const j = await res.json().catch(() => null);
+    if (Array.isArray(j)) return j;
+    if (j && typeof j === 'object') {
+      if (Array.isArray(j.games)) return j.games;
+      if (Array.isArray(j.Games)) return j.Games;
+      if (Array.isArray(j.record)) return j.record;
+      if (j.record && Array.isArray(j.record.games)) return j.record.games;
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+function normKey(g) {
+  const t = (g && (g.title || g.Name || g.name)) || '';
+  return t.replace(/[^0-9a-zA-Zа-яА-ЯёЁ]/g, '').toLowerCase();
+}
+
+/**
+ * Аддитивная склейка списков без потерь: существующие записи сохраняются
+ * первыми (вместе с их id — на них завязаны статусы в корзине статусов),
+ * из входящих добавляются только отсутствующие по нормализованному названию.
+ */
+export function mergeGames(existing, incoming) {
+  const out = [];
+  const seen = new Set();
+  for (const g of (existing || [])) {
+    const k = normKey(g);
+    if (!k || seen.has(k)) continue;
+    seen.add(k);
+    out.push(g);
+  }
+  for (const g of (incoming || [])) {
+    const k = normKey(g);
+    if (!k || seen.has(k)) continue;
+    seen.add(k);
+    out.push(g);
+  }
+  return out;
+}
+
+/**
  * Заливка JSON в удалённое хранилище с правильной семантикой под провайдера.
  *
  * @param {string} rawUrl - URL корзины/бина (pantry / jsonbin / любой другой)

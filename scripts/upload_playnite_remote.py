@@ -21,6 +21,9 @@ Mikkleo Games — загрузка игр из Playnite без доступа к
 
    Скрипт:
    - конвертит Playnite library в формат Mikkleo (как import_playnite.py)
+   - по умолчанию АДДИТИВНО мержит с текущей корзиной (GET -> merge -> POST):
+     старые удалённые игры не пропадут, даже если library.json неполный.
+     Для зеркальной замены списка (чистка) используй флаг --replace
    - заливает на указанный remote URL (для Pantry — одним POST, массив игр
      оборачивается в {"games": [...]} — сайт при чтении сам развернёт)
    - теперь сайт автоматически подтянет новые игры (fetch gamesUrl) и покажет всем зрителям
@@ -161,11 +164,55 @@ def detect_provider(url: str) -> str:
     return "generic"
 
 
+def fetch_remote_games(url: str) -> list:
+    """GET текущей корзины: список уже лежащих там игр ([], если пусто/ошибка/не найдено).
+
+    Разворачивает обёртки pantry ({"games": [...]}), jsonbin ({"record": ...}),
+    playnite-стиля ({"Games": [...]}) и сырой массив.
+    """
+    try:
+        req = urllib.request.Request(url, method="GET", headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            j = json.loads(resp.read().decode("utf-8", errors="ignore"))
+    except Exception:
+        return []
+    if isinstance(j, list):
+        return j
+    if isinstance(j, dict):
+        if isinstance(j.get("games"), list):
+            return j["games"]
+        if isinstance(j.get("Games"), list):
+            return j["Games"]
+        rec = j.get("record")
+        if isinstance(rec, list):
+            return rec
+        if isinstance(rec, dict) and isinstance(rec.get("games"), list):
+            return rec["games"]
+    return []
+
+
+def merge_games(existing: list, incoming: list) -> list:
+    """Аддитивная склейка без потерь: существующие записи остаются первыми
+    (вместе с их id — на них завязаны статусы), добавляем только отсутствующие"""
+    out, seen = [], set()
+    for g in list(existing or []) + list(incoming or []):
+        if not isinstance(g, dict):
+            continue
+        title = g.get("title") or g.get("Name") or g.get("name") or ""
+        k = normalize_title(title)
+        if not k or k in seen:
+            continue
+        seen.add(k)
+        out.append(g)
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser(description="Загрузка игр из Playnite в удалённое хранилище без доступа к репе")
     parser.add_argument("--input", required=True, help="Путь к library.json из Playnite")
     parser.add_argument("--remote-url", required=True, help="URL удалённого хранилища (Pantry/jsonbin), куда заливать")
     parser.add_argument("--api-key", default=os.environ.get("JSONBIN_MASTER_KEY", ""), help="Ключ для jsonbin.io (или env JSONBIN_MASTER_KEY)")
+    parser.add_argument("--replace", action="store_true", help="Полностью заменить список в хранилище (зеркало library.json). По умолчанию — только добавить новые к существующим")
     parser.add_argument("--dry-run", action="store_true", help="Только показать, не заливать")
     args = parser.parse_args()
 
@@ -199,9 +246,20 @@ def main():
 
     provider = detect_provider(args.remote_url)
 
+    # По умолчанию — аддитивная заливка: читаем текущую корзину и дозаливаем
+    # только новые, чтобы старые удалённые игры не пропадали при неполном
+    # или «чужом» library.json. --replace = зеркальная замена (для чистки).
+    to_upload = converted
+    if not args.replace:
+        existing = fetch_remote_games(args.remote_url)
+        to_upload = merge_games(existing, converted)
+        print(f"[i] В хранилище сейчас: {len(existing)}; добавится новых: {len(to_upload) - len(existing)}; всего после заливки: {len(to_upload)}")
+    else:
+        print(f"[i] Режим --replace: старый список в хранилище будет полностью перезаписан ({len(converted)} игр)")
+
     # Для Pantry оборачиваем массив в объект — Pantry надёжнее принимает
     # верхнеуровневый объект, а сайт при чтении сам развернёт { games: [...] }.
-    to_send = {"games": converted} if provider == "pantry" else converted
+    to_send = {"games": to_upload} if provider == "pantry" else to_upload
     payload = json.dumps(to_send, ensure_ascii=False, indent=2).encode("utf-8")
 
     headers = {"Content-Type": "application/json"}

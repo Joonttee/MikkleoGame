@@ -46,9 +46,13 @@
   </div>
   <div id="gamesInfo" style="margin-top:12px"></div>
   <pre id="gamesPreview" style="display:none"></pre>
-  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <button id="uploadGamesBtn" disabled>⬆️ Залить игры на сайт (gamesUrl)</button>
     <button class="secondary" id="downloadConvertedBtn" disabled>💾 Скачать конвертированный JSON</button>
+    <label style="display:flex;gap:6px;align-items:center;font-size:13px;cursor:pointer">
+      <input type="checkbox" id="replaceModeCheck" style="width:auto;height:auto">
+      Полностью заменить список (иначе — только добавить новые к лежащим в хранилище)
+    </label>
   </div>
   <div id="gamesUploadStatus" class="muted" style="margin-top:10px"></div>
 </div>
@@ -70,13 +74,14 @@
   <ul class="muted">
     <li>Обложки генерятся отдельно в <code>covers/</code> как и раньше — этот загрузчик их не трогает, только JSON.</li>
     <li>Для remote-режима обложки будут как буквы-инициалы, пока владелец не скопирует файлы из <code>library/files/</code> в <code>covers/</code> и не запустит <code>sync_covers.py</code>.</li>
-    <li>Сайт сам делает <code>fetch(gamesUrl)</code> + <code>fetch(overridesUrl)</code> и мерджит с основным каталогом.</li>
+    <li>Сайт сам делает <code>fetch(gamesUrl)</code> + <code>fetch(overridesUrl)</code> и мерджит с основным каталогом (старые игры из каталога никогда не удаляются).</li>
+    <li>По умолчанию заливка игр — <b>аддитивная</b>: сначала читается текущая корзина и к ней добавляются только новые названия, уже лежащие там игры не пропадут даже при неполном <code>library.json</code>. Чекбокс «Полностью заменить список» делает зеркальную замену (для чистки).</li>
     <li>Рекомендуемое хранилище — <b>Pantry</b> (getpantry.cloud): запись из браузера одним POST, ключей не надо. Gist — только руками на сайте gist.</li>
   </ul>
 </div>
 
 <script type="module">
-import { uploadJsonToRemote, explainUploadFailure } from './assets/js/remote.js';
+import { uploadJsonToRemote, explainUploadFailure, fetchRemoteGamesList, mergeGames } from './assets/js/remote.js';
 
 function slugify(s){return s.toLowerCase().replace(/[^0-9a-zA-Zа-яА-ЯёЁ]+/g,'-').replace(/-{2,}/g,'-').replace(/^-|-$/g,'').slice(0,64)||'game'}
 function parsePlayniteJson(data){
@@ -221,8 +226,19 @@ $('uploadGamesBtn').onclick=async()=>{
   const url=$('gamesUrl').value.trim();
   if(!url){ $('gamesUploadStatus').textContent='Укажи gamesUrl выше'; return; }
   if(!convertedGames.length){ $('gamesUploadStatus').textContent='Сначала перетащи library.json'; return; }
-  $('gamesUploadStatus').textContent='Заливаю на '+url+' ...';
-  const result = await uploadJsonToRemote(url, convertedGames);
+  const replaceMode = $('replaceModeCheck') && $('replaceModeCheck').checked;
+  let toUpload = convertedGames;
+  if(!replaceMode){
+    // Режим «только добавление»: мержим с тем, что уже лежит в хранилище —
+    // старые игры не пропадут, даже если library.json неполный или чужой.
+    $('gamesUploadStatus').textContent='Читаю текущую корзину для мержа...';
+    const existing = await fetchRemoteGamesList(url);
+    toUpload = mergeGames(existing, convertedGames);
+    $('gamesUploadStatus').textContent=`В хранилище: ${existing.length}, добавится новых: ${toUpload.length - existing.length}, всего: ${toUpload.length}. Заливаю...`;
+  } else {
+    $('gamesUploadStatus').textContent='Полная замена списка (зеркало library.json). Заливаю на '+url+' ...';
+  }
+  const result = await uploadJsonToRemote(url, toUpload);
   if(result.ok){
     $('gamesUploadStatus').textContent = '✓ Залито! (' + result.method + ' → ' + result.provider + ') Открой основной сайт — новые игры появятся после Ctrl+F5';
   } else {

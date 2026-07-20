@@ -155,6 +155,7 @@ jobs:
    ```
    Скрипт `scripts/upload_playnite_remote.py`:
    - конвертит Playnite экспорт в формат Mikkleo (Name, Genres, Year...)
+   - **по умолчанию только добавляет**: читает текущую корзину и дозаливает новые названия — старые удалённые игры не пропадут, даже если `library.json` оказался неполным или чужим. Для зеркальной замены списка (чистка) — флаг `--replace` или чекбокс «Полностью заменить список» в `uploader.html`
    - делает `POST` на pantry (массив игр оборачивается в `{"games": [...]}` — сайт сам развернёт при чтении)
 
    Либо без скрипта, прямо в браузере: открой `uploader.html` на сайте и перетащи `library.json`.
@@ -179,7 +180,8 @@ jobs:
 ## Что сделано в коде для поддержки
 
 - `assets/js/storage.js`: `loadRemoteOverrides()` грузит и `overridesUrl` и `gamesUrl`, кэширует `_remoteGames`; `getRemoteOverridesUrl()` отдаёт публичный URL статусов для админки
-- `assets/js/remote.js`: `uploadJsonToRemote()` — заливка с правильной семантикой под провайдера (Pantry = POST create/replace; массивы оборачиваются в `{games:[...]}`), `explainUploadFailure()` — понятные тексты ошибок
+- `assets/js/remote.js`: `uploadJsonToRemote()` — заливка с правильной семантикой под провайдера (Pantry = POST create/replace; массивы оборачиваются в `{games:[...]}`), `fetchRemoteGamesList()` + `mergeGames()` — чтение текущей корзины и аддитивный мерж без потерь, `explainUploadFailure()` — понятные тексты ошибок
+- Важно про безопасность каталога: игры из `data/games.json` **никогда не удаляются** remote-потоком (сайт только домерживает новые), а удалённые из хранилища игры не пропадают при аддитивной заливке — поэтому случайный неполный `library.json` ничего не ломает
 - `assets/js/playnite.js`: `convertPlayniteToMikkleo()` + `parsePlayniteJson()` — конвертация Playnite → Mikkleo в браузере (понимает и обёртку `{games: [...]}`)
 - `getEffectiveStatus()` / `getEffectiveFlag()`: **localStorage -> remote -> default**
 - `app.js`: `Promise.all([loadGames(), loadRemoteOverrides()])` + мердж `getRemoteGamesRaw()` перед первым рендером
