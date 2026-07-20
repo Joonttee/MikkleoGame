@@ -172,6 +172,8 @@ html[data-theme="arctic"] .profile-stream-status.live{background:rgba(5,150,105,
 /* Grid - фикс размер, не прыгает */
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:all .3s cubic-bezier(.16,1,.3,1);position:relative;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.25);display:flex;flex-direction:column;contain:content;will-change:transform}
+.card-hidden{opacity:.45}
+.card-hidden:hover{opacity:.8}
 .card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 20px 40px rgba(0,0,0,.45),0 0 20px var(--accent-glow)}
 .card-cover{aspect-ratio:3/4;position:relative;overflow:hidden;background:var(--card2);display:grid;place-items:center;flex-shrink:0;width:100%}
 .card-cover .cover-bg{display:none !important}
@@ -290,6 +292,9 @@ html[data-theme="arctic"] .admin-fab{background:rgba(255,255,255,.95)}
 .admin-row .admin-controls{display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .admin-row .admin-controls .admin-flag{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;user-select:none;transition:all .15s ease}
 .admin-row .admin-controls .admin-flag.on{background:rgba(107,231,255,.18);color:var(--accent);border-color:var(--accent)}
+.admin-row .admin-controls .admin-flag.hide.on{background:rgba(255,96,168,.2);color:var(--accent3);border-color:var(--accent3)}
+.admin-row-hidden{opacity:.55}
+.admin-row-hidden .admin-title{text-decoration:line-through}
 .admin-row .admin-controls .admin-flag.mp.on{background:rgba(167,139,250,.2);color:#A78BFA;border-color:#A78BFA}
 .admin-row .admin-controls .admin-flag.coop.on{background:rgba(124,255,178,.2);color:var(--accent2);border-color:var(--accent2)}
 .admin-row .admin-controls .admin-status{height:32px;padding:0 10px;border-radius:10px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;outline:none}

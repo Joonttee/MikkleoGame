@@ -181,6 +181,7 @@ jobs:
 
 - `assets/js/storage.js`: `loadRemoteOverrides()` грузит и `overridesUrl` и `gamesUrl`, кэширует `_remoteGames`; `getRemoteOverridesUrl()` отдаёт публичный URL статусов для админки
 - `assets/js/remote.js`: `uploadJsonToRemote()` — заливка с правильной семантикой под провайдера (Pantry = POST create/replace; массивы оборачиваются в `{games:[...]}`), `fetchRemoteGamesList()` + `mergeGames()` — чтение текущей корзины и аддитивный мерж без потерь, `explainUploadFailure()` — понятные тексты ошибок
+- `isHidden` — флаг скрытия игры от зрителей: живёт в той же корзине статусов, в админке кнопка 🙈; зрители не видят скрытые игры нигде (сетка, статистика, топ жанров), админ видит их «призраком» и может вернуть
 - Важно про безопасность каталога: игры из `data/games.json` **никогда не удаляются** remote-потоком (сайт только домерживает новые), а удалённые из хранилища игры не пропадают при аддитивной заливке — поэтому случайный неполный `library.json` ничего не ломает
 - `assets/js/playnite.js`: `convertPlayniteToMikkleo()` + `parsePlayniteJson()` — конвертация Playnite → Mikkleo в браузере (понимает и обёртку `{games: [...]}`)
 - `getEffectiveStatus()` / `getEffectiveFlag()`: **localStorage -> remote -> default**

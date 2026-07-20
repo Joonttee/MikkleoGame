@@ -170,6 +170,11 @@ export function getEffectiveFlag(game, flag) {
   if (local[game.id] && Object.prototype.hasOwnProperty.call(local[game.id], flag)) {
     return !!local[game.id][flag];
   }
+  return getBaseFlag(game, flag);
+}
+
+/** Значение флага без учёта локального слоя (remote -> дефолт каталога) */
+export function getBaseFlag(game, flag) {
   const remote = _remoteOverrides || {};
   if (remote[game.id] && Object.prototype.hasOwnProperty.call(remote[game.id], flag)) {
     return !!remote[game.id][flag];

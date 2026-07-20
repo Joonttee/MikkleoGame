@@ -6,7 +6,7 @@ import { STORAGE_KEYS } from './config.js';
 import { esc } from './utils.js';
 import {
   loadOverrides, saveOverrides, isAdmin, setAdmin,
-  getEffectiveStatus, getEffectiveFlag,
+  getEffectiveStatus, getEffectiveFlag, getBaseFlag,
   getStoredPinHash, setStoredPinHash, removeStoredPin,
   validateAndHashPin, clearOverridesCache,
   getRemoteOverridesUrl, getRemoteGamesUrl
@@ -42,21 +42,24 @@ function renderList(games) {
   } catch {}
   if (!remoteUrl) remoteUrl = getRemoteOverridesUrl() || '';
   if (!remoteGamesUrl) remoteGamesUrl = getRemoteGamesUrl() || '';
+  const hiddenCount = games.filter(g => getEffectiveFlag(g, 'isHidden')).length;
   const html = games.map(g => {
     const eff = getEffectiveStatus(g);
     const gachaOn = getEffectiveFlag(g, 'isGacha');
     const mpOn = getEffectiveFlag(g, 'isMultiplayer');
     const coopOn = getEffectiveFlag(g, 'isCoop');
+    const hiddenOn = getEffectiveFlag(g, 'isHidden');
     const isOverridden = !!overrides[g.id];
     const statusIsOverridden = isOverridden && overrides[g.id].status !== undefined;
     return `
-      <div class="admin-row ${isOverridden ? 'has-override' : ''}" data-id="${esc(g.id)}" data-title="${esc((g.title || '').toLowerCase())}">
+      <div class="admin-row ${isOverridden ? 'has-override' : ''} ${hiddenOn ? 'admin-row-hidden' : ''}" data-id="${esc(g.id)}" data-title="${esc((g.title || '').toLowerCase())}">
         <img class="admin-cover" src="${esc(g.image || '')}" alt="" onerror="this.style.visibility='hidden'">
         <div>
           <div class="admin-title">${esc(g.title || 'Без названия')}</div>
-          <div style="font-size:11px; color:var(--muted); margin-top:2px;">${esc(g.genre || '')} · ${g.year || ''}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">${esc(g.genre || '')} · ${g.year || ''}${hiddenOn ? ' · 🙈 скрыта от зрителей' : ''}</div>
         </div>
         <div class="admin-controls">
+          <button class="admin-flag hide ${hiddenOn ? 'on' : ''}" data-flag="isHidden" title="Скрыть от зрителей / показать">🙈</button>
           <button class="admin-flag ${gachaOn ? 'on' : ''}" data-flag="isGacha" title="Гача">💫</button>
           <button class="admin-flag mp ${mpOn ? 'on' : ''}" data-flag="isMultiplayer" title="Мультиплеер">🕹️</button>
           <button class="admin-flag coop ${coopOn ? 'on' : ''}" data-flag="isCoop" title="Кооп">🤝</button>
@@ -100,7 +103,8 @@ function renderList(games) {
 
     <div class="admin-list" id="adminList">${html}</div>
     <div class="admin-meta-info">
-      Локальных правок: <b>${totalOverrides}</b>. Правки хранятся только в этом браузере.
+      Локальных правок: <b>${totalOverrides}</b> · Скрыто от зрителей: <b>${hiddenCount}</b>.
+      Правки хранятся только в этом браузере до заливки (⬆️ Статусы — тогда статусы и скрытые игры увидят все).
       Скачайте JSON, чтобы перенести на другое устройство. Для публикации без доступа к репе — используй удалённый URL выше.
     </div>
   `;
@@ -264,6 +268,10 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
           return;
         }
         const data = loadOverrides();
+        if (!Object.keys(data).length) {
+          const ok = confirm('Локально правок нет. Заливка ПОЛНОСТЬЮ ЗАМЕНИТ удалённое хранилище пустым набором — удалённые статусы и скрытые метки пропадут у зрителей. Продолжить?');
+          if (!ok) return;
+        }
         showToast('Заливаю на ' + url + ' ...');
         const result = await uploadJsonToRemote(url, data);
         if (result.ok) {
@@ -302,18 +310,19 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
           const overrides = loadOverrides();
           if (!overrides[id]) overrides[id] = {};
           const current = getEffectiveFlag(gameObj, flag);
-          if (overrides[id][flag] === undefined) {
-            overrides[id][flag] = !current;
-            if (overrides[id][flag] === !!gameObj[flag]) delete overrides[id][flag];
-          } else {
-            overrides[id][flag] = !overrides[id][flag];
-            if (overrides[id][flag] === !!gameObj[flag]) delete overrides[id][flag];
-          }
+          const base = getBaseFlag(gameObj, flag); // remote -> дефолт каталога
+          const target = !current;
+          // Локальный оверрайд нужен только если его значение отличается от базового
+          // (иначе он бессмысленный). Так можно и СНЯТЬ удалённый флаг (local=false при
+          // remote=true), и удалить свой ранее выставленный локальный флаг.
+          if (target === base) delete overrides[id][flag];
+          else overrides[id][flag] = target;
           if (Object.keys(overrides[id]).length === 0) delete overrides[id];
           saveOverrides(overrides);
           // toggle button UI immediately
           const newVal = getEffectiveFlag(gameObj, flag);
           btn.classList.toggle('on', newVal);
+          if (flag === 'isHidden') row.classList.toggle('admin-row-hidden', newVal);
           if (overrides[id]) row.classList.add('has-override');
           else row.classList.remove('has-override');
           onDataChanged();

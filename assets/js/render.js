@@ -3,12 +3,9 @@
  */
 import { STATUS_MAP, UI } from './config.js';
 import { esc } from './utils.js';
-import { getEffectiveStatus } from './storage.js';
-
-let _genreCountsCache = null;
+import { getEffectiveStatus, getEffectiveFlag, isAdmin } from './storage.js';
 
 function computeGenreCounts(games) {
-  if (_genreCountsCache) return _genreCountsCache;
   const counts = {};
   for (const g of games) {
     if (g.genre) {
@@ -16,7 +13,6 @@ function computeGenreCounts(games) {
       counts[first] = (counts[first] || 0) + 1;
     }
   }
-  _genreCountsCache = counts;
   return counts;
 }
 
@@ -94,6 +90,9 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
   if (!grid) return;
   grid.innerHTML = '';
 
+  // Админ видит скрытые игры «призраком» (зрителям они вообще не рендерятся)
+  const adminMode = isAdmin();
+
   if (!gamesToShow.length) {
     grid.innerHTML = `
       <div class="empty">
@@ -113,6 +112,8 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
   for (const g of gamesToShow) {
     const el = document.createElement('div');
     el.className = 'card';
+    const hiddenGh = adminMode && getEffectiveFlag(g, 'isHidden');
+    if (hiddenGh) el.classList.add('card-hidden');
     el.tabIndex = 0;
     el.setAttribute('role', 'button');
     el.setAttribute('aria-label', g.title);
@@ -129,6 +130,7 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
 
     const mainGenre = g.genre ? g.genre.split(',')[0].trim() : 'Игра';
     const statusPill = `<span class="status-tag ${stInfo.class}">${stInfo.emoji} ${stInfo.label}</span>`;
+    const hiddenTag = hiddenGh ? `<span class="meta-tag" title="Скрыта от зрителей">🙈 скрыта</span>` : '';
 
     if (viewMode === 'list') {
       el.innerHTML = `
@@ -139,6 +141,7 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
           <div class="card-meta">
             <span class="meta-tag accent">${esc(mainGenre)}</span>
             <span class="meta-tag">${g.year || ''}</span>
+            ${hiddenTag}
           </div>
         </div>
       `;
@@ -153,6 +156,7 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
           <div class="card-meta">
             <span class="meta-tag accent">${esc(mainGenre)}</span>
             <span class="meta-tag">${g.year || ''}</span>
+            ${hiddenTag}
           </div>
         </div>
       `;

@@ -4,7 +4,7 @@
  */
 import { STORAGE_KEYS, UI } from './config.js';
 import { esc, debounce } from './utils.js';
-import { loadOverrides, clearOverridesCache, loadRemoteOverrides, getRemoteGamesRaw } from './storage.js';
+import { loadOverrides, clearOverridesCache, loadRemoteOverrides, getRemoteGamesRaw, isAdmin, getEffectiveFlag } from './storage.js';
 import { initTheme, setTheme } from './theme.js';
 import { initTwitchStatus } from './twitch.js';
 import { filterGames, sortGames } from './filters.js';
@@ -47,6 +47,14 @@ let filtered = [];
 let currentTab = 'all';
 let visibleCount = UI.DEFAULT_VISIBLE;
 let currentViewMode = 'grid';
+// Игры, видимые ТЕКУЩЕМУ пользователю: зрителям — без скрытых (isHidden),
+// админу — все (скрытые подсвечиваются «призраком», чтобы их можно было вернуть)
+let visibleGames = [];
+
+// Пересчитывается при каждом applyFilters — после смены статусов/флагов в админке
+function computeVisibleGames() {
+  visibleGames = isAdmin() ? GAMES : GAMES.filter(g => !getEffectiveFlag(g, 'isHidden'));
+}
 
 // DOM cache
 const els = {};
@@ -110,13 +118,14 @@ function resetAllFilters() {
 // Filtering entry
 function applyFilters() {
   if (!GAMES.length) return;
+  computeVisibleGames();
 
   const genreValue = els.genreSelect?.value || 'all';
   const eraValue = els.eraSelect?.value || 'all';
   const searchQuery = els.searchInput?.value || '';
   const sortValue = els.sortSelect?.value || 'title-asc';
 
-  const { filtered: afterFilter, normalizedQuery } = filterGames(GAMES, {
+  const { filtered: afterFilter, normalizedQuery } = filterGames(visibleGames, {
     tab: currentTab,
     genreValue,
     eraValue,
@@ -141,10 +150,10 @@ function applyFilters() {
 function render() {
   if (!GAMES.length) return;
 
-  // Stats (single pass inside)
-  updateStats(GAMES, filtered);
-  // Genre breakdown only once internally cached, but call each render is cheap now
-  renderGenreBreakdown(GAMES);
+  // Статистика и топ жанров — тоже по видимым играм (скрытые не считаются у зрителей)
+  const base = visibleGames.length ? visibleGames : GAMES;
+  updateStats(base, filtered);
+  renderGenreBreakdown(base);
 
   const toShow = filtered.slice(0, visibleCount);
 
@@ -215,6 +224,7 @@ async function init() {
   }
 
   filtered = [...GAMES];
+  visibleGames = [...GAMES];
 
   // Theme
   initTheme();
