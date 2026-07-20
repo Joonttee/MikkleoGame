@@ -40,9 +40,10 @@
 
 ## Что делает скрипт
 
-- Читает все игры из Playnite экспорта (`Name`, `Genres`, `Platforms`, `Source`, `ReleaseDate`, `CoverImage`)
+- Читает все игры из Playnite экспорта (`Name`, `Genres`, `Platforms`, `Source`, `ReleaseDate`, `CoverImage`, `Features`)
 - Нормализует заголовки (`normalize_title`) и проверяет дубликаты по каталогу `data/games.json`
 - Новые игры добавляет с `id = slug(title)` + счётчик, `genre`, `platform`, `year`, `status = null`
+- Автоматически проставляет 🕹️ `isMultiplayer` / 🤝 `isCoop` по `Features` из Playnite («Online Multiplayer» → MP, «Online Co-op» → Coop, MMO-жанры → MP) и по курируемому списку `data/mp_coop.json`
 - Пытается найти файл обложки в `library/files/...` и копирует в `covers/Имя Игры.jpg` -> прописывает `image: "covers/Имя Игры.jpg"`
 - Существующие игры не трогает (чтобы не затереть ручные статусы), но если у них нет обложки — докопирует
 - После мержа вызывает `build_index.py` -> пересобирает `assets/js/data.js`

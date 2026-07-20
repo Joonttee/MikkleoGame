@@ -3,7 +3,7 @@
  */
 import { STATUS_MAP } from './config.js';
 import { esc, copyText } from './utils.js';
-import { getEffectiveStatus } from './storage.js';
+import { getEffectiveStatus, getEffectiveFlag } from './storage.js';
 
 let activeModalGame = null;
 
@@ -58,10 +58,13 @@ export function openModal(game, showToast) {
   const effStatus = getEffectiveStatus(game);
   const stInfo = STATUS_MAP[effStatus] || STATUS_MAP['none'];
 
+  const mpTag = getEffectiveFlag(game, 'isMultiplayer') ? '<span class="meta-tag" title="Мультиплеер">🕹️ MP</span>' : '';
+  const coopTag = getEffectiveFlag(game, 'isCoop') ? '<span class="meta-tag" title="Кооператив">🤝 Coop</span>' : '';
   el.badges.innerHTML = `
     <span class="status-tag ${stInfo.class}" style="position:static;">${stInfo.emoji} ${stInfo.label}</span>
     <span class="meta-tag accent">${esc(game.genre)}</span>
     <span class="meta-tag">Год: ${game.year}</span>
+    ${mpTag}${coopTag}
   `;
 
   const steamQuery = game.altTitle || game.title;

@@ -123,6 +123,8 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
     const mainGenre = getPrimaryGenreLabel(g.genre) || 'Игра';
     const statusPill = `<span class="status-tag ${stInfo.class}">${stInfo.emoji} ${stInfo.label}</span>`;
     const hiddenTag = hiddenGh ? `<span class="meta-tag" title="Скрыта от зрителей">🙈 скрыта</span>` : '';
+    const mpTag = getEffectiveFlag(g, 'isMultiplayer') ? `<span class="meta-tag" title="Мультиплеер">🕹️ MP</span>` : '';
+    const coopTag = getEffectiveFlag(g, 'isCoop') ? `<span class="meta-tag" title="Кооператив">🤝 Coop</span>` : '';
 
     if (viewMode === 'list') {
       el.innerHTML = `
@@ -133,7 +135,7 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
           <div class="card-meta">
             <span class="meta-tag accent">${esc(mainGenre)}</span>
             <span class="meta-tag">${g.year || ''}</span>
-            ${hiddenTag}
+            ${mpTag}${coopTag}${hiddenTag}
           </div>
         </div>
       `;
@@ -148,7 +150,7 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
           <div class="card-meta">
             <span class="meta-tag accent">${esc(mainGenre)}</span>
             <span class="meta-tag">${g.year || ''}</span>
-            ${hiddenTag}
+            ${mpTag}${coopTag}${hiddenTag}
           </div>
         </div>
       `;

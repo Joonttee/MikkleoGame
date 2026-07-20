@@ -28,7 +28,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -317,7 +317,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253393-ievq6l",
@@ -460,7 +460,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -508,7 +508,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -556,7 +556,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -604,7 +604,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -620,7 +620,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -636,8 +636,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253394-tfa0gt",
@@ -652,8 +652,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253394-ecx4ex",
@@ -668,7 +668,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -684,7 +684,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -717,7 +717,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-adrlcz",
@@ -909,7 +909,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-tiyto6",
@@ -925,7 +925,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-g70ewz",
@@ -1020,7 +1020,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1036,7 +1036,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1052,7 +1052,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1068,7 +1068,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1116,7 +1116,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1180,7 +1180,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1197,7 +1197,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-3h0lt0",
@@ -1293,7 +1293,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-a0nuxm",
@@ -1309,7 +1309,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-1i9pfe",
@@ -1340,7 +1340,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1405,7 +1405,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-ronn1d",
@@ -1484,7 +1484,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1580,7 +1580,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1628,7 +1628,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1645,7 +1645,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-yielb1",
@@ -1677,7 +1677,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253394-1sqqqt",
@@ -1708,7 +1708,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1724,7 +1724,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1836,7 +1836,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1932,7 +1932,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1948,7 +1948,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -1980,7 +1980,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2125,7 +2125,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253395-rpi1w7",
@@ -2204,8 +2204,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253395-awa9rf",
@@ -2284,7 +2284,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2333,7 +2333,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253395-e4e6z2",
@@ -2364,7 +2364,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2380,7 +2380,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2412,7 +2412,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2428,7 +2428,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2492,7 +2492,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2508,7 +2508,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2604,7 +2604,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2652,8 +2652,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253395-u3zseb",
@@ -2749,7 +2749,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253395-mmcwkb",
@@ -2765,7 +2765,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253395-q1zpdc",
@@ -2780,7 +2780,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2796,7 +2796,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2876,7 +2876,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -2925,7 +2925,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253395-sxjiph",
@@ -3004,7 +3004,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3068,7 +3068,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3084,7 +3084,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3100,7 +3100,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3132,7 +3132,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3228,7 +3228,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3244,7 +3244,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3260,8 +3260,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253395-f3wfpo",
@@ -3277,7 +3277,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253395-ujjrzz",
@@ -3292,7 +3292,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3308,8 +3308,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253395-zh7h0l",
@@ -3324,8 +3324,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253395-qe76jk",
@@ -3356,7 +3356,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3389,7 +3389,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253395-ic2og2",
@@ -3532,7 +3532,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3548,7 +3548,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3564,7 +3564,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3644,7 +3644,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3660,7 +3660,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3676,7 +3676,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3773,7 +3773,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-22r95p",
@@ -3789,7 +3789,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-mju176",
@@ -3916,7 +3916,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3980,7 +3980,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -3997,7 +3997,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-5p0r54",
@@ -4060,7 +4060,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4076,8 +4076,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253396-huzft1",
@@ -4220,7 +4220,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4284,7 +4284,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4300,7 +4300,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4333,7 +4333,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-6dm8sg",
@@ -4396,7 +4396,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4412,7 +4412,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4428,7 +4428,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4524,7 +4524,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4604,7 +4604,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4637,7 +4637,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-xo08aq",
@@ -4653,7 +4653,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-yh4auk",
@@ -4700,8 +4700,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253396-ahifcg",
@@ -4716,8 +4716,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253396-txaimq",
@@ -4732,7 +4732,7 @@
     "altTitle": "ГВИНТ: Ведьмак. Карточная игра",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4748,7 +4748,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4828,7 +4828,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4844,7 +4844,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -4957,7 +4957,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-4k7a9e",
@@ -4973,7 +4973,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-l6p6s2",
@@ -4988,7 +4988,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -5020,7 +5020,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -5037,7 +5037,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-zpzwtv",
@@ -5340,7 +5340,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -5405,7 +5405,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253396-ftbrbt",
@@ -5420,7 +5420,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -5532,7 +5532,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -5548,8 +5548,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253396-dlogxk",
@@ -5708,7 +5708,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -5725,7 +5725,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-58e8l2",
@@ -5852,7 +5852,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -5868,8 +5868,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253397-qczf8j",
@@ -5980,7 +5980,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6029,7 +6029,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-gu83k4",
@@ -6044,7 +6044,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6108,7 +6108,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6125,7 +6125,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-bzqwtq",
@@ -6172,8 +6172,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253397-gnx06t",
@@ -6188,8 +6188,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253397-zuzr8s",
@@ -6221,7 +6221,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-p16r70",
@@ -6237,7 +6237,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-d9rfl5",
@@ -6253,7 +6253,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-acmuf4",
@@ -6269,7 +6269,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-zlpj3e",
@@ -6285,7 +6285,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-h2siti",
@@ -6301,7 +6301,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253397-d30i2b",
@@ -6332,7 +6332,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6429,7 +6429,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784505600000-lnmaw",
@@ -6476,7 +6476,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6508,7 +6508,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6588,7 +6588,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6604,7 +6604,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6636,7 +6636,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6684,7 +6684,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6700,7 +6700,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6733,7 +6733,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253398-tjy576",
@@ -6844,7 +6844,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -6877,7 +6877,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253398-racggx",
@@ -6892,7 +6892,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7020,7 +7020,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7036,7 +7036,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7085,7 +7085,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253398-auy0nz",
@@ -7133,7 +7133,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253398-l0eqzn",
@@ -7181,7 +7181,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253398-1qxsc8",
@@ -7228,7 +7228,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7292,7 +7292,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7308,7 +7308,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7324,7 +7324,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7356,7 +7356,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7421,7 +7421,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253398-zzj2b6",
@@ -7452,7 +7452,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7484,7 +7484,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7517,7 +7517,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253398-n27sed",
@@ -7564,8 +7564,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253398-lwp7w4",
@@ -7596,8 +7596,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253398-h85s42",
@@ -7628,7 +7628,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7724,7 +7724,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -7837,7 +7837,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-9465ow",
@@ -7853,7 +7853,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-os985o",
@@ -7868,8 +7868,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253399-e7b1b1",
@@ -7949,7 +7949,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-c2xpp8",
@@ -7965,7 +7965,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-8capm6",
@@ -7996,7 +7996,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8013,7 +8013,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-2613q2",
@@ -8028,7 +8028,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8061,7 +8061,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-aolkl8",
@@ -8157,7 +8157,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-j72ssf",
@@ -8173,7 +8173,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-d54zsk",
@@ -8317,7 +8317,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-n0plfl",
@@ -8348,7 +8348,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8444,7 +8444,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8460,7 +8460,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8492,7 +8492,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8524,7 +8524,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8541,7 +8541,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-ysa62s",
@@ -8557,7 +8557,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-nlz6lf",
@@ -8621,7 +8621,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-ybxwp3",
@@ -8636,7 +8636,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8652,7 +8652,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8669,7 +8669,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-hk5dw5",
@@ -8716,7 +8716,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8765,7 +8765,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-jv0sr6",
@@ -8861,7 +8861,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-yoohgc",
@@ -8877,7 +8877,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-ut9iqa",
@@ -8924,7 +8924,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -8941,7 +8941,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-5umy8x",
@@ -8957,7 +8957,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-vyeyj6",
@@ -8988,7 +8988,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -9052,7 +9052,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -9069,7 +9069,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-f4i3pa",
@@ -9085,7 +9085,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-1gd709",
@@ -9101,7 +9101,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253399-akh5sc",
@@ -9116,8 +9116,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253399-c0kl49",
@@ -9132,7 +9132,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -9260,7 +9260,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -9277,7 +9277,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-49lzmy",
@@ -9325,7 +9325,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-2l09k5",
@@ -9356,7 +9356,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -9404,7 +9404,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -9469,7 +9469,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-encww5",
@@ -9485,7 +9485,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-voeyu5",
@@ -9501,7 +9501,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-sfy3we",
@@ -9517,7 +9517,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-jygbwx",
@@ -9533,7 +9533,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-np14ac",
@@ -9725,7 +9725,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-ywamid",
@@ -9788,7 +9788,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -9916,7 +9916,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -9933,7 +9933,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-dhwk64",
@@ -9948,8 +9948,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253400-jew19q",
@@ -9965,7 +9965,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-k3mz17",
@@ -9996,7 +9996,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10012,7 +10012,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10028,7 +10028,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10045,7 +10045,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-vwpeox",
@@ -10076,7 +10076,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10156,7 +10156,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10205,7 +10205,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-dxr34y",
@@ -10220,7 +10220,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10253,7 +10253,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-nw3q5r",
@@ -10269,7 +10269,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-gohw35",
@@ -10300,8 +10300,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253400-8oxzpu",
@@ -10365,7 +10365,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-cldbo9",
@@ -10380,7 +10380,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10429,7 +10429,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-2q5x3h",
@@ -10476,7 +10476,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10492,7 +10492,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10541,7 +10541,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-bz10nb",
@@ -10557,7 +10557,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-hr1s7n",
@@ -10589,7 +10589,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-xvxvrr",
@@ -10652,7 +10652,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10861,7 +10861,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-8ss1ra",
@@ -10876,7 +10876,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10908,7 +10908,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -10925,7 +10925,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-cnvnyl",
@@ -10956,7 +10956,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -11036,7 +11036,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -11180,7 +11180,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -11196,7 +11196,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -11244,8 +11244,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253400-pp0ljw",
@@ -11357,7 +11357,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-6s6tun",
@@ -11421,7 +11421,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-bqdj1d",
@@ -11452,7 +11452,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -11485,7 +11485,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253400-2grsq6",
@@ -11660,7 +11660,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -11740,7 +11740,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -11789,7 +11789,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-krwjc9",
@@ -11836,8 +11836,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253401-zf10y7",
@@ -11917,7 +11917,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-olx4vm",
@@ -11948,8 +11948,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253401-flh958",
@@ -11981,7 +11981,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-mlkces",
@@ -12012,7 +12012,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12028,7 +12028,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12092,7 +12092,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12124,7 +12124,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12237,7 +12237,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-3tbf8z",
@@ -12268,8 +12268,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253401-d5hs9a",
@@ -12301,7 +12301,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-47mv1e",
@@ -12381,7 +12381,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-ceu7vu",
@@ -12412,7 +12412,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12444,8 +12444,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253401-97ukws",
@@ -12460,7 +12460,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12477,7 +12477,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-p3fod1",
@@ -12492,7 +12492,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12508,7 +12508,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12573,7 +12573,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-kdeyl3",
@@ -12588,7 +12588,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12604,8 +12604,8 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
-    "isCoop": false
+    "isMultiplayer": true,
+    "isCoop": true
   },
   {
     "id": "1784075253401-v76xk2",
@@ -12668,7 +12668,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12716,7 +12716,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12732,7 +12732,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12813,7 +12813,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-1ocr64",
@@ -12861,7 +12861,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-xcb4pb",
@@ -12876,7 +12876,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -12908,7 +12908,7 @@
     "altTitle": "",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
@@ -13021,7 +13021,7 @@
     "status": null,
     "isGacha": false,
     "isMultiplayer": false,
-    "isCoop": false
+    "isCoop": true
   },
   {
     "id": "1784075253401-shq0av",
@@ -13132,7 +13132,7 @@
     "altTitle": "GWENT: The Witcher Card Game / PTR",
     "status": null,
     "isGacha": false,
-    "isMultiplayer": false,
+    "isMultiplayer": true,
     "isCoop": false
   },
   {
