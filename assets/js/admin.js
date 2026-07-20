@@ -256,25 +256,55 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
           showToast('Сначала сохрани URL удалённого хранилища');
           return;
         }
+        url = url.trim();
+        // Auto-fix common mistake: docs URL instead of API URL for npoint.io
+        const docsMatch = url.match(/https?:\/\/www\.npoint\.io\/docs\/([a-f0-9]+)/);
+        if (docsMatch) {
+          url = 'https://api.npoint.io/' + docsMatch[1];
+          showToast('URL исправлен: ' + url);
+        }
         const data = loadOverrides();
         try {
           showToast('Заливаю...');
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data, null, 2)
-          });
-          if (!res.ok) {
-            const res2 = await fetch(url, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data, null, 2)
-            });
-            if (!res2.ok) throw new Error('HTTP ' + res2.status);
+          // Try POST, PUT, PATCH (like Python script upload_playnite_remote.py)
+          const methods = ['POST', 'PUT', 'PATCH'];
+          let success = false;
+          let lastErr = '';
+          for (const method of methods) {
+            try {
+              const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data, null, 2)
+              });
+              if (res.ok) {
+                showToast('✓ Удалённо сохранено! (' + method + ') Зрители увидят после перезагрузки');
+                success = true;
+                break;
+              } else {
+                const bodyText = await res.text().catch(() => '');
+                lastErr = method + ' ' + res.status + ': ' + bodyText.slice(0, 200);
+              }
+            } catch (e) {
+              lastErr = method + ' error: ' + (e.message || e);
+            }
           }
-          showToast('Удалённо сохранено! Зрители увидят после перезагрузки');
+          if (!success) {
+            throw new Error(lastErr || 'All methods failed');
+          }
         } catch (e) {
-          showToast('Не удалось залить напрямую (нужен npoint/jsonbin). Скачай JSON и залей вручную');
+          const msg = (e && e.message) ? String(e.message) : String(e);
+          let hint = 'Не удалось залить напрямую.';
+          if (msg.includes('404') || msg.includes('Not Found')) {
+            hint += ' Возможно, это docs-ссылка npoint.io (нужен api.npoint.io/...). Проверь URL.';
+          } else if (msg.includes('403') || msg.includes('Forbidden')) {
+            hint += ' Доступ запрещён — проверь права или токен.';
+          } else if (msg.includes('CORS') || msg.includes('NetworkError')) {
+            hint += ' CORS/сетевой блок — попробуй через gist или jsonbin, или используй Python-скрипт.';
+          } else {
+            hint += ' Нужен npoint/jsonbin. Проверь что URL правильный (api.npoint.io/ID) и попробуй ещё раз.';
+          }
+          showToast(hint + ' (' + msg.slice(0, 120) + ')');
         }
       });
     }

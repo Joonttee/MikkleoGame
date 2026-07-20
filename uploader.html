@@ -216,19 +216,49 @@ $('downloadConvertedBtn').onclick=()=>{
 };
 
 $('uploadGamesBtn').onclick=async()=>{
-  const url=$('gamesUrl').value.trim();
+  let url=$('gamesUrl').value.trim();
   if(!url){ $('gamesUploadStatus').textContent='Укажи gamesUrl выше'; return; }
   if(!convertedGames.length){ $('gamesUploadStatus').textContent='Сначала перетащи library.json'; return; }
+  // Auto-fix common mistake: docs URL instead of API URL for npoint.io
+  const docsMatch = url.match(/https?:\/\/www\.npoint\.io\/docs\/([a-f0-9]+)/);
+  if (docsMatch) {
+    url = 'https://api.npoint.io/' + docsMatch[1];
+    $('gamesUploadStatus').textContent = 'URL исправлен: ' + url + ' — заливаю...';
+  }
   $('gamesUploadStatus').textContent='Заливаю...';
   try{
-    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(convertedGames,null,2)});
-    if(!res.ok){
-      const res2=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(convertedGames,null,2)});
-      if(!res2.ok) throw new Error('HTTP '+res2.status);
+    const methods = ['POST', 'PUT', 'PATCH'];
+    let success = false;
+    let lastErr = '';
+    for (const method of methods) {
+      try {
+        const res = await fetch(url, {method: method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(convertedGames,null,2)});
+        if (res.ok) {
+          $('gamesUploadStatus').textContent = '✓ Залито! (' + method + ') Открой основной сайт — новые игры появятся после Ctrl+F5';
+          success = true;
+          break;
+        } else {
+          const bodyText = await res.text().catch(() => '');
+          lastErr = method + ' ' + res.status + ': ' + bodyText.slice(0, 200);
+        }
+      } catch (e) {
+        lastErr = method + ' error: ' + (e.message || e);
+      }
     }
-    $('gamesUploadStatus').textContent='✓ Залито! Открой основной сайт — новые игры появятся после Ctrl+F5';
+    if (!success) throw new Error(lastErr || 'All methods failed');
   }catch(e){
-    $('gamesUploadStatus').textContent='Не удалось залить напрямую: '+e.message+'. Для gist — вставь вручную на сайте npoint/gist. Для npoint — проверь что ID правильный и попробуй ещё раз.';
+    const msg = (e && e.message) ? String(e.message) : String(e);
+    let hint = 'Не удалось залить напрямую.';
+    if (msg.includes('404') || msg.includes('Not Found')) {
+      hint += ' Возможно, это docs-ссылка npoint.io (нужен api.npoint.io/...). Проверь URL.';
+    } else if (msg.includes('403') || msg.includes('Forbidden')) {
+      hint += ' Доступ запрещён — проверь права или токен.';
+    } else if (msg.includes('CORS') || msg.includes('NetworkError')) {
+      hint += ' CORS/сетевой блок — попробуй через gist или jsonbin, или используй Python-скрипт.';
+    } else {
+      hint += ' Для gist — вставь вручную на сайте npoint/gist. Для npoint — проверь что ID правильный и попробуй ещё раз.';
+    }
+    $('gamesUploadStatus').textContent = hint + ' (' + msg.slice(0, 120) + ')';
   }
 };
 
@@ -253,20 +283,51 @@ $('loadOverridesBtn').onclick=()=>loadLocalOverrides();
 loadLocalOverrides();
 
 $('uploadOverridesBtn').onclick=async()=>{
-  const url=$('overridesUrl').value.trim();
+  let url=$('overridesUrl').value.trim();
   if(!url){ $('overridesUploadStatus').textContent='Укажи overridesUrl'; return; }
   const data=loadLocalOverrides();
   if(!Object.keys(data).length){ $('overridesUploadStatus').textContent='Нечего заливать'; return; }
-  $('overridesUploadStatus').textContent='Заливаю...';
+  // Auto-fix common mistake: docs URL instead of API URL for npoint.io
+  const docsMatch = url.match(/https?:\/\/www\.npoint\.io\/docs\/([a-f0-9]+)/);
+  if (docsMatch) {
+    url = 'https://api.npoint.io/' + docsMatch[1];
+    $('overridesUploadStatus').textContent = 'URL исправлен: ' + url + ' — заливаю...';
+  } else {
+    $('overridesUploadStatus').textContent = 'Заливаю...';
+  }
   try{
-    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data,null,2)});
-    if(!res.ok){
-      const res2=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data,null,2)});
-      if(!res2.ok) throw new Error('HTTP '+res2.status);
+    const methods = ['POST', 'PUT', 'PATCH'];
+    let success = false;
+    let lastErr = '';
+    for (const method of methods) {
+      try {
+        const res = await fetch(url, {method: method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(data,null,2)});
+        if (res.ok) {
+          $('overridesUploadStatus').textContent = '✓ Залито! (' + method + ') Статусы видны всем после перезагрузки';
+          success = true;
+          break;
+        } else {
+          const bodyText = await res.text().catch(() => '');
+          lastErr = method + ' ' + res.status + ': ' + bodyText.slice(0, 200);
+        }
+      } catch (e) {
+        lastErr = method + ' error: ' + (e.message || e);
+      }
     }
-    $('overridesUploadStatus').textContent='✓ Залито! Статусы видны всем после перезагрузки';
+    if (!success) throw new Error(lastErr || 'All methods failed');
   }catch(e){
-    $('overridesUploadStatus').textContent='Ошибка: '+e.message+'. Скачай JSON на основном сайте и вставь руками в npoint/gist';
+    const msg = (e && e.message) ? String(e.message) : String(e);
+    let hint = 'Ошибка: ';
+    if (msg.includes('404') || msg.includes('Not Found')) {
+      hint += 'Возможно, это docs-ссылка npoint.io (нужен api.npoint.io/...). Проверь URL.';
+    } else if (msg.includes('403') || msg.includes('Forbidden')) {
+      hint += 'Доступ запрещён — проверь права или токен.';
+    } else if (msg.includes('CORS') || msg.includes('NetworkError')) {
+      hint += 'CORS/сетевой блок — попробуй через gist или jsonbin, или используй Python-скрипт.';
+    } else {
+      hint += 'Нужен npoint/jsonbin. Проверь что URL правильный (api.npoint.io/ID) и попробуй ещё раз.';
+    }
+    $('overridesUploadStatus').textContent = hint + ' (' + msg.slice(0, 120) + ')';
   }
 };
 </script>
