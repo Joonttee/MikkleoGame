@@ -121,9 +121,10 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
     const stInfo = STATUS_MAP[effStatus] || STATUS_MAP['none'];
     const initials = esc((g.title || 'Game').slice(0, 2).toUpperCase());
 
+    // В сетке — только один слой, фикс размер, без размытого фона (оптимизация + не прыгает размер)
+    // В списке — тот же img, но в маленьком контейнере (cover)
     const imgBlock = g.image
-      ? `<img class="cover-bg" src="${esc(g.image)}" loading="lazy" decoding="async" alt="">
-         <img class="cover-main" src="${esc(g.image)}" loading="lazy" decoding="async" alt="${esc(g.title)}">`
+      ? `<img class="cover-main" src="${esc(g.image)}" loading="lazy" decoding="async" alt="${esc(g.title)}">`
       : `<div class="cover-initials">${initials}</div>`;
 
     const mainGenre = g.genre ? g.genre.split(',')[0].trim() : 'Игра';

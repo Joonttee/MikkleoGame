@@ -38,14 +38,18 @@ export function openModal(game, showToast) {
 
   const initials = (game.title || 'Game').slice(0, 2).toUpperCase();
 
+  // Новое отображение: в модалке обложка на всю панель, без искажений, без размытого фона
+  // Grid использует cover для фикс размера, а модалка — contain на всю ширину для хорошей видимости
   if (game.image) {
-    el.imgBg.src = game.image;
-    el.imgBg.style.display = 'block';
+    // Размытый фон больше не используем
+    if (el.imgBg) el.imgBg.style.display = 'none';
     el.imgMain.src = game.image;
     el.imgMain.style.display = 'block';
+    el.imgMain.alt = game.title;
+    // Убираем ограничения, ставим на всю панель через CSS (contain)
     el.initials.style.display = 'none';
   } else {
-    el.imgBg.style.display = 'none';
+    if (el.imgBg) el.imgBg.style.display = 'none';
     el.imgMain.style.display = 'none';
     el.initials.textContent = initials;
     el.initials.style.display = 'block';
