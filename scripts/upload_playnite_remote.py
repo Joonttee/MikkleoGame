@@ -13,12 +13,6 @@ Mikkleo Games — загрузка игр из Playnite без доступа к
      "gamesUrl": "https://getpantry.cloud/apiv1/pantry/<PANTRY_ID>/basket/mikkleo-games"
    }
 
-   ВАЖНО: npoint.io больше не принимает запись через API для бинов,
-   привязанных к аккаунту (POST отвечает 401 — нужен платный токен).
-   Поэтому для ЗАПИСИ рекомендуется Pantry. Анонимные npoint-бины (созданные
-   без логина) пока ещё принимают POST, но npoint называет API-запись
-   "private beta" — надёжнее Pantry.
-
 2. Стример ставит Playnite + Game Data Exporter (см. PLAYNITE.md)
    -> получается library.json
 
@@ -164,15 +158,13 @@ def detect_provider(url: str) -> str:
         return "pantry"
     if "jsonbin.io" in u:
         return "jsonbin"
-    if "npoint.io" in u:
-        return "npoint"
     return "generic"
 
 
 def main():
     parser = argparse.ArgumentParser(description="Загрузка игр из Playnite в удалённое хранилище без доступа к репе")
     parser.add_argument("--input", required=True, help="Путь к library.json из Playnite")
-    parser.add_argument("--remote-url", required=True, help="URL удалённого хранилища (Pantry/npoint/jsonbin), куда заливать")
+    parser.add_argument("--remote-url", required=True, help="URL удалённого хранилища (Pantry/jsonbin), куда заливать")
     parser.add_argument("--api-key", default=os.environ.get("JSONBIN_MASTER_KEY", ""), help="Ключ для jsonbin.io (или env JSONBIN_MASTER_KEY)")
     parser.add_argument("--dry-run", action="store_true", help="Только показать, не заливать")
     args = parser.parse_args()
@@ -219,12 +211,10 @@ def main():
     # Методы под провайдера:
     # - pantry: только POST (create/replace). PUT там deep-merge — удалённые игры не исчезнут.
     # - jsonbin: PUT — задокументированный метод обновления бина.
-    # - npoint: только POST маршрутизируется; для бинов с владельцем — 401/402.
     # - generic: перебираем всё.
     methods = {
         "pantry": ("POST",),
         "jsonbin": ("PUT",),
-        "npoint": ("POST",),
     }.get(provider, ("POST", "PUT", "PATCH"))
 
     print(f"[i] Провайдер: {provider}. Заливаю на {args.remote_url} ({len(payload)} байт)...")
@@ -242,10 +232,9 @@ def main():
         except urllib.error.HTTPError as e:
             last_err = f"{method} HTTP {e.code}: {e.read().decode(errors='ignore')[:300]}"
             print(f"[!] {last_err}")
-            if provider == "npoint" and e.code in (401, 402, 403):
-                print("[!] npoint закрыл запись через API для бинов, привязанных к аккаунту.")
-                print("[!] Решение: создай Pantry на https://getpantry.cloud (бесплатно, без ключей)")
-                print("[!] и передай сюда URL вида https://getpantry.cloud/apiv1/pantry/<PANTRY_ID>/basket/mikkleo-games")
+            if e.code in (401, 402, 403):
+                print("[!] Хранилище отказало в записи. Проверь URL, либо используй Pantry (getpantry.cloud):")
+                print("[!] https://getpantry.cloud/apiv1/pantry/<PANTRY_ID>/basket/mikkleo-games")
                 sys.exit(2)
         except Exception as e:
             last_err = f"{method} error: {e}"

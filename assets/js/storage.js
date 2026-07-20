@@ -58,7 +58,7 @@ export function setAdmin(on) {
 
 /** Remote overrides loader: for streamer without repo access
  *  Tries:
- *   1) localStorage key mikkleo_remote_overrides_url (if streamer sets custom gist/npoint)
+ *   1) localStorage key mikkleo_remote_overrides_url (if streamer sets custom pantry/gist)
  *   2) ./data/remote.json -> { overridesUrl: "https://..." }
  *   3) fallback ./data/overrides.json (can be filled by GitHub Action / bot)
  */
@@ -67,7 +67,7 @@ export async function loadRemoteOverrides() {
   let overridesUrl = null;
   let gamesUrl = null;
 
-  // 1) allow manual override via localStorage for testing / streamer personal gist
+  // 1) allow manual override via localStorage for testing / streamer personal pantry/gist
   try {
     const lsUrl = localStorage.getItem('mikkleo_remote_overrides_url');
     if (lsUrl) overridesUrl = lsUrl;

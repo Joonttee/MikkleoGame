@@ -27,10 +27,10 @@
   <h3>1. Ссылки на удалённые хранилища (выдаёт владелец один раз)</h3>
   <p class="muted">Берутся из <code>data/remote.json</code>, но можешь поменять тут — сохранится в браузере.</p>
   <label>Статусы (overridesUrl)</label>
-  <input id="overridesUrl" placeholder="https://api.npoint.io/...">
+  <input id="overridesUrl" placeholder="https://getpantry.cloud/apiv1/pantry/.../basket/mikkleo-statuses">
   <br><br>
   <label>Игры (gamesUrl)</label>
-  <input id="gamesUrl" placeholder="https://api.npoint.io/...">
+  <input id="gamesUrl" placeholder="https://getpantry.cloud/apiv1/pantry/.../basket/mikkleo-games">
   <br><br>
   <button id="saveUrls">💾 Сохранить URL в браузере</button>
   <button class="secondary" id="loadFromRemoteJson">↻ Загрузить из data/remote.json</button>
@@ -71,7 +71,7 @@
     <li>Обложки генерятся отдельно в <code>covers/</code> как и раньше — этот загрузчик их не трогает, только JSON.</li>
     <li>Для remote-режима обложки будут как буквы-инициалы, пока владелец не скопирует файлы из <code>library/files/</code> в <code>covers/</code> и не запустит <code>sync_covers.py</code>.</li>
     <li>Сайт сам делает <code>fetch(gamesUrl)</code> + <code>fetch(overridesUrl)</code> и мерджит с основным каталогом.</li>
-    <li>Рекомендуемое хранилище — <b>Pantry</b> (getpantry.cloud): запись из браузера одним POST, ключей не надо. npoint.io для бинов с аккаунтом больше не принимает запись (ошибка 401). Gist — только руками на сайте gist.</li>
+    <li>Рекомендуемое хранилище — <b>Pantry</b> (getpantry.cloud): запись из браузера одним POST, ключей не надо. Gist — только руками на сайте gist.</li>
   </ul>
 </div>
 

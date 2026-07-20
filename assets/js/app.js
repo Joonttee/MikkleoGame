@@ -175,7 +175,7 @@ async function init() {
   ]);
   GAMES = games;
 
-  // Мерджим удалённые игры из Playnite (если стример без доступа залил library.json в npoint/gist)
+  // Мерджим удалённые игры из Playnite (если стример без доступа залил library.json в pantry/gist)
   try {
     const remoteRaw = getRemoteGamesRaw();
     if (remoteRaw) {

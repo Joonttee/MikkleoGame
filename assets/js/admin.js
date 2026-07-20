@@ -79,7 +79,7 @@ function renderList(games) {
     </div>
 
     <div class="admin-meta-info" style="margin-bottom:12px; display:flex; flex-direction:column; gap:10px;">
-      <div><b>Для стримера без доступа к репе:</b> статусы и новые игры хранятся в удалённом JSON. Рекомендуемое хранилище — <b>Pantry</b> (getpantry.cloud, бесплатная запись из браузера). npoint больше не принимает запись для бинов с аккаунтом (ошибка 401).</div>
+      <div><b>Для стримера без доступа к репе:</b> статусы и новые игры хранятся в удалённом JSON. Рекомендуемое хранилище — <b>Pantry</b> (getpantry.cloud, бесплатная запись из браузера).</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
         <span style="font-size:11px; min-width:70px;">Статусы:</span>
         <input id="remoteUrlInput" type="text" value="${esc(remoteUrl)}" placeholder="https://getpantry.cloud/apiv1/pantry/ID/basket/mikkleo-statuses" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
@@ -267,11 +267,6 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
         showToast('Заливаю на ' + url + ' ...');
         const result = await uploadJsonToRemote(url, data);
         if (result.ok) {
-          // Если URL был исправлен автоматически (docs→api) — сохраним рабочий вариант
-          if (result.fixedUrl !== url) {
-            try { localStorage.setItem('mikkleo_remote_overrides_url', result.fixedUrl); } catch {}
-            if (remoteInput) remoteInput.value = result.fixedUrl;
-          }
           showToast('✓ Удалённо сохранено! (' + result.method + ' → ' + result.provider + ') Зрители увидят после перезагрузки');
         } else {
           showToast(explainUploadFailure(result));
