@@ -4,13 +4,14 @@
  */
 import { STORAGE_KEYS, UI } from './config.js';
 import { esc, debounce } from './utils.js';
-import { loadOverrides, clearOverridesCache, loadRemoteOverrides } from './storage.js';
+import { loadOverrides, clearOverridesCache, loadRemoteOverrides, getRemoteGamesRaw } from './storage.js';
 import { initTheme, setTheme } from './theme.js';
 import { initTwitchStatus } from './twitch.js';
 import { filterGames, sortGames } from './filters.js';
 import { renderGrid, renderGenreBreakdown, updateStats } from './render.js';
 import { initModal } from './modal.js';
 import { createAdminPanel } from './admin.js';
+import { convertPlayniteToMikkleo, parsePlayniteJson } from './playnite.js';
 
 // ---------------------------------------------------------
 // Data loading — try fetch data/games.json, fallback to bundled data.js
@@ -167,12 +168,41 @@ let modalApi = { openModal: () => {}, closeModal: () => {} };
 // Init app after data loaded
 async function init() {
   cacheDom();
-  // Параллельно грузим игры и удалённые оверрайды (для стримера без доступа к репе)
+  // Параллельно грузим игры и удалённые оверрайды/игры (для стримера без доступа к репе)
   const [games] = await Promise.all([
     loadGames(),
     loadRemoteOverrides()
   ]);
   GAMES = games;
+
+  // Мерджим удалённые игры из Playnite (если стример без доступа залил library.json в npoint/gist)
+  try {
+    const remoteRaw = getRemoteGamesRaw();
+    if (remoteRaw) {
+      const playniteArray = parsePlayniteJson(remoteRaw);
+      if (playniteArray && playniteArray.length) {
+        const existingIds = new Set(GAMES.map(g => g.id));
+        const existingNorms = new Set(GAMES.map(g => (g.title || '').replace(/[^0-9a-zA-Zа-яА-ЯёЁ]/g, '').toLowerCase()));
+        // Если remoteRaw уже в формате Mikkleo (есть title+id), просто мерджим, иначе конвертим из Playnite
+        const isMikkleoFormat = remoteRaw.length && remoteRaw[0].title && remoteRaw[0].id && remoteRaw[0].genre !== undefined;
+        let converted = [];
+        if (isMikkleoFormat) {
+          converted = remoteRaw.filter(r => {
+            const norm = (r.title || '').replace(/[^0-9a-zA-Zа-яА-ЯёЁ]/g, '').toLowerCase();
+            return !existingNorms.has(norm);
+          });
+        } else {
+          converted = convertPlayniteToMikkleo(playniteArray, existingIds, existingNorms);
+        }
+        if (converted.length) {
+          console.log(`[remote games] +${converted.length} new games from remote`);
+          GAMES = [...GAMES, ...converted];
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('remote games merge failed', e);
+  }
 
   if (!GAMES.length) {
     if (els.grid) {

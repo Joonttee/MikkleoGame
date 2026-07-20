@@ -9,7 +9,9 @@ let _overridesRaw = null;
 
 // Remote overrides (public, for streamers without repo access)
 let _remoteOverrides = null;
+let _remoteGames = null;
 let _remoteLoaded = false;
+let _remoteGamesUrl = null;
 
 export function loadOverrides() {
   try {
@@ -62,19 +64,23 @@ export function setAdmin(on) {
 export async function loadRemoteOverrides() {
   if (_remoteLoaded) return _remoteOverrides;
   let overridesUrl = null;
+  let gamesUrl = null;
 
   // 1) allow manual override via localStorage for testing / streamer personal gist
   try {
     const lsUrl = localStorage.getItem('mikkleo_remote_overrides_url');
     if (lsUrl) overridesUrl = lsUrl;
+    const lsGamesUrl = localStorage.getItem('mikkleo_remote_games_url');
+    if (lsGamesUrl) gamesUrl = lsGamesUrl;
   } catch {}
 
-  if (!overridesUrl) {
+  if (!overridesUrl || !gamesUrl) {
     try {
       const cfgRes = await fetch('./data/remote.json', { cache: 'no-store' });
       if (cfgRes.ok) {
         const cfg = await cfgRes.json();
-        overridesUrl = cfg.overridesUrl || cfg.url || cfg.remoteUrl || null;
+        if (!overridesUrl) overridesUrl = cfg.overridesUrl || cfg.url || cfg.remoteUrl || null;
+        if (!gamesUrl) gamesUrl = cfg.gamesUrl || cfg.games_url || cfg.libraryUrl || null;
       }
     } catch {}
   }
@@ -84,33 +90,56 @@ export async function loadRemoteOverrides() {
     overridesUrl = './data/overrides.json';
   }
 
-  if (!overridesUrl) {
-    _remoteLoaded = true;
-    return null;
+  _remoteGamesUrl = gamesUrl;
+
+  if (overridesUrl) {
+    try {
+      const res = await fetch(overridesUrl, { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        if (!json || typeof json !== 'object') {
+          _remoteOverrides = {};
+        } else if (json.overrides && typeof json.overrides === 'object') {
+          _remoteOverrides = json.overrides;
+        } else {
+          _remoteOverrides = json;
+        }
+      } else {
+        _remoteOverrides = {};
+      }
+    } catch (e) {
+      _remoteOverrides = {};
+    }
   }
 
-  try {
-    const res = await fetch(overridesUrl, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    if (!json || typeof json !== 'object') {
-      _remoteOverrides = {};
-    } else if (json.overrides && typeof json.overrides === 'object') {
-      _remoteOverrides = json.overrides;
-    } else {
-      // Assume file itself is the overrides map { id: {status, isGacha...}, ... }
-      _remoteOverrides = json;
+  // Load remote games if configured
+  if (gamesUrl) {
+    try {
+      const r = await fetch(gamesUrl, { cache: 'no-store' });
+      if (r.ok) {
+        const j = await r.json();
+        // j can be Playnite raw array or already Mikkleo format
+        _remoteGames = j;
+      }
+    } catch {
+      _remoteGames = null;
     }
-  } catch (e) {
-    // If file doesn't exist (common for fresh repo), treat as empty
-    _remoteOverrides = {};
   }
+
   _remoteLoaded = true;
   return _remoteOverrides;
 }
 
 export function getRemoteOverrides() {
   return _remoteOverrides || {};
+}
+
+export function getRemoteGamesRaw() {
+  return _remoteGames;
+}
+
+export function getRemoteGamesUrl() {
+  return _remoteGamesUrl;
 }
 
 export function getEffectiveStatus(game) {

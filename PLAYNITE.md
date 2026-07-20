@@ -2,7 +2,10 @@
 
 Да, можно! Playnite — идеальный источник для Mikkleo Games, потому что уже хранит названия, жанры, год, платформу и обложки.
 
-Мы добавили скрипт `scripts/import_playnite.py`, который берёт экспорт из Playnite и мерджит его в `data/games.json`.
+Мы сделали **два режима**:
+
+1. **С доступом к репе** — `scripts/import_playnite.py` мерджит в `data/games.json` + копирует обложки в `covers/`
+2. **Без доступа к репе** — `scripts/upload_playnite_remote.py` заливает конвертированный JSON на npoint.io/gist, сайт сам подтянет новые игры (см. `STREAMER_NO_REPO.md` раздел про `gamesUrl`)
 
 ## Вариант А — Game Data Exporter (рекомендуется, авто-экспорт)
 

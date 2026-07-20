@@ -32,8 +32,10 @@ function renderList(games) {
   const overrides = loadOverrides();
   const totalOverrides = Object.keys(overrides).length;
   let remoteUrl = '';
+  let remoteGamesUrl = '';
   try {
     remoteUrl = localStorage.getItem('mikkleo_remote_overrides_url') || '';
+    remoteGamesUrl = localStorage.getItem('mikkleo_remote_games_url') || '';
   } catch {}
   const html = games.map(g => {
     const eff = getEffectiveStatus(g);
@@ -71,14 +73,24 @@ function renderList(games) {
       <button class="btn-action" id="adminLogoutBtn" style="height:36px; padding:0 14px; font-size:12px; background:transparent; color:var(--muted);">🚪 Выйти</button>
     </div>
 
-    <div class="admin-meta-info" style="margin-bottom:12px; display:flex; flex-direction:column; gap:8px;">
-      <div><b>Для стримера без доступа к репе:</b> укажи URL удалённого JSON (gist, npoint.io, jsonbin) — тогда все зрители увидят твои статусы без пуша в GitHub.</div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <input id="remoteUrlInput" type="text" value="${esc(remoteUrl)}" placeholder="https://api.npoint.io/... или https://gist.githubusercontent.com/.../raw/overrides.json" style="flex:1; min-width:220px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
-        <button class="btn-action" id="saveRemoteUrlBtn" style="height:36px;">💾 Сохранить URL</button>
-        <button class="btn-action" id="exportToRemoteBtn" style="height:36px; background:rgba(124,255,178,.15); color:var(--accent2); border-color:rgba(124,255,178,.3);">⬆️ Залить туда JSON</button>
+    <div class="admin-meta-info" style="margin-bottom:12px; display:flex; flex-direction:column; gap:10px;">
+      <div><b>Для стримера без доступа к репе:</b> укажи URL удалённых JSON (gist, npoint.io). Тогда все зрители увидят статусы и новые игры без пуша в GitHub.</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <span style="font-size:11px; min-width:70px;">Статусы:</span>
+        <input id="remoteUrlInput" type="text" value="${esc(remoteUrl)}" placeholder="https://api.npoint.io/.../overrides" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
+        <button class="btn-action" id="saveRemoteUrlBtn" style="height:36px;">💾 URL</button>
+        <button class="btn-action" id="exportToRemoteBtn" style="height:36px; background:rgba(124,255,178,.15); color:var(--accent2); border-color:rgba(124,255,178,.3);">⬆️ Статусы</button>
       </div>
-      <div style="font-size:11px; color:var(--muted);">Текущий источник: <b>${esc(remoteUrl || './data/overrides.json')}</b> — пустой <code>{}</code> значит нет удалённых правок. Инструкция в <code>PLAYNITE.md</code> и <code>STREAMER_NO_REPO.md</code></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <span style="font-size:11px; min-width:70px;">Игры Playnite:</span>
+        <input id="remoteGamesUrlInput" type="text" value="${esc(remoteGamesUrl)}" placeholder="https://api.npoint.io/.../games или gist raw library.json" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
+        <button class="btn-action" id="saveRemoteGamesUrlBtn" style="height:36px;">💾 URL</button>
+      </div>
+      <div style="font-size:11px; color:var(--muted); line-height:1.4;">
+        Статусы: <b>${esc(remoteUrl || './data/overrides.json')}</b> | Игры: <b>${esc(remoteGamesUrl || '(не задано)')}</b><br>
+        Скрипт для заливки игр без репы: <code>python scripts/upload_playnite_remote.py --input library.json --remote-url https://api.npoint.io/ID_GAMES</code><br>
+        Инструкция: <code>PLAYNITE.md</code> и <code>STREAMER_NO_REPO.md</code>
+      </div>
     </div>
 
     <div class="admin-list" id="adminList">${html}</div>
@@ -207,7 +219,9 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
 
     // Remote URL handling for streamer without repo access
     const remoteInput = document.getElementById('remoteUrlInput');
+    const remoteGamesInput = document.getElementById('remoteGamesUrlInput');
     const saveRemoteBtn = document.getElementById('saveRemoteUrlBtn');
+    const saveRemoteGamesBtn = document.getElementById('saveRemoteGamesUrlBtn');
     const exportRemoteBtn = document.getElementById('exportToRemoteBtn');
 
     if (saveRemoteBtn && remoteInput) {
@@ -216,7 +230,18 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
         try {
           if (url) localStorage.setItem('mikkleo_remote_overrides_url', url);
           else localStorage.removeItem('mikkleo_remote_overrides_url');
-          showToast(url ? 'Удалённый URL сохранён' : 'Удалённый URL очищен, используется ./data/overrides.json');
+          showToast(url ? 'URL статусов сохранён' : 'URL статусов очищен');
+        } catch {}
+      });
+    }
+
+    if (saveRemoteGamesBtn && remoteGamesInput) {
+      saveRemoteGamesBtn.addEventListener('click', () => {
+        const url = remoteGamesInput.value.trim();
+        try {
+          if (url) localStorage.setItem('mikkleo_remote_games_url', url);
+          else localStorage.removeItem('mikkleo_remote_games_url');
+          showToast(url ? 'URL игр сохранён — перезагрузи страницу' : 'URL игр очищен');
         } catch {}
       });
     }
@@ -231,9 +256,6 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
           showToast('Сначала сохрани URL удалённого хранилища');
           return;
         }
-        // For npoint.io and jsonbin.io we can attempt PUT
-        // npoint docs: POST to https://api.npoint.io/ID to update
-        // We'll try PUT and POST, and show result
         const data = loadOverrides();
         try {
           showToast('Заливаю...');
@@ -252,7 +274,7 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
           }
           showToast('Удалённо сохранено! Зрители увидят после перезагрузки');
         } catch (e) {
-          showToast('Не удалось залить напрямую (нужен npoint/jsonbin). Скачай JSON и залей вручную в твой gist/npoint');
+          showToast('Не удалось залить напрямую (нужен npoint/jsonbin). Скачай JSON и залей вручную');
         }
       });
     }

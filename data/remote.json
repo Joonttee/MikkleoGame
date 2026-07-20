@@ -1,4 +1,10 @@
 {
   "overridesUrl": "./data/overrides.json",
-  "_comment": "Стример без доступа к репе может поменять overridesUrl на свой gist/npoint/jsonbin. Пример: https://api.npoint.io/xxxxxxxx или https://gist.githubusercontent.com/USER/GIST_ID/raw/overrides.json"
+  "gamesUrl": null,
+  "_comment_overrides": "Стример без доступа к репе может поменять overridesUrl на свой gist/npoint/jsonbin. Пример: https://api.npoint.io/xxxxxxxx или https://gist.githubusercontent.com/USER/GIST_ID/raw/overrides.json",
+  "_comment_games": "Для загрузки НОВЫХ игр из Playnite без доступа к репе — укажи URL на JSON с библиотекой Playnite (library.json) или уже сконвертированный в Mikkleo формат. Пример: https://api.npoint.io/YYY или gist raw. Скрипт upload_playnite_remote.py заливает туда. Если null — доп. игры не грузятся.",
+  "_example": {
+    "overridesUrl": "https://api.npoint.io/8d4c5e9a-xxx",
+    "gamesUrl": "https://api.npoint.io/9f3a1b2c-yyy"
+  }
 }

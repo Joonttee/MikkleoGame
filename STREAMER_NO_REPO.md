@@ -124,14 +124,59 @@ jobs:
 
 ---
 
+## Как грузить НОВЫЕ игры из Playnite без доступа к репе
+
+Статусы — это `overridesUrl`, а новые игры — `gamesUrl`. Теперь сайт умеет тянуть **оба**.
+
+**В `data/remote.json` теперь два поля:**
+```json
+{
+  "overridesUrl": "https://api.npoint.io/ID_STATUSES",
+  "gamesUrl": "https://api.npoint.io/ID_GAMES"
+}
+```
+
+**Флоу для стримера без репы (только Playnite):**
+
+1. Владелец один раз создаёт 2 хранилища на npoint.io:
+   - `ID_STATUSES` — для статусов (`{}` изначально)
+   - `ID_GAMES` — для игр (`[]` изначально)
+   И пушит их в `data/remote.json` (один раз).
+
+2. Стример на своём ПК (без клонирования репы, достаточно скачать 2 .py файла):
+   ```bash
+   python upload_playnite_remote.py --input "%APPDATA%\Playnite\ExtensionsData\66b8eca4-3f39-4b79-a359-3cb98d5b18fd\library.json" --remote-url https://api.npoint.io/ID_GAMES
+   ```
+   Скрипт `scripts/upload_playnite_remote.py`:
+   - конвертит Playnite экспорт в формат Mikkleo (Name, Genres, Year...)
+   - делает `POST https://api.npoint.io/ID_GAMES`
+
+3. Сайт при загрузке:
+   - `loadGames()` → `data/games.json` (основной каталог)
+   - `loadRemoteOverrides()` → тянет `gamesUrl` → парсит как Playnite или Mikkleo массив → `convertPlayniteToMikkleo()` → мерджит с основным, дедуплицирует по названию
+   - Новые игры появляются у всех зрителей без пуша в репу!
+
+4. Обложки: без доступа к репе обложки из `library/files/` не скопировать в `covers/` (они локальные). Поэтому в remote-режиме для новых игр показывается инициалы. Если стример хочет кастомные обложки — кидает ссылку на https:// в поле `image`, или владелец потом прогоняет `sync_covers.py` / `import_playnite.py` с доступом к library.
+
+**Админка для игр:**
+- В админке теперь второе поле `Игры Playnite` → вставь `https://api.npoint.io/ID_GAMES` → `💾 URL`
+- После этого перезагрузи страницу — новые игры из npoint подтянутся.
+
+Скрипты:
+- `scripts/import_playnite.py` — для владельца с доступом к репе (копирует обложки в `covers/`)
+- `scripts/upload_playnite_remote.py` — для стримера без доступа к репе (заливает JSON на npoint/gist)
+
+---
+
 ## Что уже сделано в коде для поддержки
 
-- `assets/js/storage.js`: добавлен `loadRemoteOverrides()` — грузит `data/remote.json -> overridesUrl -> fetch remote JSON`
-- `getEffectiveStatus()` / `getEffectiveFlag()` теперь смотрят: **localStorage -> remote -> default**
-- `app.js`: `Promise.all([loadGames(), loadRemoteOverrides()])` перед первым рендером
-- `data/remote.json` — конфиг с `overridesUrl`, можно поменять на любой gist/npoint без пересборки JS
-- `data/overrides.json` — fallback файл, может обновляться ботом/Action без доступа стримера к коду
-- Админка: поле для ввода удалённого URL + кнопка **⬆️ Залить туда JSON** (POST/PUT)
+- `assets/js/storage.js`: `loadRemoteOverrides()` теперь грузит и `overridesUrl` и `gamesUrl`, кэширует `_remoteGames`
+- `assets/js/playnite.js`: `convertPlayniteToMikkleo()` + `parsePlayniteJson()` — конвертация Playnite → Mikkleo в браузере
+- `getEffectiveStatus()` / `getEffectiveFlag()`: **localStorage -> remote -> default**
+- `app.js`: `Promise.all([loadGames(), loadRemoteOverrides()])` + мердж `getRemoteGamesRaw()` перед первым рендером
+- `data/remote.json`: теперь два поля `overridesUrl` и `gamesUrl`, можно поменять на любой gist/npoint без пересборки JS
+- `data/overrides.json`: fallback для статусов
+- Админка: 2 поля URL (статусы + игры) + кнопки заливки
 
 ---
 
