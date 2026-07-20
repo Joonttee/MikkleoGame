@@ -1,0 +1,4 @@
+{
+  "overridesUrl": "./data/overrides.json",
+  "_comment": "Стример без доступа к репе может поменять overridesUrl на свой gist/npoint/jsonbin. Пример: https://api.npoint.io/xxxxxxxx или https://gist.githubusercontent.com/USER/GIST_ID/raw/overrides.json"
+}

@@ -4,7 +4,7 @@
  */
 import { STORAGE_KEYS, UI } from './config.js';
 import { esc, debounce } from './utils.js';
-import { loadOverrides, clearOverridesCache } from './storage.js';
+import { loadOverrides, clearOverridesCache, loadRemoteOverrides } from './storage.js';
 import { initTheme, setTheme } from './theme.js';
 import { initTwitchStatus } from './twitch.js';
 import { filterGames, sortGames } from './filters.js';
@@ -167,7 +167,12 @@ let modalApi = { openModal: () => {}, closeModal: () => {} };
 // Init app after data loaded
 async function init() {
   cacheDom();
-  GAMES = await loadGames();
+  // Параллельно грузим игры и удалённые оверрайды (для стримера без доступа к репе)
+  const [games] = await Promise.all([
+    loadGames(),
+    loadRemoteOverrides()
+  ]);
+  GAMES = games;
 
   if (!GAMES.length) {
     if (els.grid) {

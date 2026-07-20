@@ -31,6 +31,10 @@ function renderPrompt() {
 function renderList(games) {
   const overrides = loadOverrides();
   const totalOverrides = Object.keys(overrides).length;
+  let remoteUrl = '';
+  try {
+    remoteUrl = localStorage.getItem('mikkleo_remote_overrides_url') || '';
+  } catch {}
   const html = games.map(g => {
     const eff = getEffectiveStatus(g);
     const gachaOn = getEffectiveFlag(g, 'isGacha');
@@ -66,10 +70,21 @@ function renderList(games) {
       <input id="adminSearch" type="text" placeholder="🔍 Поиск по названию..." autocomplete="off">
       <button class="btn-action" id="adminLogoutBtn" style="height:36px; padding:0 14px; font-size:12px; background:transparent; color:var(--muted);">🚪 Выйти</button>
     </div>
+
+    <div class="admin-meta-info" style="margin-bottom:12px; display:flex; flex-direction:column; gap:8px;">
+      <div><b>Для стримера без доступа к репе:</b> укажи URL удалённого JSON (gist, npoint.io, jsonbin) — тогда все зрители увидят твои статусы без пуша в GitHub.</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <input id="remoteUrlInput" type="text" value="${esc(remoteUrl)}" placeholder="https://api.npoint.io/... или https://gist.githubusercontent.com/.../raw/overrides.json" style="flex:1; min-width:220px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
+        <button class="btn-action" id="saveRemoteUrlBtn" style="height:36px;">💾 Сохранить URL</button>
+        <button class="btn-action" id="exportToRemoteBtn" style="height:36px; background:rgba(124,255,178,.15); color:var(--accent2); border-color:rgba(124,255,178,.3);">⬆️ Залить туда JSON</button>
+      </div>
+      <div style="font-size:11px; color:var(--muted);">Текущий источник: <b>${esc(remoteUrl || './data/overrides.json')}</b> — пустой <code>{}</code> значит нет удалённых правок. Инструкция в <code>PLAYNITE.md</code> и <code>STREAMER_NO_REPO.md</code></div>
+    </div>
+
     <div class="admin-list" id="adminList">${html}</div>
     <div class="admin-meta-info">
       Локальных правок: <b>${totalOverrides}</b>. Правки хранятся только в этом браузере.
-      Скачайте JSON, чтобы перенести на другое устройство.
+      Скачайте JSON, чтобы перенести на другое устройство. Для публикации без доступа к репе — используй удалённый URL выше.
     </div>
   `;
 }
@@ -189,6 +204,58 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
     }
 
     document.getElementById('adminLogoutBtn')?.addEventListener('click', logout);
+
+    // Remote URL handling for streamer without repo access
+    const remoteInput = document.getElementById('remoteUrlInput');
+    const saveRemoteBtn = document.getElementById('saveRemoteUrlBtn');
+    const exportRemoteBtn = document.getElementById('exportToRemoteBtn');
+
+    if (saveRemoteBtn && remoteInput) {
+      saveRemoteBtn.addEventListener('click', () => {
+        const url = remoteInput.value.trim();
+        try {
+          if (url) localStorage.setItem('mikkleo_remote_overrides_url', url);
+          else localStorage.removeItem('mikkleo_remote_overrides_url');
+          showToast(url ? 'Удалённый URL сохранён' : 'Удалённый URL очищен, используется ./data/overrides.json');
+        } catch {}
+      });
+    }
+
+    if (exportRemoteBtn) {
+      exportRemoteBtn.addEventListener('click', async () => {
+        let url = '';
+        try {
+          url = localStorage.getItem('mikkleo_remote_overrides_url') || '';
+        } catch {}
+        if (!url) {
+          showToast('Сначала сохрани URL удалённого хранилища');
+          return;
+        }
+        // For npoint.io and jsonbin.io we can attempt PUT
+        // npoint docs: POST to https://api.npoint.io/ID to update
+        // We'll try PUT and POST, and show result
+        const data = loadOverrides();
+        try {
+          showToast('Заливаю...');
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data, null, 2)
+          });
+          if (!res.ok) {
+            const res2 = await fetch(url, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data, null, 2)
+            });
+            if (!res2.ok) throw new Error('HTTP ' + res2.status);
+          }
+          showToast('Удалённо сохранено! Зрители увидят после перезагрузки');
+        } catch (e) {
+          showToast('Не удалось залить напрямую (нужен npoint/jsonbin). Скачай JSON и залей вручную в твой gist/npoint');
+        }
+      });
+    }
 
     // Delegated handlers for performance
     contentEl.querySelectorAll('.admin-row').forEach(row => {
