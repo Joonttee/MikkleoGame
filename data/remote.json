@@ -1,10 +1,11 @@
 {
-  "overridesUrl": "./data/overrides.json",
+  "overridesUrl": "https://api.npoint.io/a75eebd5be3a51ef557a",
   "gamesUrl": null,
-  "_comment_overrides": "Стример без доступа к репе может поменять overridesUrl на свой gist/npoint/jsonbin. Пример: https://api.npoint.io/xxxxxxxx или https://gist.githubusercontent.com/USER/GIST_ID/raw/overrides.json",
-  "_comment_games": "Для загрузки НОВЫХ игр из Playnite без доступа к репе — укажи URL на JSON с библиотекой Playnite (library.json) или уже сконвертированный в Mikkleo формат. Пример: https://api.npoint.io/YYY или gist raw. Скрипт upload_playnite_remote.py заливает туда. Если null — доп. игры не грузятся.",
+  "_comment_overrides": "Первая ссылка от пользователя — статусы. Стример может менять через админку/загрузчик без доступа к репе.",
+  "_comment_games": "Для новых игр из Playnite укажи вторую ссылку npoint. Пример: https://api.npoint.io/XXXX. Пока null — доп. игры не грузятся.",
   "_example": {
-    "overridesUrl": "https://api.npoint.io/8d4c5e9a-xxx",
+    "overridesUrl": "https://api.npoint.io/a75eebd5be3a51ef557a",
     "gamesUrl": "https://api.npoint.io/9f3a1b2c-yyy"
-  }
+  },
+  "_docs": "Документация: https://www.npoint.io/docs/a75eebd5be3a51ef557a — это и есть первая"
 }
