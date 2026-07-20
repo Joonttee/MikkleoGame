@@ -8,6 +8,8 @@ import { loadOverrides, clearOverridesCache, loadRemoteOverrides, getRemoteGames
 import { initTheme, setTheme } from './theme.js';
 import { initTwitchStatus } from './twitch.js';
 import { filterGames, sortGames } from './filters.js';
+import { GENRE_GROUPS } from './config.js';
+import { computeGenreGroupCounts } from './genres.js';
 import { renderGrid, renderGenreBreakdown, updateStats } from './render.js';
 import { initModal } from './modal.js';
 import { createAdminPanel } from './admin.js';
@@ -54,6 +56,27 @@ let visibleGames = [];
 // Пересчитывается при каждом applyFilters — после смены статусов/флагов в админке
 function computeVisibleGames() {
   visibleGames = isAdmin() ? GAMES : GAMES.filter(g => !getEffectiveFlag(g, 'isHidden'));
+}
+
+// Выпадающий фильтр жанров строится ДИНАМИЧЕСКИ из реальных данных:
+//- только группы, в которых есть хотя бы одна игра;
+//- с количеством игр: «Экшены (468)»;
+//- RU/EN-варианты слиты в одну группу («Экшены» = Экшены + Action).
+let genreOptionsCache = '';
+function rebuildGenreOptions() {
+  if (!els.genreSelect) return;
+  const counts = computeGenreGroupCounts(visibleGames.length ? visibleGames : GAMES);
+  const rows = Object.entries(GENRE_GROUPS)
+    .map(([key, g]) => ({ key, label: g.label, count: counts[key] || 0 }))
+    .filter(r => r.count > 0)
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'ru'));
+  const html = '<option value="all">Все жанры</option>' +
+    rows.map(r => `<option value="${r.key}">${r.label} (${r.count})</option>`).join('');
+  if (html === genreOptionsCache) return; // не трогаем DOM, пока список не изменился
+  genreOptionsCache = html;
+  const current = els.genreSelect.value || 'all';
+  els.genreSelect.innerHTML = html;
+  els.genreSelect.value = [...els.genreSelect.options].some(o => o.value === current) ? current : 'all';
 }
 
 // DOM cache
@@ -119,6 +142,7 @@ function resetAllFilters() {
 function applyFilters() {
   if (!GAMES.length) return;
   computeVisibleGames();
+  rebuildGenreOptions();
 
   const genreValue = els.genreSelect?.value || 'all';
   const eraValue = els.eraSelect?.value || 'all';

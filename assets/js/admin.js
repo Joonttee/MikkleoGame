@@ -12,6 +12,7 @@ import {
   getRemoteOverridesUrl, getRemoteGamesUrl
 } from './storage.js';
 import { uploadJsonToRemote, explainUploadFailure } from './remote.js';
+import { expandGenreQuery } from './genres.js';
 
 function renderPrompt() {
   const hasPin = !!getStoredPinHash();
@@ -52,7 +53,7 @@ function renderList(games) {
     const isOverridden = !!overrides[g.id];
     const statusIsOverridden = isOverridden && overrides[g.id].status !== undefined;
     return `
-      <div class="admin-row ${isOverridden ? 'has-override' : ''} ${hiddenOn ? 'admin-row-hidden' : ''}" data-id="${esc(g.id)}" data-title="${esc((g.title || '').toLowerCase())}">
+      <div class="admin-row ${isOverridden ? 'has-override' : ''} ${hiddenOn ? 'admin-row-hidden' : ''}" data-id="${esc(g.id)}" data-title="${esc((g.title || '').toLowerCase())}" data-genre="${esc((g.genre || '').toLowerCase())}">
         <img class="admin-cover" src="${esc(g.image || '')}" alt="" onerror="this.style.visibility='hidden'">
         <div>
           <div class="admin-title">${esc(g.title || 'Без названия')}</div>
@@ -213,13 +214,20 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
 
     contentEl.innerHTML = renderList(games);
 
-    // Search filter — O(n) hide/show, not re-render
+    // Search filter — O(n) hide/show, not re-render. Ищет и по названию,
+    // и по жанру (с алиасами: «шутер» найдёт строки с жанром Shooter).
     const search = document.getElementById('adminSearch');
     if (search) {
       search.addEventListener('input', () => {
         const q = search.value.toLowerCase().trim();
+        const genreTerms = q ? expandGenreQuery(q) : [];
         contentEl.querySelectorAll('.admin-row').forEach(r => {
-          r.style.display = (!q || r.dataset.title.includes(q)) ? '' : 'none';
+          const genre = r.dataset.genre || '';
+          const hit = !q
+            || r.dataset.title.includes(q)
+            || genre.includes(q)
+            || genreTerms.some(t => genre.includes(t));
+          r.style.display = hit ? '' : 'none';
         });
       });
     }

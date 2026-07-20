@@ -33,10 +33,11 @@
 │   │   └── style.css       # оптимизированный, дедуплицированные медиа-запросы
 │   ├── js/
 │   │   ├── app.js          # главный модуль (ESM)
-│   │   ├── config.js       # константы STATUS_MAP, SEARCH_MAP, ключи
+│   │   ├── config.js       # константы STATUS_MAP, SEARCH_MAP, GENRE_GROUPS, ключи
 │   │   ├── utils.js        # esc, expandQuery, debounce, hashPin
 │   │   ├── storage.js      # кэшированный loadOverrides, PIN
 │   │   ├── theme.js        # переключение тем
+│   │   ├── genres.js       # канонические жанровые группы, алиасы для поиска (RU/EN)
 │   │   ├── filters.js      # filterGames + sortGames (чистые функции)
 │   │   ├── render.js       # рендер с DocumentFragment + single-pass stats
 │   │   ├── modal.js        # модалка игры
@@ -62,6 +63,9 @@
 - ✅ **Single-pass stats:** раньше 3× `GAMES.filter()` → теперь 1 проход
 - ✅ **DocumentFragment:** рендер 72+ карточек без thrashing
 - ✅ **Debounce 120ms** на поиск + `scrollbar-gutter: stable`
+- ✅ **Поиск по жанрам:** алиасы RU/EN («шутер» → Shooter, «рпг» → Ролевые (RPG), «гонки» → Racing),
+  смешанные жанры каталога (Playnite RU + Steam EN) сведены в канонические группы (`genres.js`);
+  фильтр жанров строится динамически из данных с количеством игр («Экшены (468)»)
 - ✅ **Убран CORS fallback** на `twitch.tv`, оставлены только `api.ivr.fi` + `decapi.me`
 - ✅ **CSS:** `contain: content; will-change: transform` на карточках, объединены медиа-запросы, сокращён с 37КБ до 31КБ
 - ✅ **ES Modules:** `type="module"` → браузер кэширует отдельно CSS/JS/JSON
