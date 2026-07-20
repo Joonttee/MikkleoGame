@@ -1,11 +1,10 @@
 {
-  "overridesUrl": "https://api.npoint.io/a75eebd5be3a51ef557a",
-  "gamesUrl": null,
-  "_comment_overrides": "Первая ссылка от пользователя — статусы. Стример может менять через админку/загрузчик без доступа к репе.",
-  "_comment_games": "Для новых игр из Playnite укажи вторую ссылку npoint. Пример: https://api.npoint.io/XXXX. Пока null — доп. игры не грузятся.",
-  "_example": {
-    "overridesUrl": "https://api.npoint.io/a75eebd5be3a51ef557a",
-    "gamesUrl": "https://api.npoint.io/9f3a1b2c-yyy"
-  },
-  "_docs": "Документация: https://www.npoint.io/docs/a75eebd5be3a51ef557a — это и есть первая"
+  "overridesUrl": "https://api.npoint.io/a35e4a4e22cb780f27c2",
+  "gamesUrl": "https://api.npoint.io/ca3fe761abeb97393c9b",
+  "_comment_overrides": "Первая ссылка (статусы Пройдено/В процессе) — https://www.npoint.io/docs/a35e4a4e22cb780f27c2",
+  "_comment_games": "Вторая ссылка (новые игры из Playnite) — https://www.npoint.io/docs/ca3fe761abeb97393c9b",
+  "_docs": [
+    "https://www.npoint.io/docs/a35e4a4e22cb780f27c2",
+    "https://www.npoint.io/docs/ca3fe761abeb97393c9b"
+  ]
 }
