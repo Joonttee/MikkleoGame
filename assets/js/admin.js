@@ -60,11 +60,11 @@ function renderList(games) {
           <div style="font-size:11px; color:var(--muted); margin-top:2px;">${esc(g.genre || '')} · ${g.year || ''}${hiddenOn ? ' · 🙈 скрыта от зрителей' : ''}</div>
         </div>
         <div class="admin-controls">
-          <button class="admin-flag hide ${hiddenOn ? 'on' : ''}" data-flag="isHidden" title="Скрыть от зрителей / показать">🙈</button>
-          <button class="admin-flag ${gachaOn ? 'on' : ''}" data-flag="isGacha" title="Гача">💫</button>
-          <button class="admin-flag mp ${mpOn ? 'on' : ''}" data-flag="isMultiplayer" title="Мультиплеер">🕹️</button>
-          <button class="admin-flag coop ${coopOn ? 'on' : ''}" data-flag="isCoop" title="Кооп">🤝</button>
-          <select class="admin-status" title="Статус">
+          <button class="admin-flag hide ${hiddenOn ? 'on' : ''}" data-flag="isHidden">🙈</button>
+          <button class="admin-flag ${gachaOn ? 'on' : ''}" data-flag="isGacha">💫</button>
+          <button class="admin-flag mp ${mpOn ? 'on' : ''}" data-flag="isMultiplayer">🕹️</button>
+          <button class="admin-flag coop ${coopOn ? 'on' : ''}" data-flag="isCoop">🤝</button>
+          <select class="admin-status">
             <option value="__default__" ${!statusIsOverridden ? 'selected' : ''}>— дефолт —</option>
             <option value="in_progress" ${eff === 'in_progress' && statusIsOverridden ? 'selected' : ''}>⏳ В процессе</option>
             <option value="completed" ${eff === 'completed' && statusIsOverridden ? 'selected' : ''}>✅ Пройдено</option>
