@@ -37,7 +37,64 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DATA_JSON = ROOT / "data" / "games.json"
+FLAGS_JSON = ROOT / "data" / "mp_coop.json"
 COVERS_DIR = ROOT / "covers"
+
+# Курируемый набор флагов MP/Coop (см. data/mp_coop.json) — подхватывается для новых игр
+def load_curated_flags() -> dict:
+    """norm_title -> (isMultiplayer, isCoop) из data/mp_coop.json."""
+    if not FLAGS_JSON.exists():
+        return {}
+    data = json.loads(FLAGS_JSON.read_text(encoding="utf-8"))
+    out = {}
+    for key, mp, coop in (("mp", True, False), ("coop", False, True), ("both", True, True)):
+        for title in data.get(key, []):
+            norm = normalize_title(title)
+            if norm:
+                pm, pc = out.get(norm, (False, False))
+                out[norm] = (pm or mp, pc or coop)
+    return out
+
+def detect_flags(pg: dict, curated: dict) -> tuple:
+    """Авто-детект isMultiplayer/isCoop для новой игры:
+    1) курируемый список по нормализованному названию;
+    2) Playnite Features («Multiplayer», «Online Co-op», «PvP», «Massively Multiplayer»...);
+    3) жанр «Многопользовательские игры» / «Massively Multiplayer».
+    Семантика: MP — PvP/соревновательный/ММО, Coop — совместное прохождение против ИИ.
+    """
+    norm = normalize_title(pg.get("Name") or pg.get("name") or pg.get("Title") or "")
+    mp, coop = curated.get(norm, (False, False))
+
+    feats = pg.get("Features") or pg.get("features") or []
+    if isinstance(feats, dict):
+        feats = [feats]
+    names = []
+    for f in feats:
+        if isinstance(f, dict):
+            n = f.get("Name") or f.get("name") or ""
+        else:
+            n = str(f or "")
+        if n:
+            names.append(n.lower())
+    blob = " ".join(names)
+    genres_blob = " ".join(
+        (g.get("Name") or g.get("name") or "") if isinstance(g, dict) else str(g or "")
+        for g in (pg.get("Genres") or pg.get("genres") or [])
+    ).lower()
+
+    has_coop = "co-op" in blob or "coop" in blob
+    has_mp = (
+        "pvp" in blob or "versus" in blob or "multiplayer" in blob
+        or "mmo" in blob or "massively" in blob
+        or "shared/split" in blob or "split screen" in blob
+        or "многопользовательск" in genres_blob or "massively" in genres_blob
+    )
+    # «Online Co-op» не содержит слова multiplayer, поэтому чистый кооп не помечается MP
+    if has_coop:
+        coop = True
+    if has_mp:
+        mp = True
+    return mp, coop
 
 def slugify(s: str) -> str:
     s = s.strip().lower()
@@ -243,6 +300,7 @@ def main():
     new_count = 0
     updated_covers = 0
     to_add = []
+    curated_flags = load_curated_flags()
 
     COVERS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -292,6 +350,8 @@ def main():
             counter += 1
             gid = f"{base_slug}-{counter}"
 
+        mp_flag, coop_flag = detect_flags(pg, curated_flags)
+
         new_game = {
             "id": gid,
             "title": name.strip(),
@@ -305,8 +365,8 @@ def main():
             "altTitle": "",
             "status": None,
             "isGacha": False,
-            "isMultiplayer": False,
-            "isCoop": False,
+            "isMultiplayer": mp_flag,
+            "isCoop": coop_flag,
             "_playniteId": pg.get("Id") or pg.get("id") or ""
         }
 
@@ -331,7 +391,8 @@ def main():
         to_add.append(new_game)
         existing_ids.add(gid)
         new_count += 1
-        print(f"[+] New: {name} | {genre} | {year} | {platform}")
+        flags_str = (" 🕹️MP" if mp_flag else "") + (" 🤝Coop" if coop_flag else "")
+        print(f"[+] New: {name} | {genre} | {year} | {platform}{flags_str}")
 
     print(f"\n[i] Summary: {new_count} new games, {updated_covers} covers copied/updated")
 

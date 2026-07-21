@@ -4,10 +4,12 @@
  */
 import { STORAGE_KEYS, UI } from './config.js';
 import { esc, debounce } from './utils.js';
-import { loadOverrides, clearOverridesCache, loadRemoteOverrides, getRemoteGamesRaw } from './storage.js';
+import { loadOverrides, clearOverridesCache, loadRemoteOverrides, getRemoteGamesRaw, isAdmin, getEffectiveFlag } from './storage.js';
 import { initTheme, setTheme } from './theme.js';
 import { initTwitchStatus } from './twitch.js';
 import { filterGames, sortGames } from './filters.js';
+import { GENRE_GROUPS } from './config.js';
+import { computeGenreGroupCounts } from './genres.js';
 import { renderGrid, renderGenreBreakdown, updateStats } from './render.js';
 import { initModal } from './modal.js';
 import { createAdminPanel } from './admin.js';
@@ -47,6 +49,35 @@ let filtered = [];
 let currentTab = 'all';
 let visibleCount = UI.DEFAULT_VISIBLE;
 let currentViewMode = 'grid';
+// Игры, видимые ТЕКУЩЕМУ пользователю: зрителям — без скрытых (isHidden),
+// админу — все (скрытые подсвечиваются «призраком», чтобы их можно было вернуть)
+let visibleGames = [];
+
+// Пересчитывается при каждом applyFilters — после смены статусов/флагов в админке
+function computeVisibleGames() {
+  visibleGames = isAdmin() ? GAMES : GAMES.filter(g => !getEffectiveFlag(g, 'isHidden'));
+}
+
+// Выпадающий фильтр жанров строится ДИНАМИЧЕСКИ из реальных данных:
+//- только группы, в которых есть хотя бы одна игра;
+//- с количеством игр: «Экшены (468)»;
+//- RU/EN-варианты слиты в одну группу («Экшены» = Экшены + Action).
+let genreOptionsCache = '';
+function rebuildGenreOptions() {
+  if (!els.genreSelect) return;
+  const counts = computeGenreGroupCounts(visibleGames.length ? visibleGames : GAMES);
+  const rows = Object.entries(GENRE_GROUPS)
+    .map(([key, g]) => ({ key, label: g.label, count: counts[key] || 0 }))
+    .filter(r => r.count > 0)
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'ru'));
+  const html = '<option value="all">Все жанры</option>' +
+    rows.map(r => `<option value="${r.key}">${r.label} (${r.count})</option>`).join('');
+  if (html === genreOptionsCache) return; // не трогаем DOM, пока список не изменился
+  genreOptionsCache = html;
+  const current = els.genreSelect.value || 'all';
+  els.genreSelect.innerHTML = html;
+  els.genreSelect.value = [...els.genreSelect.options].some(o => o.value === current) ? current : 'all';
+}
 
 // DOM cache
 const els = {};
@@ -110,13 +141,15 @@ function resetAllFilters() {
 // Filtering entry
 function applyFilters() {
   if (!GAMES.length) return;
+  computeVisibleGames();
+  rebuildGenreOptions();
 
   const genreValue = els.genreSelect?.value || 'all';
   const eraValue = els.eraSelect?.value || 'all';
   const searchQuery = els.searchInput?.value || '';
   const sortValue = els.sortSelect?.value || 'title-asc';
 
-  const { filtered: afterFilter, normalizedQuery } = filterGames(GAMES, {
+  const { filtered: afterFilter, normalizedQuery } = filterGames(visibleGames, {
     tab: currentTab,
     genreValue,
     eraValue,
@@ -141,10 +174,10 @@ function applyFilters() {
 function render() {
   if (!GAMES.length) return;
 
-  // Stats (single pass inside)
-  updateStats(GAMES, filtered);
-  // Genre breakdown only once internally cached, but call each render is cheap now
-  renderGenreBreakdown(GAMES);
+  // Статистика и топ жанров — тоже по видимым играм (скрытые не считаются у зрителей)
+  const base = visibleGames.length ? visibleGames : GAMES;
+  updateStats(base, filtered);
+  renderGenreBreakdown(base);
 
   const toShow = filtered.slice(0, visibleCount);
 
@@ -175,7 +208,7 @@ async function init() {
   ]);
   GAMES = games;
 
-  // Мерджим удалённые игры из Playnite (если стример без доступа залил library.json в npoint/gist)
+  // Мерджим удалённые игры из Playnite (если стример без доступа залил library.json в pantry/gist)
   try {
     const remoteRaw = getRemoteGamesRaw();
     if (remoteRaw) {
@@ -183,13 +216,16 @@ async function init() {
       if (playniteArray && playniteArray.length) {
         const existingIds = new Set(GAMES.map(g => g.id));
         const existingNorms = new Set(GAMES.map(g => (g.title || '').replace(/[^0-9a-zA-Zа-яА-ЯёЁ]/g, '').toLowerCase()));
-        // Если remoteRaw уже в формате Mikkleo (есть title+id), просто мерджим, иначе конвертим из Playnite
-        const isMikkleoFormat = remoteRaw.length && remoteRaw[0].title && remoteRaw[0].id && remoteRaw[0].genre !== undefined;
+        // Если массив уже в формате Mikkleo (есть title+id), просто мерджим, иначе конвертим из Playnite.
+        // Формат определяем по РАСПАРСЕННОМУ массиву (parsePlayniteJson уже развернул
+        // обёртки вида { games: [...] }, в т.ч. от Pantry), а не по сырому remoteRaw.
+        const first = playniteArray[0];
+        const isMikkleoFormat = first && first.title !== undefined && first.id !== undefined;
         let converted = [];
         if (isMikkleoFormat) {
-          converted = remoteRaw.filter(r => {
+          converted = playniteArray.filter(r => {
             const norm = (r.title || '').replace(/[^0-9a-zA-Zа-яА-ЯёЁ]/g, '').toLowerCase();
-            return !existingNorms.has(norm);
+            return norm && !existingNorms.has(norm);
           });
         } else {
           converted = convertPlayniteToMikkleo(playniteArray, existingIds, existingNorms);
@@ -212,6 +248,7 @@ async function init() {
   }
 
   filtered = [...GAMES];
+  visibleGames = [...GAMES];
 
   // Theme
   initTheme();

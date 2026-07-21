@@ -5,7 +5,7 @@
 Мы сделали **два режима**:
 
 1. **С доступом к репе** — `scripts/import_playnite.py` мерджит в `data/games.json` + копирует обложки в `covers/`
-2. **Без доступа к репе** — `scripts/upload_playnite_remote.py` заливает конвертированный JSON на npoint.io/gist, сайт сам подтянет новые игры (см. `STREAMER_NO_REPO.md` раздел про `gamesUrl`)
+2. **Без доступа к репе** — `scripts/upload_playnite_remote.py` заливает конвертированный JSON в удалённое хранилище (рекомендуется Pantry — getpantry.cloud), сайт сам подтянет новые игры (см. `STREAMER_NO_REPO.md` раздел про `gamesUrl`). Заливка по умолчанию **аддитивная** — старые игры в хранилище не пропадут даже при неполном экспорте (полная замена — флаг `--replace`)
 
 ## Вариант А — Game Data Exporter (рекомендуется, авто-экспорт)
 
@@ -40,9 +40,10 @@
 
 ## Что делает скрипт
 
-- Читает все игры из Playnite экспорта (`Name`, `Genres`, `Platforms`, `Source`, `ReleaseDate`, `CoverImage`)
+- Читает все игры из Playnite экспорта (`Name`, `Genres`, `Platforms`, `Source`, `ReleaseDate`, `CoverImage`, `Features`)
 - Нормализует заголовки (`normalize_title`) и проверяет дубликаты по каталогу `data/games.json`
 - Новые игры добавляет с `id = slug(title)` + счётчик, `genre`, `platform`, `year`, `status = null`
+- Автоматически проставляет 🕹️ `isMultiplayer` / 🤝 `isCoop` по `Features` из Playnite («Online Multiplayer» → MP, «Online Co-op» → Coop, MMO-жанры → MP) и по курируемому списку `data/mp_coop.json`
 - Пытается найти файл обложки в `library/files/...` и копирует в `covers/Имя Игры.jpg` -> прописывает `image: "covers/Имя Игры.jpg"`
 - Существующие игры не трогает (чтобы не затереть ручные статусы), но если у них нет обложки — докопирует
 - После мержа вызывает `build_index.py` -> пересобирает `assets/js/data.js`

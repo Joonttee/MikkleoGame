@@ -1,36 +1,24 @@
 /**
  * Rendering — optimized with DocumentFragment and single stats pass
  */
-import { STATUS_MAP, UI } from './config.js';
+import { STATUS_MAP, UI, GENRE_GROUPS } from './config.js';
 import { esc } from './utils.js';
-import { getEffectiveStatus } from './storage.js';
-
-let _genreCountsCache = null;
-
-function computeGenreCounts(games) {
-  if (_genreCountsCache) return _genreCountsCache;
-  const counts = {};
-  for (const g of games) {
-    if (g.genre) {
-      const first = g.genre.split(',')[0].trim();
-      counts[first] = (counts[first] || 0) + 1;
-    }
-  }
-  _genreCountsCache = counts;
-  return counts;
-}
+import { getEffectiveStatus, getEffectiveFlag, isAdmin } from './storage.js';
+import { getPrimaryGenreLabel, computePrimaryGenreCounts } from './genres.js';
 
 /**
- * Renders genre breakdown (top 3) — calculated once.
+ * Renders genre breakdown (top 3) — по каноническим группам,
+ * чтобы «Экшены» и «Action» не считались разными жанрами.
  */
 export function renderGenreBreakdown(games) {
   const container = document.getElementById('genreBreakdown');
   if (!container) return;
-  const counts = computeGenreCounts(games);
+  const counts = computePrimaryGenreCounts(games);
   const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
   const max = sorted[0] ? sorted[0][1] : 1;
 
-  container.innerHTML = sorted.map(([gName, count]) => {
+  container.innerHTML = sorted.map(([gKey, count]) => {
+    const gName = GENRE_GROUPS[gKey]?.label || gKey;
     const pct = Math.round((count / games.length) * 100);
     const barWidth = Math.round((count / max) * 100);
     return `
@@ -94,6 +82,9 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
   if (!grid) return;
   grid.innerHTML = '';
 
+  // Админ видит скрытые игры «призраком» (зрителям они вообще не рендерятся)
+  const adminMode = isAdmin();
+
   if (!gamesToShow.length) {
     grid.innerHTML = `
       <div class="empty">
@@ -113,6 +104,8 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
   for (const g of gamesToShow) {
     const el = document.createElement('div');
     el.className = 'card';
+    const hiddenGh = adminMode && getEffectiveFlag(g, 'isHidden');
+    if (hiddenGh) el.classList.add('card-hidden');
     el.tabIndex = 0;
     el.setAttribute('role', 'button');
     el.setAttribute('aria-label', g.title);
@@ -127,8 +120,11 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
       ? `<img class="cover-main" src="${esc(g.image)}" loading="lazy" decoding="async" alt="${esc(g.title)}">`
       : `<div class="cover-initials">${initials}</div>`;
 
-    const mainGenre = g.genre ? g.genre.split(',')[0].trim() : 'Игра';
+    const mainGenre = getPrimaryGenreLabel(g.genre) || 'Игра';
     const statusPill = `<span class="status-tag ${stInfo.class}">${stInfo.emoji} ${stInfo.label}</span>`;
+    const hiddenTag = hiddenGh ? `<span class="meta-tag" title="Скрыта от зрителей">🙈 скрыта</span>` : '';
+    const mpTag = getEffectiveFlag(g, 'isMultiplayer') ? `<span class="meta-tag" title="Мультиплеер">🕹️ MP</span>` : '';
+    const coopTag = getEffectiveFlag(g, 'isCoop') ? `<span class="meta-tag" title="Кооператив">🤝 Coop</span>` : '';
 
     if (viewMode === 'list') {
       el.innerHTML = `
@@ -139,6 +135,7 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
           <div class="card-meta">
             <span class="meta-tag accent">${esc(mainGenre)}</span>
             <span class="meta-tag">${g.year || ''}</span>
+            ${mpTag}${coopTag}${hiddenTag}
           </div>
         </div>
       `;
@@ -153,6 +150,7 @@ export function renderGrid({ gamesToShow, filteredFull, visibleCount, viewMode, 
           <div class="card-meta">
             <span class="meta-tag accent">${esc(mainGenre)}</span>
             <span class="meta-tag">${g.year || ''}</span>
+            ${mpTag}${coopTag}${hiddenTag}
           </div>
         </div>
       `;

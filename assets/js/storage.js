@@ -12,6 +12,7 @@ let _remoteOverrides = null;
 let _remoteGames = null;
 let _remoteLoaded = false;
 let _remoteGamesUrl = null;
+let _remoteOverridesUrl = null;
 
 export function loadOverrides() {
   try {
@@ -57,7 +58,7 @@ export function setAdmin(on) {
 
 /** Remote overrides loader: for streamer without repo access
  *  Tries:
- *   1) localStorage key mikkleo_remote_overrides_url (if streamer sets custom gist/npoint)
+ *   1) localStorage key mikkleo_remote_overrides_url (if streamer sets custom pantry/gist)
  *   2) ./data/remote.json -> { overridesUrl: "https://..." }
  *   3) fallback ./data/overrides.json (can be filled by GitHub Action / bot)
  */
@@ -66,7 +67,7 @@ export async function loadRemoteOverrides() {
   let overridesUrl = null;
   let gamesUrl = null;
 
-  // 1) allow manual override via localStorage for testing / streamer personal gist
+  // 1) allow manual override via localStorage for testing / streamer personal pantry/gist
   try {
     const lsUrl = localStorage.getItem('mikkleo_remote_overrides_url');
     if (lsUrl) overridesUrl = lsUrl;
@@ -91,6 +92,9 @@ export async function loadRemoteOverrides() {
   }
 
   _remoteGamesUrl = gamesUrl;
+  // Публичный URL статусов (localStorage или data/remote.json), БЕЗ локального
+  // дефолта './data/overrides.json' — он нужен админке как фолбэк для заливки.
+  _remoteOverridesUrl = overridesUrl === './data/overrides.json' ? null : overridesUrl;
 
   if (overridesUrl) {
     try {
@@ -142,6 +146,11 @@ export function getRemoteGamesUrl() {
   return _remoteGamesUrl;
 }
 
+/** Публичный overridesUrl (localStorage > data/remote.json); локальный дефолт-файл не возвращается */
+export function getRemoteOverridesUrl() {
+  return _remoteOverridesUrl;
+}
+
 export function getEffectiveStatus(game) {
   // Local (browser) has highest priority — for streamer preview
   const local = loadOverrides();
@@ -161,6 +170,11 @@ export function getEffectiveFlag(game, flag) {
   if (local[game.id] && Object.prototype.hasOwnProperty.call(local[game.id], flag)) {
     return !!local[game.id][flag];
   }
+  return getBaseFlag(game, flag);
+}
+
+/** Значение флага без учёта локального слоя (remote -> дефолт каталога) */
+export function getBaseFlag(game, flag) {
   const remote = _remoteOverrides || {};
   if (remote[game.id] && Object.prototype.hasOwnProperty.call(remote[game.id], flag)) {
     return !!remote[game.id][flag];

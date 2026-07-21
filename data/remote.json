@@ -1,10 +1,15 @@
 {
-  "overridesUrl": "https://api.npoint.io/a35e4a4e22cb780f27c2",
-  "gamesUrl": "https://api.npoint.io/ca3fe761abeb97393c9b",
-  "_comment_overrides": "Первая ссылка (статусы Пройдено/В процессе) — https://www.npoint.io/docs/a35e4a4e22cb780f27c2",
-  "_comment_games": "Вторая ссылка (новые игры из Playnite) — https://www.npoint.io/docs/ca3fe761abeb97393c9b",
+  "overridesUrl": "https://getpantry.cloud/apiv1/pantry/0e84db54-2769-4947-8655-7c645184842d/basket/mikkleo-statuses",
+  "gamesUrl": "https://getpantry.cloud/apiv1/pantry/0e84db54-2769-4947-8655-7c645184842d/basket/mikkleo-games",
+  "_comment_setup": [
+    "Pantry уже создана (ID прописан выше). Корзины mikkleo-statuses и mikkleo-games создадутся автоматически при первой заливке:",
+    "статусы — кнопка '⬆️ Статусы' в админке (Ctrl+Shift+A на сайте);",
+    "игры — uploader.html или scripts/upload_playnite_remote.py --remote-url <gamesUrl>.",
+    "Корзина живёт, пока к ней обращаются (загрузка сайта продлевает срок). Если сайтом не пользоваться несколько суток — просто залей заново."
+  ],
+  "_comment_games_format": "Игры заливаются как объект { \"games\": [...] } — сайт сам разворачивает при чтении.",
   "_docs": [
-    "https://www.npoint.io/docs/a35e4a4e22cb780f27c2",
-    "https://www.npoint.io/docs/ca3fe761abeb97393c9b"
+    "STREAMER_NO_REPO.md",
+    "PLAYNITE.md"
   ]
 }

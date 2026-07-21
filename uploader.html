@@ -27,10 +27,10 @@
   <h3>1. Ссылки на удалённые хранилища (выдаёт владелец один раз)</h3>
   <p class="muted">Берутся из <code>data/remote.json</code>, но можешь поменять тут — сохранится в браузере.</p>
   <label>Статусы (overridesUrl)</label>
-  <input id="overridesUrl" placeholder="https://api.npoint.io/...">
+  <input id="overridesUrl" placeholder="https://getpantry.cloud/apiv1/pantry/.../basket/mikkleo-statuses">
   <br><br>
   <label>Игры (gamesUrl)</label>
-  <input id="gamesUrl" placeholder="https://api.npoint.io/...">
+  <input id="gamesUrl" placeholder="https://getpantry.cloud/apiv1/pantry/.../basket/mikkleo-games">
   <br><br>
   <button id="saveUrls">💾 Сохранить URL в браузере</button>
   <button class="secondary" id="loadFromRemoteJson">↻ Загрузить из data/remote.json</button>
@@ -46,9 +46,13 @@
   </div>
   <div id="gamesInfo" style="margin-top:12px"></div>
   <pre id="gamesPreview" style="display:none"></pre>
-  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <button id="uploadGamesBtn" disabled>⬆️ Залить игры на сайт (gamesUrl)</button>
     <button class="secondary" id="downloadConvertedBtn" disabled>💾 Скачать конвертированный JSON</button>
+    <label style="display:flex;gap:6px;align-items:center;font-size:13px;cursor:pointer">
+      <input type="checkbox" id="replaceModeCheck" style="width:auto;height:auto">
+      Полностью заменить список (иначе — только добавить новые к лежащим в хранилище)
+    </label>
   </div>
   <div id="gamesUploadStatus" class="muted" style="margin-top:10px"></div>
 </div>
@@ -70,12 +74,15 @@
   <ul class="muted">
     <li>Обложки генерятся отдельно в <code>covers/</code> как и раньше — этот загрузчик их не трогает, только JSON.</li>
     <li>Для remote-режима обложки будут как буквы-инициалы, пока владелец не скопирует файлы из <code>library/files/</code> в <code>covers/</code> и не запустит <code>sync_covers.py</code>.</li>
-    <li>Сайт сам делает <code>fetch(gamesUrl)</code> + <code>fetch(overridesUrl)</code> и мерджит с основным каталогом.</li>
-    <li>Если используешь npoint.io — POST разрешён прямо из браузера. Если gist — нужно править руками (кнопка покажет инструкцию).</li>
+    <li>Сайт сам делает <code>fetch(gamesUrl)</code> + <code>fetch(overridesUrl)</code> и мерджит с основным каталогом (старые игры из каталога никогда не удаляются).</li>
+    <li>По умолчанию заливка игр — <b>аддитивная</b>: сначала читается текущая корзина и к ней добавляются только новые названия, уже лежащие там игры не пропадут даже при неполном <code>library.json</code>. Чекбокс «Полностью заменить список» делает зеркальную замену (для чистки).</li>
+    <li>Рекомендуемое хранилище — <b>Pantry</b> (getpantry.cloud): запись из браузера одним POST, ключей не надо. Gist — только руками на сайте gist.</li>
   </ul>
 </div>
 
-<script>
+<script type="module">
+import { uploadJsonToRemote, explainUploadFailure, fetchRemoteGamesList, mergeGames } from './assets/js/remote.js';
+
 function slugify(s){return s.toLowerCase().replace(/[^0-9a-zA-Zа-яА-ЯёЁ]+/g,'-').replace(/-{2,}/g,'-').replace(/^-|-$/g,'').slice(0,64)||'game'}
 function parsePlayniteJson(data){
   if(Array.isArray(data)) return data;
@@ -216,49 +223,26 @@ $('downloadConvertedBtn').onclick=()=>{
 };
 
 $('uploadGamesBtn').onclick=async()=>{
-  let url=$('gamesUrl').value.trim();
+  const url=$('gamesUrl').value.trim();
   if(!url){ $('gamesUploadStatus').textContent='Укажи gamesUrl выше'; return; }
   if(!convertedGames.length){ $('gamesUploadStatus').textContent='Сначала перетащи library.json'; return; }
-  // Auto-fix common mistake: docs URL instead of API URL for npoint.io
-  const docsMatch = url.match(/https?:\/\/www\.npoint\.io\/docs\/([a-f0-9]+)/);
-  if (docsMatch) {
-    url = 'https://api.npoint.io/' + docsMatch[1];
-    $('gamesUploadStatus').textContent = 'URL исправлен: ' + url + ' — заливаю...';
+  const replaceMode = $('replaceModeCheck') && $('replaceModeCheck').checked;
+  let toUpload = convertedGames;
+  if(!replaceMode){
+    // Режим «только добавление»: мержим с тем, что уже лежит в хранилище —
+    // старые игры не пропадут, даже если library.json неполный или чужой.
+    $('gamesUploadStatus').textContent='Читаю текущую корзину для мержа...';
+    const existing = await fetchRemoteGamesList(url);
+    toUpload = mergeGames(existing, convertedGames);
+    $('gamesUploadStatus').textContent=`В хранилище: ${existing.length}, добавится новых: ${toUpload.length - existing.length}, всего: ${toUpload.length}. Заливаю...`;
+  } else {
+    $('gamesUploadStatus').textContent='Полная замена списка (зеркало library.json). Заливаю на '+url+' ...';
   }
-  $('gamesUploadStatus').textContent='Заливаю...';
-  try{
-    const methods = ['POST', 'PUT', 'PATCH'];
-    let success = false;
-    let lastErr = '';
-    for (const method of methods) {
-      try {
-        const res = await fetch(url, {method: method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(convertedGames,null,2)});
-        if (res.ok) {
-          $('gamesUploadStatus').textContent = '✓ Залито! (' + method + ') Открой основной сайт — новые игры появятся после Ctrl+F5';
-          success = true;
-          break;
-        } else {
-          const bodyText = await res.text().catch(() => '');
-          lastErr = method + ' ' + res.status + ': ' + bodyText.slice(0, 200);
-        }
-      } catch (e) {
-        lastErr = method + ' error: ' + (e.message || e);
-      }
-    }
-    if (!success) throw new Error(lastErr || 'All methods failed');
-  }catch(e){
-    const msg = (e && e.message) ? String(e.message) : String(e);
-    let hint = 'Не удалось залить напрямую.';
-    if (msg.includes('404') || msg.includes('Not Found')) {
-      hint += ' Возможно, это docs-ссылка npoint.io (нужен api.npoint.io/...). Проверь URL.';
-    } else if (msg.includes('403') || msg.includes('Forbidden')) {
-      hint += ' Доступ запрещён — проверь права или токен.';
-    } else if (msg.includes('CORS') || msg.includes('NetworkError')) {
-      hint += ' CORS/сетевой блок — попробуй через gist или jsonbin, или используй Python-скрипт.';
-    } else {
-      hint += ' Для gist — вставь вручную на сайте npoint/gist. Для npoint — проверь что ID правильный и попробуй ещё раз.';
-    }
-    $('gamesUploadStatus').textContent = hint + ' (' + msg.slice(0, 120) + ')';
+  const result = await uploadJsonToRemote(url, toUpload);
+  if(result.ok){
+    $('gamesUploadStatus').textContent = '✓ Залито! (' + result.method + ' → ' + result.provider + ') Открой основной сайт — новые игры появятся после Ctrl+F5';
+  } else {
+    $('gamesUploadStatus').textContent = explainUploadFailure(result);
   }
 };
 
@@ -283,51 +267,16 @@ $('loadOverridesBtn').onclick=()=>loadLocalOverrides();
 loadLocalOverrides();
 
 $('uploadOverridesBtn').onclick=async()=>{
-  let url=$('overridesUrl').value.trim();
+  const url=$('overridesUrl').value.trim();
   if(!url){ $('overridesUploadStatus').textContent='Укажи overridesUrl'; return; }
   const data=loadLocalOverrides();
   if(!Object.keys(data).length){ $('overridesUploadStatus').textContent='Нечего заливать'; return; }
-  // Auto-fix common mistake: docs URL instead of API URL for npoint.io
-  const docsMatch = url.match(/https?:\/\/www\.npoint\.io\/docs\/([a-f0-9]+)/);
-  if (docsMatch) {
-    url = 'https://api.npoint.io/' + docsMatch[1];
-    $('overridesUploadStatus').textContent = 'URL исправлен: ' + url + ' — заливаю...';
+  $('overridesUploadStatus').textContent='Заливаю на '+url+' ...';
+  const result = await uploadJsonToRemote(url, data);
+  if(result.ok){
+    $('overridesUploadStatus').textContent = '✓ Залито! (' + result.method + ' → ' + result.provider + ') Статусы видны всем после перезагрузки';
   } else {
-    $('overridesUploadStatus').textContent = 'Заливаю...';
-  }
-  try{
-    const methods = ['POST', 'PUT', 'PATCH'];
-    let success = false;
-    let lastErr = '';
-    for (const method of methods) {
-      try {
-        const res = await fetch(url, {method: method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(data,null,2)});
-        if (res.ok) {
-          $('overridesUploadStatus').textContent = '✓ Залито! (' + method + ') Статусы видны всем после перезагрузки';
-          success = true;
-          break;
-        } else {
-          const bodyText = await res.text().catch(() => '');
-          lastErr = method + ' ' + res.status + ': ' + bodyText.slice(0, 200);
-        }
-      } catch (e) {
-        lastErr = method + ' error: ' + (e.message || e);
-      }
-    }
-    if (!success) throw new Error(lastErr || 'All methods failed');
-  }catch(e){
-    const msg = (e && e.message) ? String(e.message) : String(e);
-    let hint = 'Ошибка: ';
-    if (msg.includes('404') || msg.includes('Not Found')) {
-      hint += 'Возможно, это docs-ссылка npoint.io (нужен api.npoint.io/...). Проверь URL.';
-    } else if (msg.includes('403') || msg.includes('Forbidden')) {
-      hint += 'Доступ запрещён — проверь права или токен.';
-    } else if (msg.includes('CORS') || msg.includes('NetworkError')) {
-      hint += 'CORS/сетевой блок — попробуй через gist или jsonbin, или используй Python-скрипт.';
-    } else {
-      hint += 'Нужен npoint/jsonbin. Проверь что URL правильный (api.npoint.io/ID) и попробуй ещё раз.';
-    }
-    $('overridesUploadStatus').textContent = hint + ' (' + msg.slice(0, 120) + ')';
+    $('overridesUploadStatus').textContent = explainUploadFailure(result);
   }
 };
 </script>

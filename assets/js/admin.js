@@ -6,10 +6,13 @@ import { STORAGE_KEYS } from './config.js';
 import { esc } from './utils.js';
 import {
   loadOverrides, saveOverrides, isAdmin, setAdmin,
-  getEffectiveStatus, getEffectiveFlag,
+  getEffectiveStatus, getEffectiveFlag, getBaseFlag,
   getStoredPinHash, setStoredPinHash, removeStoredPin,
-  validateAndHashPin, clearOverridesCache
+  validateAndHashPin, clearOverridesCache,
+  getRemoteOverridesUrl, getRemoteGamesUrl
 } from './storage.js';
+import { uploadJsonToRemote, explainUploadFailure } from './remote.js';
+import { expandGenreQuery } from './genres.js';
 
 function renderPrompt() {
   const hasPin = !!getStoredPinHash();
@@ -31,27 +34,33 @@ function renderPrompt() {
 function renderList(games) {
   const overrides = loadOverrides();
   const totalOverrides = Object.keys(overrides).length;
+  // Показываем эффективные URL: ручные (localStorage) > из data/remote.json
   let remoteUrl = '';
   let remoteGamesUrl = '';
   try {
     remoteUrl = localStorage.getItem('mikkleo_remote_overrides_url') || '';
     remoteGamesUrl = localStorage.getItem('mikkleo_remote_games_url') || '';
   } catch {}
+  if (!remoteUrl) remoteUrl = getRemoteOverridesUrl() || '';
+  if (!remoteGamesUrl) remoteGamesUrl = getRemoteGamesUrl() || '';
+  const hiddenCount = games.filter(g => getEffectiveFlag(g, 'isHidden')).length;
   const html = games.map(g => {
     const eff = getEffectiveStatus(g);
     const gachaOn = getEffectiveFlag(g, 'isGacha');
     const mpOn = getEffectiveFlag(g, 'isMultiplayer');
     const coopOn = getEffectiveFlag(g, 'isCoop');
+    const hiddenOn = getEffectiveFlag(g, 'isHidden');
     const isOverridden = !!overrides[g.id];
     const statusIsOverridden = isOverridden && overrides[g.id].status !== undefined;
     return `
-      <div class="admin-row ${isOverridden ? 'has-override' : ''}" data-id="${esc(g.id)}" data-title="${esc((g.title || '').toLowerCase())}">
+      <div class="admin-row ${isOverridden ? 'has-override' : ''} ${hiddenOn ? 'admin-row-hidden' : ''}" data-id="${esc(g.id)}" data-title="${esc((g.title || '').toLowerCase())}" data-genre="${esc((g.genre || '').toLowerCase())}">
         <img class="admin-cover" src="${esc(g.image || '')}" alt="" onerror="this.style.visibility='hidden'">
         <div>
           <div class="admin-title">${esc(g.title || 'Без названия')}</div>
-          <div style="font-size:11px; color:var(--muted); margin-top:2px;">${esc(g.genre || '')} · ${g.year || ''}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">${esc(g.genre || '')} · ${g.year || ''}${hiddenOn ? ' · 🙈 скрыта от зрителей' : ''}</div>
         </div>
         <div class="admin-controls">
+          <button class="admin-flag hide ${hiddenOn ? 'on' : ''}" data-flag="isHidden" title="Скрыть от зрителей / показать">🙈</button>
           <button class="admin-flag ${gachaOn ? 'on' : ''}" data-flag="isGacha" title="Гача">💫</button>
           <button class="admin-flag mp ${mpOn ? 'on' : ''}" data-flag="isMultiplayer" title="Мультиплеер">🕹️</button>
           <button class="admin-flag coop ${coopOn ? 'on' : ''}" data-flag="isCoop" title="Кооп">🤝</button>
@@ -74,28 +83,29 @@ function renderList(games) {
     </div>
 
     <div class="admin-meta-info" style="margin-bottom:12px; display:flex; flex-direction:column; gap:10px;">
-      <div><b>Для стримера без доступа к репе:</b> укажи URL удалённых JSON (gist, npoint.io). Тогда все зрители увидят статусы и новые игры без пуша в GitHub.</div>
+      <div><b>Для стримера без доступа к репе:</b> статусы и новые игры хранятся в удалённом JSON. Рекомендуемое хранилище — <b>Pantry</b> (getpantry.cloud, бесплатная запись из браузера).</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
         <span style="font-size:11px; min-width:70px;">Статусы:</span>
-        <input id="remoteUrlInput" type="text" value="${esc(remoteUrl)}" placeholder="https://api.npoint.io/.../overrides" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
+        <input id="remoteUrlInput" type="text" value="${esc(remoteUrl)}" placeholder="https://getpantry.cloud/apiv1/pantry/ID/basket/mikkleo-statuses" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
         <button class="btn-action" id="saveRemoteUrlBtn" style="height:36px;">💾 URL</button>
         <button class="btn-action" id="exportToRemoteBtn" style="height:36px; background:rgba(124,255,178,.15); color:var(--accent2); border-color:rgba(124,255,178,.3);">⬆️ Статусы</button>
       </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
         <span style="font-size:11px; min-width:70px;">Игры Playnite:</span>
-        <input id="remoteGamesUrlInput" type="text" value="${esc(remoteGamesUrl)}" placeholder="https://api.npoint.io/.../games или gist raw library.json" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
+        <input id="remoteGamesUrlInput" type="text" value="${esc(remoteGamesUrl)}" placeholder="https://getpantry.cloud/apiv1/pantry/ID/basket/mikkleo-games" style="flex:1; min-width:180px; height:36px; padding:0 12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:12px;">
         <button class="btn-action" id="saveRemoteGamesUrlBtn" style="height:36px;">💾 URL</button>
       </div>
       <div style="font-size:11px; color:var(--muted); line-height:1.4;">
         Статусы: <b>${esc(remoteUrl || './data/overrides.json')}</b> | Игры: <b>${esc(remoteGamesUrl || '(не задано)')}</b><br>
-        Скрипт для заливки игр без репы: <code>python scripts/upload_playnite_remote.py --input library.json --remote-url https://api.npoint.io/ID_GAMES</code><br>
+        Скрипт для заливки игр без репы: <code>python scripts/upload_playnite_remote.py --input library.json --remote-url https://getpantry.cloud/apiv1/pantry/ID/basket/mikkleo-games</code><br>
         Инструкция: <code>PLAYNITE.md</code> и <code>STREAMER_NO_REPO.md</code>
       </div>
     </div>
 
     <div class="admin-list" id="adminList">${html}</div>
     <div class="admin-meta-info">
-      Локальных правок: <b>${totalOverrides}</b>. Правки хранятся только в этом браузере.
+      Локальных правок: <b>${totalOverrides}</b> · Скрыто от зрителей: <b>${hiddenCount}</b>.
+      Правки хранятся только в этом браузере до заливки (⬆️ Статусы — тогда статусы и скрытые игры увидят все).
       Скачайте JSON, чтобы перенести на другое устройство. Для публикации без доступа к репе — используй удалённый URL выше.
     </div>
   `;
@@ -204,13 +214,20 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
 
     contentEl.innerHTML = renderList(games);
 
-    // Search filter — O(n) hide/show, not re-render
+    // Search filter — O(n) hide/show, not re-render. Ищет и по названию,
+    // и по жанру (с алиасами: «шутер» найдёт строки с жанром Shooter).
     const search = document.getElementById('adminSearch');
     if (search) {
       search.addEventListener('input', () => {
         const q = search.value.toLowerCase().trim();
+        const genreTerms = q ? expandGenreQuery(q) : [];
         contentEl.querySelectorAll('.admin-row').forEach(r => {
-          r.style.display = (!q || r.dataset.title.includes(q)) ? '' : 'none';
+          const genre = r.dataset.genre || '';
+          const hit = !q
+            || r.dataset.title.includes(q)
+            || genre.includes(q)
+            || genreTerms.some(t => genre.includes(t));
+          r.style.display = hit ? '' : 'none';
         });
       });
     }
@@ -248,63 +265,27 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
 
     if (exportRemoteBtn) {
       exportRemoteBtn.addEventListener('click', async () => {
-        let url = '';
-        try {
-          url = localStorage.getItem('mikkleo_remote_overrides_url') || '';
-        } catch {}
+        // URL для заливки: то, что сейчас в поле > localStorage > data/remote.json
+        let url = (remoteInput && remoteInput.value.trim()) || '';
         if (!url) {
-          showToast('Сначала сохрани URL удалённого хранилища');
+          try { url = localStorage.getItem('mikkleo_remote_overrides_url') || ''; } catch {}
+        }
+        if (!url) url = getRemoteOverridesUrl() || '';
+        if (!url) {
+          showToast('Сначала сохрани URL удалённого хранилища (или пропиши его в data/remote.json)');
           return;
         }
-        url = url.trim();
-        // Auto-fix common mistake: docs URL instead of API URL for npoint.io
-        const docsMatch = url.match(/https?:\/\/www\.npoint\.io\/docs\/([a-f0-9]+)/);
-        if (docsMatch) {
-          url = 'https://api.npoint.io/' + docsMatch[1];
-          showToast('URL исправлен: ' + url);
-        }
         const data = loadOverrides();
-        try {
-          showToast('Заливаю...');
-          // Try POST, PUT, PATCH (like Python script upload_playnite_remote.py)
-          const methods = ['POST', 'PUT', 'PATCH'];
-          let success = false;
-          let lastErr = '';
-          for (const method of methods) {
-            try {
-              const res = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data, null, 2)
-              });
-              if (res.ok) {
-                showToast('✓ Удалённо сохранено! (' + method + ') Зрители увидят после перезагрузки');
-                success = true;
-                break;
-              } else {
-                const bodyText = await res.text().catch(() => '');
-                lastErr = method + ' ' + res.status + ': ' + bodyText.slice(0, 200);
-              }
-            } catch (e) {
-              lastErr = method + ' error: ' + (e.message || e);
-            }
-          }
-          if (!success) {
-            throw new Error(lastErr || 'All methods failed');
-          }
-        } catch (e) {
-          const msg = (e && e.message) ? String(e.message) : String(e);
-          let hint = 'Не удалось залить напрямую.';
-          if (msg.includes('404') || msg.includes('Not Found')) {
-            hint += ' Возможно, это docs-ссылка npoint.io (нужен api.npoint.io/...). Проверь URL.';
-          } else if (msg.includes('403') || msg.includes('Forbidden')) {
-            hint += ' Доступ запрещён — проверь права или токен.';
-          } else if (msg.includes('CORS') || msg.includes('NetworkError')) {
-            hint += ' CORS/сетевой блок — попробуй через gist или jsonbin, или используй Python-скрипт.';
-          } else {
-            hint += ' Нужен npoint/jsonbin. Проверь что URL правильный (api.npoint.io/ID) и попробуй ещё раз.';
-          }
-          showToast(hint + ' (' + msg.slice(0, 120) + ')');
+        if (!Object.keys(data).length) {
+          const ok = confirm('Локально правок нет. Заливка ПОЛНОСТЬЮ ЗАМЕНИТ удалённое хранилище пустым набором — удалённые статусы и скрытые метки пропадут у зрителей. Продолжить?');
+          if (!ok) return;
+        }
+        showToast('Заливаю на ' + url + ' ...');
+        const result = await uploadJsonToRemote(url, data);
+        if (result.ok) {
+          showToast('✓ Удалённо сохранено! (' + result.method + ' → ' + result.provider + ') Зрители увидят после перезагрузки');
+        } else {
+          showToast(explainUploadFailure(result));
         }
       });
     }
@@ -337,18 +318,19 @@ export function createAdminPanel({ games, onDataChanged, showToast }) {
           const overrides = loadOverrides();
           if (!overrides[id]) overrides[id] = {};
           const current = getEffectiveFlag(gameObj, flag);
-          if (overrides[id][flag] === undefined) {
-            overrides[id][flag] = !current;
-            if (overrides[id][flag] === !!gameObj[flag]) delete overrides[id][flag];
-          } else {
-            overrides[id][flag] = !overrides[id][flag];
-            if (overrides[id][flag] === !!gameObj[flag]) delete overrides[id][flag];
-          }
+          const base = getBaseFlag(gameObj, flag); // remote -> дефолт каталога
+          const target = !current;
+          // Локальный оверрайд нужен только если его значение отличается от базового
+          // (иначе он бессмысленный). Так можно и СНЯТЬ удалённый флаг (local=false при
+          // remote=true), и удалить свой ранее выставленный локальный флаг.
+          if (target === base) delete overrides[id][flag];
+          else overrides[id][flag] = target;
           if (Object.keys(overrides[id]).length === 0) delete overrides[id];
           saveOverrides(overrides);
           // toggle button UI immediately
           const newVal = getEffectiveFlag(gameObj, flag);
           btn.classList.toggle('on', newVal);
+          if (flag === 'isHidden') row.classList.toggle('admin-row-hidden', newVal);
           if (overrides[id]) row.classList.add('has-override');
           else row.classList.remove('has-override');
           onDataChanged();

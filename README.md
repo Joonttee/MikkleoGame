@@ -33,10 +33,11 @@
 │   │   └── style.css       # оптимизированный, дедуплицированные медиа-запросы
 │   ├── js/
 │   │   ├── app.js          # главный модуль (ESM)
-│   │   ├── config.js       # константы STATUS_MAP, SEARCH_MAP, ключи
+│   │   ├── config.js       # константы STATUS_MAP, SEARCH_MAP, GENRE_GROUPS, ключи
 │   │   ├── utils.js        # esc, expandQuery, debounce, hashPin
 │   │   ├── storage.js      # кэшированный loadOverrides, PIN
 │   │   ├── theme.js        # переключение тем
+│   │   ├── genres.js       # канонические жанровые группы, алиасы для поиска (RU/EN)
 │   │   ├── filters.js      # filterGames + sortGames (чистые функции)
 │   │   ├── render.js       # рендер с DocumentFragment + single-pass stats
 │   │   ├── modal.js        # модалка игры
@@ -62,6 +63,9 @@
 - ✅ **Single-pass stats:** раньше 3× `GAMES.filter()` → теперь 1 проход
 - ✅ **DocumentFragment:** рендер 72+ карточек без thrashing
 - ✅ **Debounce 120ms** на поиск + `scrollbar-gutter: stable`
+- ✅ **Поиск по жанрам:** алиасы RU/EN («шутер» → Shooter, «рпг» → Ролевые (RPG), «гонки» → Racing),
+  смешанные жанры каталога (Playnite RU + Steam EN) сведены в канонические группы (`genres.js`);
+  фильтр жанров строится динамически из данных с количеством игр («Экшены (468)»)
 - ✅ **Убран CORS fallback** на `twitch.tv`, оставлены только `api.ivr.fi` + `decapi.me`
 - ✅ **CSS:** `contain: content; will-change: transform` на карточках, объединены медиа-запросы, сокращён с 37КБ до 31КБ
 - ✅ **ES Modules:** `type="module"` → браузер кэширует отдельно CSS/JS/JSON
@@ -139,12 +143,29 @@ python scripts/sync_covers.py
 
 ---
 
+## 🕹️🤝 Мультиплеер и кооп флаги
+
+Вкладки **🕹️ MP** и **🤝 Coop** заполняются флагами `isMultiplayer` / `isCoop`:
+
+- **Каталог размечен заранее:** `data/mp_coop.json` — курируемый список (149 MP + 100 Coop + 26 оба),
+  применяется скриптом `python scripts/apply_multiplayer_flags.py` (идемпотентно, только включает флаги).
+- **Авто-детект при импорте:** `import_playnite.py` и клиентский конвертер смотрят на Playnite `Features`
+  («Online Multiplayer» → MP, «Online Co-op» → только Coop, «PvP» → MP, MMO-жанры → MP).
+- Семантика вкладок: **MP** — соревновательный/PvP/социальный/ММО; **Coop** — совместное прохождение против ИИ.
+  Игры с обоими режимами (Destiny 2, Elden Ring…) показаны в обеих вкладках.
+- Бейджи 🕹️ MP / 🤝 Coop видны на карточках и в модалке игры.
+- Стример может исправить любой флаг кнопками 🕹️/🤝 в админке — оверрайд имеет приоритет над дефолтом каталога.
+
+---
+
 ## 🔐 Админ-панель
 
 - Открыть: `Ctrl+Shift+A` или клик по шестерёнке (когда залогинен)
 - PIN: 4–6 цифр, хранится только в браузере (hash `djb2`)
 - Правки хранятся в `localStorage` (`mikkleo_streamer_overrides_v1`)
 - Можно скачать JSON и перенести на другое устройство
+- Кнопка ⬆️ Статусы заливает правки в удалённое хранилище (Pantry) — видят все зрители
+- 🙈 — скрыть игру от зрителей (у зрителей исчезает из сетки, статистики и топа жанров; у админа остаётся «призраком», чтобы вернуть обратно)
 
 ---
 

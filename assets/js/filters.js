@@ -3,6 +3,7 @@
  */
 import { expandQuery } from './utils.js';
 import { getEffectiveStatus, getEffectiveFlag } from './storage.js';
+import { expandGenreQuery, matchGenreGroup } from './genres.js';
 
 export function filterGames(games, { tab, genreValue, eraValue, searchQuery }) {
   let out = [...games];
@@ -15,10 +16,9 @@ export function filterGames(games, { tab, genreValue, eraValue, searchQuery }) {
   else if (tab === 'mp') out = out.filter(g => getEffectiveFlag(g, 'isMultiplayer'));
   else if (tab === 'coop') out = out.filter(g => getEffectiveFlag(g, 'isCoop'));
 
-  // Genre
+  // Genre — по каноническим группам (RU «Экшены» и EN «Action» — одна группа)
   if (genreValue && genreValue !== 'all') {
-    const gv = genreValue.toLowerCase();
-    out = out.filter(g => g.genre && g.genre.toLowerCase().includes(gv));
+    out = out.filter(g => matchGenreGroup(g.genre, genreValue));
   }
 
   // Era
@@ -26,10 +26,11 @@ export function filterGames(games, { tab, genreValue, eraValue, searchQuery }) {
   else if (eraValue === 'modern') out = out.filter(g => (g.year || 0) >= 2018 && (g.year || 0) <= 2023);
   else if (eraValue === 'retro') out = out.filter(g => (g.year || 0) < 2018);
 
-  // Search
+  // Search — название/альт.название/жанр/платформа/год
+  // + жанровые алиасы («шутер» ≈ shooter/fps, «рпг» ≈ RPG и т.д.)
   const q = (searchQuery || '').toLowerCase().trim();
   if (q) {
-    const terms = expandQuery(q);
+    const terms = [...new Set([...expandQuery(q), ...expandGenreQuery(q)])];
     out = out.filter(g => {
       const text = `${g.title || ''} ${g.altTitle || ''} ${g.genre || ''} ${g.platform || ''} ${g.year || ''}`.toLowerCase();
       return terms.some(t => text.includes(t));

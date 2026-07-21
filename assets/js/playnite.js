@@ -93,6 +93,28 @@ function extractCoverPath(game) {
 }
 
 /**
+ * Авто-детект флагов MP/Coop из Playnite Features + жанров.
+ * MP — PvP/соревновательный/ММО; Coop — совместное прохождение против ИИ.
+ * «Online Co-op» не содержит слова multiplayer — чистый кооп не помечается MP.
+ */
+function detectFlags(game, genreStr) {
+  const feats = game.Features || game.features || [];
+  const list = Array.isArray(feats) ? feats : [feats];
+  const blob = list.map(f => {
+    if (!f) return '';
+    return typeof f === 'object' ? (f.Name || f.name || '') : String(f);
+  }).join(' ').toLowerCase();
+  const genres = (genreStr || '').toLowerCase();
+
+  const hasCoop = blob.includes('co-op') || blob.includes('coop');
+  const hasMp = blob.includes('pvp') || blob.includes('versus') || blob.includes('multiplayer')
+    || blob.includes('mmo') || blob.includes('massively')
+    || blob.includes('shared/split') || blob.includes('split screen')
+    || genres.includes('многопользовательск') || genres.includes('massively');
+  return { isMultiplayer: hasMp, isCoop: hasCoop };
+}
+
+/**
  * Convert Playnite game list to Mikkleo format
  * @param {Array} playniteGames - raw array from library.json
  * @param {Set} existingIds - set of existing ids to avoid collision
@@ -116,6 +138,7 @@ export function convertPlayniteToMikkleo(playniteGames, existingIds = new Set(),
     const genre = extractGenres(pg);
     const platform = extractPlatform(pg);
     const coverPath = extractCoverPath(pg);
+    const flags = detectFlags(pg, genre);
 
     let baseSlug = slugify(name);
     let gid = baseSlug;
@@ -150,8 +173,8 @@ export function convertPlayniteToMikkleo(playniteGames, existingIds = new Set(),
       altTitle: '',
       status: null,
       isGacha: false,
-      isMultiplayer: false,
-      isCoop: false,
+      isMultiplayer: flags.isMultiplayer,
+      isCoop: flags.isCoop,
       _playniteId: pg.Id || pg.id || '',
       _playniteCover: coverPath
     });

@@ -4,39 +4,45 @@ Mikkleo Games — загрузка игр из Playnite без доступа к
 
 Сценарий для стримера у которого НЕТ доступа к репозиторию сайта:
 
-1. Владелец один раз создаёт 2 хранилища на npoint.io (или gist):
-   - для оверрайдов (статусы): https://api.npoint.io/<ID1>
-   - для игр (library): https://api.npoint.io/<ID2>
+1. Владелец один раз создаёт хранилище на Pantry (getpantry.cloud, бесплатно):
+   - Pantry ID → две корзины: mikkleo-statuses и mikkleo-games
+   - URL вида: https://getpantry.cloud/apiv1/pantry/<PANTRY_ID>/basket/mikkleo-games
    И прописывает их в data/remote.json:
    {
-     "overridesUrl": "https://api.npoint.io/<ID1>",
-     "gamesUrl": "https://api.npoint.io/<ID2>"
+     "overridesUrl": "https://getpantry.cloud/apiv1/pantry/<PANTRY_ID>/basket/mikkleo-statuses",
+     "gamesUrl": "https://getpantry.cloud/apiv1/pantry/<PANTRY_ID>/basket/mikkleo-games"
    }
 
 2. Стример ставит Playnite + Game Data Exporter (см. PLAYNITE.md)
    -> получается library.json
 
 3. Стример запускает ЭТОТ скрипт на своём ПК (без клонирования репы, достаточно скачать 2 файла):
-   python upload_playnite_remote.py --input "%APPDATA%\Playnite\ExtensionsData\...\library.json" --remote-url https://api.npoint.io/<ID2>
+   python upload_playnite_remote.py --input "%APPDATA%\Playnite\ExtensionsData\...\library.json" --remote-url https://getpantry.cloud/apiv1/pantry/<PANTRY_ID>/basket/mikkleo-games
 
    Скрипт:
    - конвертит Playnite library в формат Mikkleo (как import_playnite.py)
-   - делает POST на указанный remote URL
+   - по умолчанию АДДИТИВНО мержит с текущей корзиной (GET -> merge -> POST):
+     старые удалённые игры не пропадут, даже если library.json неполный.
+     Для зеркальной замены списка (чистка) используй флаг --replace
+   - заливает на указанный remote URL (для Pantry — одним POST, массив игр
+     оборачивается в {"games": [...]} — сайт при чтении сам развернёт)
    - теперь сайт автоматически подтянет новые игры (fetch gamesUrl) и покажет всем зрителям
 
 4. Для статусов (Пройдено и т.д.) стример использует админку сайта:
-   Ctrl+Shift+A -> меняет статусы -> в админке вставляет overridesUrl (ID1) -> Залить туда JSON
+   Ctrl+Shift+A -> меняет статусы -> кнопка "⬆️ Статусы" зальёт их в хранилище
+   (URL подхватится из data/remote.json автоматически)
 
 Всё — без единого git push, без доступа к репе.
 
-Также поддерживает Gist:
-- Создай gist с файлом games.json, возьми raw URL
-- Используй --remote-url https://gist.github.com/... но для gist нужен другой способ заливки (через API gist.github.com, нужен токен)
-- Для простоты используй npoint.io
+Другие провайдеры:
+- jsonbin.io — PUT на https://api.jsonbin.io/v3/b/{BIN_ID}, нужен ключ
+  (аргумент --api-key или переменная окружения JSONBIN_MASTER_KEY).
+- Gist — напрямую записать нельзя (нужен токен GitHub), правьте руками.
 """
 
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
@@ -149,10 +155,64 @@ def convert_playnite(playnite_games):
         })
     return out
 
+def detect_provider(url: str) -> str:
+    u = (url or "").lower()
+    if "getpantry.cloud" in u:
+        return "pantry"
+    if "jsonbin.io" in u:
+        return "jsonbin"
+    return "generic"
+
+
+def fetch_remote_games(url: str) -> list:
+    """GET текущей корзины: список уже лежащих там игр ([], если пусто/ошибка/не найдено).
+
+    Разворачивает обёртки pantry ({"games": [...]}), jsonbin ({"record": ...}),
+    playnite-стиля ({"Games": [...]}) и сырой массив.
+    """
+    try:
+        req = urllib.request.Request(url, method="GET", headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            j = json.loads(resp.read().decode("utf-8", errors="ignore"))
+    except Exception:
+        return []
+    if isinstance(j, list):
+        return j
+    if isinstance(j, dict):
+        if isinstance(j.get("games"), list):
+            return j["games"]
+        if isinstance(j.get("Games"), list):
+            return j["Games"]
+        rec = j.get("record")
+        if isinstance(rec, list):
+            return rec
+        if isinstance(rec, dict) and isinstance(rec.get("games"), list):
+            return rec["games"]
+    return []
+
+
+def merge_games(existing: list, incoming: list) -> list:
+    """Аддитивная склейка без потерь: существующие записи остаются первыми
+    (вместе с их id — на них завязаны статусы), добавляем только отсутствующие"""
+    out, seen = [], set()
+    for g in list(existing or []) + list(incoming or []):
+        if not isinstance(g, dict):
+            continue
+        title = g.get("title") or g.get("Name") or g.get("name") or ""
+        k = normalize_title(title)
+        if not k or k in seen:
+            continue
+        seen.add(k)
+        out.append(g)
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser(description="Загрузка игр из Playnite в удалённое хранилище без доступа к репе")
     parser.add_argument("--input", required=True, help="Путь к library.json из Playnite")
-    parser.add_argument("--remote-url", required=True, help="URL удалённого хранилища (npoint.io, jsonbin, и т.д.) куда POSTить")
+    parser.add_argument("--remote-url", required=True, help="URL удалённого хранилища (Pantry/jsonbin), куда заливать")
+    parser.add_argument("--api-key", default=os.environ.get("JSONBIN_MASTER_KEY", ""), help="Ключ для jsonbin.io (или env JSONBIN_MASTER_KEY)")
+    parser.add_argument("--replace", action="store_true", help="Полностью заменить список в хранилище (зеркало library.json). По умолчанию — только добавить новые к существующим")
     parser.add_argument("--dry-run", action="store_true", help="Только показать, не заливать")
     args = parser.parse_args()
 
@@ -184,13 +244,43 @@ def main():
         print("[i] Dry run — не заливаю")
         return
 
-    payload = json.dumps(converted, ensure_ascii=False, indent=2).encode("utf-8")
-    print(f"[i] Заливаю на {args.remote_url} ({len(payload)} байт)...")
+    provider = detect_provider(args.remote_url)
 
-    # Try POST (npoint) and PUT
-    for method in ("POST", "PUT", "PATCH"):
+    # По умолчанию — аддитивная заливка: читаем текущую корзину и дозаливаем
+    # только новые, чтобы старые удалённые игры не пропадали при неполном
+    # или «чужом» library.json. --replace = зеркальная замена (для чистки).
+    to_upload = converted
+    if not args.replace:
+        existing = fetch_remote_games(args.remote_url)
+        to_upload = merge_games(existing, converted)
+        print(f"[i] В хранилище сейчас: {len(existing)}; добавится новых: {len(to_upload) - len(existing)}; всего после заливки: {len(to_upload)}")
+    else:
+        print(f"[i] Режим --replace: старый список в хранилище будет полностью перезаписан ({len(converted)} игр)")
+
+    # Для Pantry оборачиваем массив в объект — Pantry надёжнее принимает
+    # верхнеуровневый объект, а сайт при чтении сам развернёт { games: [...] }.
+    to_send = {"games": to_upload} if provider == "pantry" else to_upload
+    payload = json.dumps(to_send, ensure_ascii=False, indent=2).encode("utf-8")
+
+    headers = {"Content-Type": "application/json"}
+    if provider == "jsonbin" and args.api_key:
+        headers["X-Master-Key"] = args.api_key
+
+    # Методы под провайдера:
+    # - pantry: только POST (create/replace). PUT там deep-merge — удалённые игры не исчезнут.
+    # - jsonbin: PUT — задокументированный метод обновления бина.
+    # - generic: перебираем всё.
+    methods = {
+        "pantry": ("POST",),
+        "jsonbin": ("PUT",),
+    }.get(provider, ("POST", "PUT", "PATCH"))
+
+    print(f"[i] Провайдер: {provider}. Заливаю на {args.remote_url} ({len(payload)} байт)...")
+
+    last_err = ""
+    for method in methods:
         try:
-            req = urllib.request.Request(args.remote_url, data=payload, method=method, headers={"Content-Type": "application/json"})
+            req = urllib.request.Request(args.remote_url, data=payload, method=method, headers=headers)
             with urllib.request.urlopen(req, timeout=15) as resp:
                 body = resp.read().decode("utf-8", errors="ignore")[:500]
                 print(f"[✓] {method} OK {resp.status}: {body[:200]}")
@@ -198,11 +288,18 @@ def main():
                 print(f"[i] Убедись что в data/remote.json прописано:\n{{\n  \"gamesUrl\": \"{args.remote_url}\"\n}}")
                 return
         except urllib.error.HTTPError as e:
-            print(f"[!] {method} failed {e.code}: {e.read().decode()[:300]}")
+            last_err = f"{method} HTTP {e.code}: {e.read().decode(errors='ignore')[:300]}"
+            print(f"[!] {last_err}")
+            if e.code in (401, 402, 403):
+                print("[!] Хранилище отказало в записи. Проверь URL, либо используй Pantry (getpantry.cloud):")
+                print("[!] https://getpantry.cloud/apiv1/pantry/<PANTRY_ID>/basket/mikkleo-games")
+                sys.exit(2)
         except Exception as e:
-            print(f"[!] {method} error: {e}")
+            last_err = f"{method} error: {e}"
+            print(f"[!] {last_err}")
 
-    print("[!] Не удалось залить. Если используешь gist — нужен GitHub API с токеном. Для npoint попробуй создать новый ID.")
+    print(f"[!] Не удалось залить ({last_err}). Рекомендуемое хранилище — Pantry (getpantry.cloud).")
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()
