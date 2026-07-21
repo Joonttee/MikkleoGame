@@ -35,9 +35,12 @@ html[data-theme="lavender"]{
   --accent2:#C4B5FD;--accent2-glow:rgba(196,181,253,.3);--accent3:#FF8FB3;--accent3-glow:rgba(255,143,179,.3);--warning:#FFD166;
 }
 html[data-theme="arctic"]{
-  --bg:#F2F6FC;--card:#FFFFFF;--card2:#EBF0F7;--border:#D6DEE8;--border2:#B8C5D6;
-  --text:#0F1A2A;--muted:#5A6B82;--accent:#2563EB;--accent-glow:rgba(37,99,235,.25);
-  --accent2:#16A34A;--accent2-glow:rgba(22,163,74,.25);--accent3:#DB2777;--accent3-glow:rgba(219,39,119,.25);--warning:#D97706;
+  --bg:#EEF3FA;--card:#FFFFFF;--card2:#E6ECF5;--border:#CBD6E4;--border2:#A9BACF;
+  --text:#101B2C;--muted:#48586F;--accent:#1D4ED8;--accent-glow:rgba(37,99,235,.22);
+  --accent2:#15803D;--accent2-glow:rgba(22,163,74,.22);--accent3:#BE185D;--accent3-glow:rgba(219,39,119,.22);--warning:#92400E;
+  /* extra surfaces used by hard-coded dark backgrounds in dark themes */
+  --surface-soft:rgba(16,27,44,.05);
+  --surface-soft2:rgba(16,27,44,.08);
 }
 html[data-theme="arctic"] .header{background:rgba(255,255,255,.78);border-bottom-color:var(--border)}
 html[data-theme="arctic"] .modal-back{background:rgba(15,26,42,.55)}
@@ -345,3 +348,71 @@ html[data-theme="arctic"] .admin-fab{background:rgba(255,255,255,.95)}
   .social-grid{grid-template-columns:repeat(4,1fr);gap:3px}.social-link{font-size:9px;padding:4px 6px}.profile-avatar{width:64px;height:64px}
 }
 @media (max-width:340px){.grid{grid-template-columns:repeat(1,1fr);gap:12px}}
+
+/* ==========================================================
+   Arctic (Light) theme — читаемость текста
+   В тёмных темах фоны панелей жёстко заданы как тёмные rgba.
+   В светлой теме они дают тёмный фон под тёмным текстом,
+   поэтому ниже они заменены на светлые поверхности, а яркие
+   цвета текста/иконок усилены для достаточного контраста.
+   ========================================================== */
+
+/* --- Панели и поверхности с жёстким тёмным фоном --- */
+html[data-theme="arctic"] .tab-btn{background:var(--card);border-color:var(--border);color:var(--muted)}
+html[data-theme="arctic"] .tab-btn:hover{color:var(--text);border-color:var(--accent)}
+html[data-theme="arctic"] .controls-bar{background:var(--card);border-color:var(--border)}
+html[data-theme="arctic"] .badge-stat{background:rgba(255,255,255,.82);border-color:var(--border2);color:var(--text);box-shadow:0 2px 10px rgba(16,27,44,.08)}
+html[data-theme="arctic"] .badge-stat strong{color:var(--accent)}
+html[data-theme="arctic"] .search-shortcut{background:var(--surface-soft2);border-color:var(--border);color:var(--muted)}
+html[data-theme="arctic"] .search-clear{background:var(--surface-soft2);color:var(--muted)}
+html[data-theme="arctic"] .search-clear:hover{background:var(--accent3);color:#fff}
+html[data-theme="arctic"] .search-wrap input::placeholder{color:var(--muted);opacity:.85}
+
+/* --- Активные вкладки: тёмный текст на цветном фоне не читается --- */
+html[data-theme="arctic"] .tab-btn.active-all{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+html[data-theme="arctic"] .tab-btn.active-in_progress{background:rgba(37,99,235,.12);color:var(--accent);border-color:var(--accent)}
+html[data-theme="arctic"] .tab-btn.active-completed{background:rgba(22,163,74,.14);color:#0F6B30;border-color:var(--accent2)}
+html[data-theme="arctic"] .tab-btn.active-planned{background:rgba(180,83,9,.14);color:var(--warning);border-color:var(--warning)}
+html[data-theme="arctic"] .tab-btn.active-gacha{background:rgba(190,24,93,.12);color:var(--accent3);border-color:var(--accent3)}
+html[data-theme="arctic"] .tab-btn.active-coop{background:rgba(22,163,74,.14);color:#0F6B30;border-color:var(--accent2)}
+
+/* --- Кнопки/элементы с тёмным текстом на акценте --- */
+html[data-theme="arctic"] .btn-action:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+html[data-theme="arctic"] .toast{background:var(--accent);color:#fff;box-shadow:0 10px 30px var(--accent-glow)}
+html[data-theme="arctic"] .logo-mark{color:#fff;box-shadow:0 4px 18px var(--accent-glow)}
+html[data-theme="arctic"] .back-to-top:hover{background:var(--accent);color:#fff}
+
+/* --- Карточка профиля: почти невидимый полупрозрачный фон --- */
+html[data-theme="arctic"] .profile-card{background:linear-gradient(135deg,rgba(37,99,235,.08),rgba(22,163,74,.06));border-color:rgba(37,99,235,.28)}
+html[data-theme="arctic"] .profile-stream-status{background:rgba(190,24,93,.1);border-color:rgba(190,24,93,.28);color:var(--accent3)}
+html[data-theme="arctic"] .profile-stream-status.unknown{background:var(--surface-soft);border-color:var(--border);color:var(--muted)}
+
+/* --- Соцсети: яркие цвета на полупрозрачном фоне = низкий контраст --- */
+html[data-theme="arctic"] .social-tg{background:rgba(42,171,238,.14);border-color:rgba(42,171,238,.35);color:#0666A0}
+html[data-theme="arctic"] .social-yt{background:rgba(255,0,0,.1);border-color:rgba(255,0,0,.3);color:#C70000}
+html[data-theme="arctic"] .social-vk{background:rgba(0,119,255,.12);border-color:rgba(0,119,255,.32);color:#1B5FBE}
+html[data-theme="arctic"] .social-boosty{background:rgba(255,107,0,.12);border-color:rgba(255,107,0,.32);color:#B34700}
+html[data-theme="arctic"] .social-steam{background:rgba(102,192,244,.16);border-color:rgba(102,192,244,.4);color:#1B6CA8}
+html[data-theme="arctic"] .social-da{background:linear-gradient(135deg,rgba(255,107,0,.14),rgba(255,193,7,.12));border-color:rgba(255,107,0,.36);color:#A04E00}
+html[data-theme="arctic"] .social-tw{background:linear-gradient(135deg,rgba(145,70,255,.14),rgba(169,112,255,.1));border-color:rgba(145,70,255,.4);color:#6D28D9}
+
+/* --- Статус-бейджи: в list-режиме лежат на белом фоне карточки --- */
+html[data-theme="arctic"] .status-completed{background:rgba(22,163,74,.14);color:#0F6B30;border-color:rgba(22,163,74,.6)}
+html[data-theme="arctic"] .status-in_progress{background:rgba(37,99,235,.14);color:#1D4ED8;border-color:rgba(37,99,235,.6)}
+html[data-theme="arctic"] .status-planned{background:rgba(146,64,14,.14);color:var(--warning);border-color:rgba(146,64,14,.6)}
+html[data-theme="arctic"] .status-none{background:var(--surface-soft2);color:var(--muted);border-color:var(--border2)}
+html[data-theme="arctic"] .status-tag{text-shadow:none;box-shadow:0 2px 8px rgba(16,27,44,.12),0 0 0 1px rgba(16,27,44,.06)}
+
+/* --- Смягчить тёмный градиент поверх обложек --- */
+html[data-theme="arctic"] .card-cover::after{background:linear-gradient(180deg,rgba(16,27,44,.18) 0%,transparent 28%,transparent 100%)}
+html[data-theme="arctic"] .card{box-shadow:0 8px 20px rgba(16,27,44,.1)}
+html[data-theme="arctic"] .card:hover{box-shadow:0 16px 34px rgba(16,27,44,.16),0 0 18px var(--accent-glow)}
+html[data-theme="arctic"] .hero-card{box-shadow:0 16px 40px rgba(16,27,44,.14)}
+
+/* --- Модалка: кнопка закрытия и подложка --- */
+html[data-theme="arctic"] .modal-close{background:rgba(255,255,255,.92);border-color:var(--border2);color:var(--text)}
+html[data-theme="arctic"] .modal-close:hover{background:var(--accent3);color:#fff}
+html[data-theme="arctic"] .modal{box-shadow:0 30px 80px rgba(16,27,44,.28),0 0 30px var(--accent-glow)}
+
+/* --- Пустое состояние --- */
+html[data-theme="arctic"] .empty{background:var(--card);border-color:var(--border2)}
